@@ -1,0 +1,19 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+.DS_Store
+android/
+ios/
+*.keystore
+!debug.keystore
+.env*.local
+expo-env.d.ts
+
+# build verification output
+.expo-export-check/
+
+# EAS local build artifacts
+*.apk
+*.aab

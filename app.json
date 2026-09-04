@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Forte",
+    "slug": "forte",
+    "version": "1.0.0",
+    "orientation": "default",
+    "scheme": "forte",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.forte.tracker",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1C1C1C"
+      },
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-dark.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0A0A0B",
+          "dark": {
+            "image": "./assets/splash-dark.png",
+            "backgroundColor": "#0A0A0B"
+          }
+        }
+      ]
+    ],
+    "experiments": { "typedRoutes": true }
+  }
+}
