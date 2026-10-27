@@ -12,6 +12,10 @@ Download the APK from [Releases](../../releases) — see
 
 Requires Android 7.0+. Play Protect will warn about a sideloaded app; that is expected.
 
+**One-tap updates:** add Forte to [Obtainium](https://github.com/ImranR98/Obtainium) with
+`https://github.com/Tanmay-Anand/Forte`, and every new release becomes a notification and an
+**Update** button. See [`docs/RELEASING.md`](docs/RELEASING.md).
+
 ## Run it from source
 
 ```bash
@@ -31,7 +35,9 @@ ways to get a real installable APK.
 |---|---|
 | [`RELEASE_NOTES.md`](RELEASE_NOTES.md) | What it does, install steps, privacy, limitations, changelog |
 | [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md) | Build and install — Expo Go, emulator, EAS cloud, local Gradle |
+| [`docs/RELEASING.md`](docs/RELEASING.md) | Shipping updates — over-the-air vs new APK, the release workflow, Obtainium |
 | [`docs/DESIGN.md`](docs/DESIGN.md) | UI specification: tokens, screens, states, interaction, accessibility |
+| [`docs/DESIGN_SYSTEM_FORTE.md`](docs/DESIGN_SYSTEM_FORTE.md) | Design system as built: tokens, components, patterns, contrast audit, spec drift |
 | [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) | Stack evaluation, data model, rest-timer spec, battery analysis |
 
 ## Scripts
@@ -41,7 +47,7 @@ ways to get a real installable APK.
 | `npm start` | Dev server for Expo Go |
 | `npm run android` | Dev server, opening on a connected device or emulator |
 | `npm run typecheck` | TypeScript, strict |
-| `npm test` | 19 tests, plain Node — no test framework |
+| `npm test` | 26 tests, plain Node — no test framework |
 | `npm run build:apk` | Installable Android APK via EAS cloud build |
 | `npm run build:apk:unix` | Same build locally — **macOS/Linux/WSL2 only** |
 | `npm run prebuild` | Generate `android/` for a local Gradle build |

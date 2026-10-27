@@ -47,6 +47,7 @@ import { NumericKeypad } from '@/features/workout/NumericKeypad';
 import { RestPanel, WorkoutClock } from '@/features/workout/RestPanel';
 import { PreviousLine, SetTable } from '@/features/workout/SetTable';
 import { ExercisePicker } from '@/features/routine/ExercisePicker';
+import { ensureNotificationPermission } from '@/features/workout/workout-notification';
 
 type Keypad = { field: 'weight' | 'reps' } | null;
 
@@ -103,6 +104,13 @@ export default function ActiveWorkoutScreen() {
       void deactivateKeepAwake(KEEP_AWAKE_TAG);
     };
   }, [keepAwakeEnabled]);
+
+  // Lock-screen controls need POST_NOTIFICATIONS on Android 13+. Asked here,
+  // the first time a workout opens, because that is when the request makes sense.
+  const lockScreenControls = useSettings((s) => s.lockScreenControls);
+  useEffect(() => {
+    if (lockScreenControls) void ensureNotificationPermission();
+  }, [lockScreenControls]);
 
   // Pre-fill the wells so repeating a set costs zero taps (DESIGN.md 5.4.1).
   useEffect(() => {

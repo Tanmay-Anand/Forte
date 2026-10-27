@@ -2,7 +2,7 @@
   "expo": {
     "name": "Forte",
     "slug": "forte",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "default",
     "scheme": "forte",
     "userInterfaceStyle": "automatic",
@@ -13,12 +13,15 @@
     ],
     "android": {
       "package": "com.forte.tracker",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1C1C1C"
       },
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -34,6 +37,15 @@
             "image": "./assets/splash-dark.png",
             "backgroundColor": "#0A0A0B"
           }
+        }
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "visibility": "hidden",
+          "behavior": "overlay-swipe",
+          "position": "absolute",
+          "backgroundColor": "#0A0A0B"
         }
       ]
     ],

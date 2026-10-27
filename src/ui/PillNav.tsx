@@ -6,6 +6,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { useTheme } from './theme';
 import { NAV, radius, space } from './tokens';
 import { ResumeBar } from '@/features/workout/ResumeBar';
+import { UpdateBar } from '@/features/updates/UpdateBar';
 
 const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   index: 'home',
@@ -77,6 +78,7 @@ export function PillNav({ state, navigation }: BottomTabBarProps) {
       pointerEvents="box-none"
     >
       <View style={{ width: '100%', paddingHorizontal: space.l }} pointerEvents="box-none">
+        <UpdateBar />
         <ResumeBar />
       </View>
 

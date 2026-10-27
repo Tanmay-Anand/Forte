@@ -11,6 +11,7 @@ import { space } from '@/ui/tokens';
 import { useSettings, type ThemePreference } from '@/store/settings';
 import { exportCsv, exportJson, importJson } from '@/lib/export';
 import { vacuum } from '@/db/client';
+import { ensureNotificationPermission } from '@/features/workout/workout-notification';
 import type { Unit } from '@/lib/format';
 
 export default function SettingsScreen() {
@@ -105,6 +106,15 @@ export default function SettingsScreen() {
         help="Off saves roughly 4x the battery over an hour. Rest times stay exactly correct either way, because the timer reads the clock rather than counting ticks — so you can lock the phone between sets and lose nothing."
         value={s.keepAwake}
         onChange={(v) => s.set('keepAwake', v)}
+      />
+      <Toggle
+        label="Lock-screen controls"
+        help="During a workout, shows the rest stopwatch with Pause, Start set and Log set buttons on the lock screen and in the notification shade. Android draws the ticking digits itself from the saved start time, so it costs no battery and stays correct with the app closed."
+        value={s.lockScreenControls}
+        onChange={(v) => {
+          s.set('lockScreenControls', v);
+          if (v) void ensureNotificationPermission();
+        }}
       />
       <Toggle
         label="Reduce motion"
