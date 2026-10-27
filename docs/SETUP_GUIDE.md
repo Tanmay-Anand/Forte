@@ -46,7 +46,7 @@ npm run typecheck
 npm test
 ```
 
-Expected: `18/18 checks passed`, no TypeScript output, `pass 19` across two suites.
+Expected: no TypeScript output and `pass 26` across three suites. `expo-doctor` passes 17/18: it flags `@notifee/react-native` as unmaintained (see `RELEASE_NOTES.md`, v1.1.0).
 
 The rest-timer suite is the one to care about — backgrounding, pause/resume cycling,
 reset-while-paused, process death, a clock that moves backwards. The format suite guards a bug

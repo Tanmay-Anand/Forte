@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { AppState, View } from 'react-native';
+import { AppState, Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
+import * as NavigationBar from 'expo-navigation-bar';
 import {
   useFonts,
   Urbanist_400Regular,
@@ -15,6 +16,11 @@ import {
 import { checkpoint, initDatabase } from '@/db/client';
 import { seedAll } from '@/db/seed';
 import { useSettings } from '@/store/settings';
+import { useRevision } from '@/lib/db-hooks';
+import {
+  subscribeForegroundEvents,
+  syncWorkoutNotification,
+} from '@/features/workout/workout-notification';
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { palette } from '@/ui/tokens';
 
@@ -72,8 +78,53 @@ export default function RootLayout() {
   );
 }
 
+/**
+ * Hides Android's navigation bar (the gesture pill or the 3-button bar) while
+ * Forte is open, for an edge-to-edge screen at the bench. A swipe up from the
+ * bottom edge shows it temporarily over the app ('overlay-swipe'), so system
+ * back/home stay one gesture away and the layout never jumps.
+ *
+ * app.json sets the same state at launch so there is no flash of the bar;
+ * this re-applies it on every return to the foreground, because some OEM
+ * skins (MIUI/HyperOS among them) restore the bar after a trip to another app.
+ */
+function useImmersiveNavigationBar() {
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const hide = () => {
+      void NavigationBar.setBehaviorAsync('overlay-swipe').catch(() => {});
+      void NavigationBar.setVisibilityAsync('hidden').catch(() => {});
+    };
+    hide();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') hide();
+    });
+    return () => sub.remove();
+  }, []);
+}
+
+/**
+ * Keeps the lock-screen workout notification in step with the database.
+ * Mounted at the root rather than in Active Workout so it keeps working after
+ * the workout is minimised. Every write bumps the revision, so one effect
+ * covers logging, rest, skipping, finishing and discarding alike.
+ */
+function useWorkoutNotification() {
+  const rev = useRevision((s) => s.rev);
+  const enabled = useSettings((s) => s.lockScreenControls);
+  const unit = useSettings((s) => s.unit);
+
+  useEffect(() => {
+    void syncWorkoutNotification();
+  }, [rev, enabled, unit]);
+
+  useEffect(() => subscribeForegroundEvents(), []);
+}
+
 function Chrome() {
   const { c, name } = useTheme();
+  useImmersiveNavigationBar();
+  useWorkoutNotification();
   return (
     <>
       <StatusBar style={name === 'dark' ? 'light' : 'dark'} />

@@ -1,0 +1,75 @@
+# Publishes a signed APK to GitHub Releases whenever a version tag is pushed.
+# Obtainium on the phone watches those releases and offers a one-tap update.
+#
+#   git tag v1.1.0 && git push origin v1.1.0
+#
+# One-time setup: add an Expo access token as the repository secret EXPO_TOKEN
+# (docs/RELEASING.md). The APK is built and signed on EAS with the same
+# credentials as every previous build, so it installs over the existing app.
+
+name: Release APK
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Obtainium compares the release tag with the installed versionName, so a
+      # tag that disagrees with app.json would offer an update that never ends.
+      - name: Tag must match app.json version
+        run: |
+          APP_VERSION=$(node -p "require('./app.json').expo.version")
+          if [ "v$APP_VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match app.json version $APP_VERSION"
+            exit 1
+          fi
+
+      - run: npm run typecheck
+      - run: npm test
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build APK on EAS
+        run: eas build -p android --profile sideload --non-interactive --wait --json > build.json
+
+      - name: Download APK
+        run: |
+          URL=$(jq -r '.[0].artifacts.buildUrl' build.json)
+          curl -fsSL "$URL" -o "forte-$GITHUB_REF_NAME.apk"
+
+      - name: Extract this version's release notes
+        run: |
+          awk -v h="## $GITHUB_REF_NAME" '$0==h{f=1;next} /^## /{if(f)exit} f' RELEASE_NOTES.md \
+            | sed '/^---$/d' > notes.md
+          if [ ! -s notes.md ]; then echo "See RELEASE_NOTES.md." > notes.md; fi
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "forte-$GITHUB_REF_NAME.apk" \
+            --title "Forte $GITHUB_REF_NAME" \
+            --notes-file notes.md

@@ -9,13 +9,18 @@ type SettingsState = {
   theme: ThemePreference;
   /** DESIGN.md 6.2 — the battery lever the timestamp architecture makes possible. */
   keepAwake: boolean;
+  /** Ongoing notification with the rest stopwatch and set controls, shown on the lock screen. */
+  lockScreenControls: boolean;
   reducedMotion: boolean;
   loaded: boolean;
   load: () => void;
   set: <K extends keyof Persisted>(key: K, value: Persisted[K]) => void;
 };
 
-type Persisted = Pick<SettingsState, 'unit' | 'theme' | 'keepAwake' | 'reducedMotion'>;
+type Persisted = Pick<
+  SettingsState,
+  'unit' | 'theme' | 'keepAwake' | 'lockScreenControls' | 'reducedMotion'
+>;
 
 const DEFAULTS: Persisted = {
   unit: 'kg',
@@ -23,6 +28,7 @@ const DEFAULTS: Persisted = {
   // training, lower glare (DESIGN.md 3.2). "System" is available as an opt-in.
   theme: 'dark',
   keepAwake: true,
+  lockScreenControls: true,
   reducedMotion: false,
 };
 

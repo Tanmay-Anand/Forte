@@ -3,6 +3,7 @@ import { newId } from '@/lib/id';
 import { bumpRevision } from '@/lib/db-hooks';
 import { getDay, getDayExercises, getExercise } from './routine';
 import { restElapsedSeconds, type RestState } from '@/features/workout/rest-timer';
+import { choosePrefill, type Prefill } from '@/features/workout/prefill';
 import type { Equipment } from '@/data/exercises.seed';
 
 export type SessionRow = {
@@ -79,6 +80,11 @@ export function getSets(sessionExerciseId: string): SetRow[] {
 /**
  * The previous session's sets for this exercise — the line that sits above
  * today's inputs and makes progressive overload the natural thing to attempt.
+ *
+ * Prefers the last session of the SAME workout (matched by name, the way
+ * Today's "Last Chest + Triceps" is), so bench press on Chest day compares
+ * with Chest day rather than a lighter accessory slot on another day. Falls
+ * back to the most recent session of any workout that included the exercise.
  */
 export function getPreviousPerformance(
   exerciseId: string,
@@ -88,11 +94,12 @@ export function getPreviousPerformance(
     `SELECT sn.id, sn.started_at, se.id AS se_id
        FROM session_exercises se
        JOIN sessions sn ON sn.id = se.session_id
-      WHERE se.exercise_id = ?
+      WHERE se.exercise_id = ?1
         AND sn.status = 'completed'
-        AND sn.id != ?
+        AND sn.id != ?2
         AND EXISTS (SELECT 1 FROM sets s WHERE s.session_exercise_id = se.id)
-      ORDER BY sn.started_at DESC
+      ORDER BY (sn.name = (SELECT name FROM sessions WHERE id = ?2)) DESC,
+               sn.started_at DESC
       LIMIT 1;`,
     [exerciseId, excludeSessionId],
   );
@@ -412,25 +419,20 @@ export function setSessionNote(sessionId: string, note: string): void {
 // ----------------------------------------------------------------- prefill
 
 /**
- * What the number wells should show for the next set.
- * Repeating the previous set is the overwhelmingly common case, so it must
- * cost zero taps: last set of this exercise today, else the matching set
- * number from last time, else the exercise's first sensible value.
+ * What the number wells should show for the next set: the same set number
+ * from the last time this workout was done, so repeating last session costs
+ * zero taps. Rules and fallbacks live in features/workout/prefill.ts.
  */
 export function prefillFor(
   sessionId: string,
   sessionExerciseId: string,
   exerciseId: string,
-): { weightKg: number; reps: number } {
-  // Skipped sets carry no load, so they must never seed the next set's values.
-  const today = getSets(sessionExerciseId).filter((s) => !s.skipped);
-  const last = today[today.length - 1];
-  if (last) return { weightKg: last.weight_kg, reps: last.reps };
-
+): Prefill {
   const previous = getPreviousPerformance(exerciseId, sessionId);
-  const first = previous?.sets.find((s) => !s.skipped);
-  if (first) return { weightKg: first.weight_kg, reps: first.reps };
-
   const exercise = getExercise(exerciseId);
-  return { weightKg: exercise?.is_bodyweight ? 0 : 20, reps: 8 };
+  return choosePrefill(
+    getSets(sessionExerciseId),
+    previous?.sets ?? null,
+    Boolean(exercise?.is_bodyweight),
+  );
 }

@@ -5,6 +5,67 @@ A personal, offline workout tracker for Android.
 
 ---
 
+## v1.1.0
+
+**This is a new APK, not an over-the-air update.** It adds two native modules, so `npm run update`
+cannot deliver it to a v1.0.0 install. Install it over v1.0.0. It must be signed with the same key
+(see Versioning in `RELEASE_NOTES.md`). There are no database changes, so your log carries over
+untouched.
+
+### One-tap updates from now on
+
+- **New APKs:** install [Obtainium](https://github.com/ImranR98/Obtainium) once and point it at
+  this repo (`docs/RELEASING.md` §3). From then on it notifies you of each release, and you tap
+  **Update**.
+- **Code-only updates:** these still arrive over the air. When one has downloaded, an **Update
+  ready · Restart** bar appears above the tab bar. One tap applies it. It never appears
+  mid-workout.
+- Forte now checks Expo's update server when it starts and when you return to it after 30 minutes
+  or more. Offline, the check fails silently and nothing else changes.
+
+### Lock-screen workout controls
+
+During a workout, an ongoing notification shows on the lock screen and in the notification shade:
+
+- **While resting:** a live rest stopwatch, with **Pause / Resume** and **Start set *n*** buttons.
+- **Between rests:** the exercise and the next set, with a **Log 80 kg × 8** button that logs
+  exactly the pre-filled values it names.
+
+The ticking digits are Android's own chronometer, drawn from the saved rest start time, so they
+cost no battery and stay correct with the app closed or killed. The buttons write through the
+same code path as the Active Workout screen. You can turn it off in Settings → **Lock-screen
+controls**. Android 13+ asks for notification permission the first time a workout opens.
+
+Android phones have no true lock-screen widgets, so this is a notification. On HyperOS/MIUI,
+check **Settings → Notifications → Lock screen** if it doesn't appear there.
+
+### Weight pre-fill from the last same workout
+
+Set *n* now pre-fills with the weight and reps from set *n* of the same exercise the last time you
+did **the same workout** (matched by workout name, like Today's "Last Chest + Triceps"). A pyramid
+or a back-off set now pre-fills correctly instead of repeating today's previous set. The
+"last time" line above the inputs uses the same session.
+
+Fallbacks, in order:
+1. If you do more sets than last time, it repeats today's last set.
+2. If that set was skipped last time, it uses last time's first performed set.
+3. If the exercise was never done in this workout, it uses the most recent session that had it.
+
+### Full-screen
+
+Android's navigation bar (the gesture pill or the 3-button bar) is hidden while Forte is open.
+Swipe up from the bottom edge to bring it back temporarily.
+
+### Under the hood
+
+`@notifee/react-native` 9.1.8 provides the notification. `expo-doctor` flags it as unmaintained:
+its last release was December 2024. It was chosen because it is the only Expo-compatible library
+that exposes Android's notification chronometer, which is what keeps the timer rule intact. If a
+future Expo SDK upgrade breaks it, replace it with a small local Expo module. The rest of the app
+doesn't depend on it.
+
+---
+
 ## v1.0.0
 
 First public release.
@@ -128,6 +189,17 @@ unsure about.
 ---
 
 ## Changelog
+
+### v1.1.0
+
+- Lock-screen / notification-shade workout controls: live rest stopwatch, Pause/Resume, Start set,
+  Log set. Settings toggle, on by default
+- Pre-fill uses the same set number from the last session of the same workout
+- "Last time" line prefers the last session of the same workout
+- Android navigation bar hidden while the app is open (swipe up to reveal)
+- "Update ready · Restart" bar for over-the-air updates; also checks on return to the foreground
+- Releases publish automatically to GitHub on a version tag, for one-tap updates in Obtainium
+- 7 new pre-fill tests (26 total)
 
 ### v1.0.0
 
