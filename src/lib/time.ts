@@ -10,6 +10,18 @@ export function formatDuration(totalSeconds: number): string {
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
 }
 
+/** 102 -> "1 minute 42 seconds". What a screen reader says for a clock. */
+export function spokenDuration(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const parts: [number, string][] = [
+    [Math.floor(s / 3600), 'hour'],
+    [Math.floor((s % 3600) / 60), 'minute'],
+    [s % 60, 'second'],
+  ];
+  const spoken = parts.filter(([n]) => n > 0).map(([n, u]) => `${n} ${u}${n === 1 ? '' : 's'}`);
+  return spoken.length ? spoken.join(' ') : '0 seconds';
+}
+
 /** 3480000 -> "58 min". Used for workout totals. */
 export function formatMinutes(ms: number): string {
   const mins = Math.round(ms / 60000);

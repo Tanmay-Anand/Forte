@@ -12,6 +12,15 @@ export type ThemeName = 'dark' | 'light';
  *   focus    one restrained teal, for data and "now" indicators only
  *   rest     one restrained blue, and only while a rest timer runs
  * Everything else is neutral. No large saturated fields anywhere.
+ *
+ *   lineFloating  border of floating surfaces (pill nav, resume/update bars).
+ *                 In light, bgElevated is white like the cards beneath it, so
+ *                 this border (lineStrong, ~1.5:1 on white) is what lifts it —
+ *                 depth by line, never by shadow. In dark the tone step does
+ *                 that work and the border stays a hairline.
+ *   scrim         behind modal sheets, both themes.
+ *
+ * Contrast floors are enforced by tests/contrast.test.mjs.
  */
 export const palette = {
   dark: {
@@ -21,9 +30,10 @@ export const palette = {
     bgElevated: '#1B1D20',
     hairline: '#1F2124',
     lineStrong: '#2C3034',
+    lineFloating: '#1F2124',
     textPrimary: '#F3F4F6',
     textSecondary: '#9AA0A6',
-    textTertiary: '#62676E',
+    textTertiary: '#80868E',
     accent: '#F3F4F6',
     accentInk: '#0A0A0B',
     focus: '#5FD3BC',
@@ -31,6 +41,7 @@ export const palette = {
     negative: '#DD8B80',
     rest: '#8FB4E8',
     restInk: '#0A0A0B',
+    scrim: '#000000B8',
   },
   light: {
     bgBase: '#FAFAFA',
@@ -39,16 +50,18 @@ export const palette = {
     bgElevated: '#FFFFFF',
     hairline: '#E7E8EB',
     lineStrong: '#D2D5D9',
+    lineFloating: '#D2D5D9',
     textPrimary: '#111214',
     textSecondary: '#5B6068',
-    textTertiary: '#8B9199',
+    textTertiary: '#686E76',
     accent: '#16181B',
     accentInk: '#FFFFFF',
-    focus: '#0F9E8A',
+    focus: '#0B7F6F',
     positive: '#1C7A55',
     negative: '#B4463A',
     rest: '#2A63BE',
     restInk: '#FFFFFF',
+    scrim: '#000000B8',
   },
 } as const;
 
@@ -67,7 +80,6 @@ export type FontWeightName = keyof typeof fonts;
 
 /** Type ramp. Numeric styles use tabular figures so digits do not jitter. */
 export const type = {
-  displayXl: { fontSize: 68, lineHeight: 72, letterSpacing: -2.5, weight: 'bold' },
   displayL: { fontSize: 44, lineHeight: 48, letterSpacing: -1.2, weight: 'bold' },
   displayM: { fontSize: 30, lineHeight: 36, letterSpacing: -0.7, weight: 'bold' },
   titleL: { fontSize: 23, lineHeight: 29, letterSpacing: -0.4, weight: 'semibold' },
@@ -81,6 +93,22 @@ export const type = {
 
 export type TypeName = keyof typeof type;
 
+/** Extra tracking for headline actions (START WORKOUT, COMPLETE SET) — Button's `shout`. */
+export const tracking = { shout: 0.4 } as const;
+
+/**
+ * Widest digit advance in each Urbanist weight, as a fraction of the font
+ * size, measured from the font files. Urbanist has no tabular figures (no
+ * `tnum`), so TabularDigits sizes every digit cell to this to stop a ticking
+ * clock from changing width. Re-measure if the typeface changes.
+ */
+export const TABULAR_DIGIT_EM: Record<FontWeightName, number> = {
+  regular: 0.5955,
+  medium: 0.598,
+  semibold: 0.601,
+  bold: 0.6045,
+};
+
 /** 4pt base grid. */
 export const space = {
   xs: 4,
@@ -93,7 +121,7 @@ export const space = {
 } as const;
 
 /** Softer, larger radii than the original spec — the minimal reference language. */
-export const radius = { chip: 10, input: 14, card: 20, pill: 999, none: 0 } as const;
+export const radius = { input: 14, card: 20, pill: 999, none: 0 } as const;
 
 export const gutter = { mobile: 20, tablet: 32, desktop: 40 } as const;
 
@@ -107,13 +135,30 @@ export const NAV = {
   height: 64,
   button: 52,
   inset: 18,
-  /** Space screens must leave at the bottom so content clears the floating bar. */
+  /**
+   * Fallback bottom space for tab screens, used only until PillNav has been
+   * measured (src/ui/nav-overlay.ts). It omits the bars and the safe-area inset.
+   */
   clearance: 64 + 18 + 16,
 } as const;
 
+/** Motion durations in ms. Every timed animation reads one of these. */
 export const duration = {
   instant: 100,
   fast: 120,
   base: 200,
   slow: 220,
+  /** Set-completion flash: accent fill and inverted text fading back to the logged style. */
+  flash: 520,
+  /** Reduced motion: how long the flash holds, fully inverted, before clearing with no fade. */
+  flashHold: 400,
+} as const;
+
+/**
+ * Spring physics for motion that has no fixed duration. The nav disc is just
+ * shy of critically damped: it arrives quickly and settles without a bounce,
+ * which would read as playful rather than precise.
+ */
+export const spring = {
+  nav: { damping: 18, stiffness: 220, mass: 0.9 },
 } as const;

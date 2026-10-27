@@ -35,6 +35,9 @@ function niceAxis(min: number, max: number, intervals = 2): { lo: number; hi: nu
   return { lo, hi: hi === lo ? lo + step : hi, step };
 }
 
+/** Plot insets: room for y-axis labels on the left and date ticks below. */
+const padding = { top: 14, right: 10, bottom: 30, left: 52 };
+
 /**
  * Single-series line chart — DESIGN.md 5.6.
  * No area fill, no gradient, no legend, no dual axis. Hand-rolled on
@@ -56,7 +59,6 @@ export function LineChart({
   const [width, setWidth] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
 
-  const padding = { top: 14, right: 10, bottom: 30, left: 52 };
 
   const geometry = useMemo(() => {
     if (points.length === 0 || width === 0) return null;
@@ -203,7 +205,8 @@ export function LineChart({
 
           {selected !== null && points[selected] ? (
             <View style={{ marginTop: space.m }}>
-              <Text variant="num" color="focus">
+              {/* Text in textPrimary; focus marks the selected point itself. */}
+              <Text variant="num" color="textPrimary">
                 {points[selected]?.label} · {formatValue(points[selected]?.y ?? 0)}
               </Text>
             </View>

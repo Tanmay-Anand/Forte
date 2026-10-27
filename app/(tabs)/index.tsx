@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
@@ -136,17 +136,19 @@ export default function TodayScreen() {
 
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
+    // Wraps rather than collides at large font sizes; the value stays right-aligned.
     <View
       style={{
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        columnGap: space.m,
         paddingVertical: space.xs,
       }}
     >
       <Text variant="caption" color="textSecondary">
         {label}
       </Text>
-      <Text variant="caption" color="textPrimary">
+      <Text variant="caption" color="textPrimary" style={{ marginLeft: 'auto' }}>
         {value}
       </Text>
     </View>

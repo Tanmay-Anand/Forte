@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Modal, View, TextInput, ScrollView, Pressable } from 'react-native';
+import { View, TextInput, ScrollView, Pressable } from 'react-native';
+import { SystemModal } from '@/ui/SystemModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from '@/ui/Text';
+import { Text, useTextStyle } from '@/ui/Text';
+import { Icon } from '@/ui/Icon';
 import { useTheme } from '@/ui/theme';
 import { Chip, Divider, IconButton, SectionLabel } from '@/ui/primitives';
 import { radius, space } from '@/ui/tokens';
@@ -25,7 +27,9 @@ export function ExercisePicker({
   onAdd: (exerciseId: string) => void;
   title?: string;
 }) {
-  const { c } = useTheme();
+  const { c, reducedMotion } = useTheme();
+  // No lineHeight: single-line Android inputs clip with one.
+  const { lineHeight: _searchLineHeight, ...searchType } = useTextStyle('body');
   const [query, setQuery] = useState('');
   const [group, setGroup] = useState<MuscleGroup | 'all'>('all');
   const [added, setAdded] = useState(0);
@@ -49,7 +53,11 @@ export function ExercisePicker({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={close}>
+    <SystemModal
+      visible={visible}
+      animationType={reducedMotion ? 'fade' : 'slide'}
+      onRequestClose={close}
+    >
       <SafeAreaView style={{ flex: 1, backgroundColor: c.bgBase }} edges={['top', 'bottom']}>
         <View
           style={{
@@ -62,7 +70,7 @@ export function ExercisePicker({
         >
           <Text variant="titleM">{title}</Text>
           <Pressable onPress={close} accessibilityRole="button" hitSlop={12}>
-            <Text variant="bodyStrong" color={added > 0 ? 'accent' : 'textSecondary'}>
+            <Text variant="bodyStrong" color={added > 0 ? 'textPrimary' : 'textSecondary'}>
               {added > 0 ? `Done · ${added} added` : 'Close'}
             </Text>
           </Pressable>
@@ -83,7 +91,7 @@ export function ExercisePicker({
               backgroundColor: c.bgSunken,
               color: c.textPrimary,
               paddingHorizontal: space.m,
-              fontSize: 16,
+              ...searchType,
             }}
           />
         </View>
@@ -145,7 +153,7 @@ export function ExercisePicker({
               style={{ paddingVertical: space.l }}
               accessibilityRole="button"
             >
-              <Text variant="bodyStrong" color="accent">
+              <Text variant="bodyStrong" color="textPrimary">
                 + Create “{query.trim()}”
               </Text>
               <Text variant="caption" color="textTertiary" style={{ marginTop: space.xs }}>
@@ -155,7 +163,7 @@ export function ExercisePicker({
           ) : null}
         </ScrollView>
       </SafeAreaView>
-    </Modal>
+    </SystemModal>
   );
 }
 
@@ -182,9 +190,7 @@ function Row({ name, meta, onAdd }: { name: string; meta: string; onAdd: () => v
         {meta}
       </Text>
       <IconButton label={`Add ${name}`} onPress={onAdd} style={{ minWidth: 32 }}>
-        <Text variant="titleM" color="accent">
-          +
-        </Text>
+        <Icon name="plus" size={20} color="textPrimary" />
       </IconButton>
     </Pressable>
   );

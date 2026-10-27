@@ -47,6 +47,24 @@
           "position": "absolute",
           "backgroundColor": "#0A0A0B"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "useLegacyPackaging": true
+          }
+        }
+      ],
+      [
+        "./plugins/with-android-abis",
+        {
+          "abis": [
+            "arm64-v8a"
+          ]
+        }
       ]
     ],
     "experiments": {

@@ -1,22 +1,35 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Pressable, PanResponder } from 'react-native';
+import { View, Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from '@/ui/Text';
+import { Icon, type IconName } from '@/ui/Icon';
 import { useTheme } from '@/ui/theme';
-import { radius, space } from '@/ui/tokens';
+import { HIT, radius, space } from '@/ui/tokens';
 import { trimNumber } from '@/lib/format';
 
-const WELL_HEIGHT = 88;
-/** Pixels of vertical travel per increment when scrubbing. */
-const DRAG_PIXELS_PER_STEP = 12;
+/**
+ * Well height: two 48 dp steppers stacked with the 8 dp gap DESIGN.md 9
+ * requires between adjacent targets, plus the 1 dp border top and bottom.
+ */
+const WELL_HEIGHT = HIT * 2 + space.s + 2;
 
 /**
  * Large numeric input — DESIGN.md 5.4.1.
  *
- * Three ways to change a value, all live simultaneously, because which one is
- * fastest depends on the situation:
- *   1. steppers, with hold-to-repeat  (the "+2.5 kg" case)
- *   2. tap the number for the keypad  (the "it is 47.5 today" case)
- *   3. vertical drag to scrub         (the "jump 20 kg" case)
+ * Two ways to change a value, both live at once:
+ *   1. the +/− steppers, with hold-to-repeat  (the "+2.5 kg" case)
+ *   2. tap the number for the keypad         (the "it is 47.5 today" case)
+ *
+ * The steppers stand in a single column on the right rather than flanking the
+ * value. Flanking cost 112 dp of width and left 40 dp for the number on a
+ * 360 dp phone, so "102.5" shrank to 42% of displayL. A column costs 48 dp:
+ * the value area is ~103 dp there, and "102.5" (95.5 dp in Urbanist Bold at
+ * 44 pt) renders at full size. adjustsFontSizeToFit stays as the backstop for
+ * wider values such as "247.5".
+ *
+ * There used to be a third mode, vertical drag-to-scrub. It was removed: the
+ * native ScrollView claimed the gesture first whenever the screen could
+ * scroll — i.e. once a few sets were logged — so it only worked sometimes, and
+ * the steppers and keypad already cover every input.
  */
 export function NumberWell({
   value,
@@ -28,6 +41,7 @@ export function NumberWell({
   onChange,
   onPressValue,
   accessibilityLabel,
+  style,
 }: {
   value: number;
   step: number;
@@ -38,12 +52,14 @@ export function NumberWell({
   onChange: (next: number) => void;
   onPressValue: () => void;
   accessibilityLabel: string;
+  /** Outer sizing, owned by the caller: flex: 1 side by side, auto when stacked. */
+  style?: StyleProp<ViewStyle>;
 }) {
   const { c } = useTheme();
   const holdTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // PanResponder and the hold interval are created once, so they must read the
-  // live value through a ref rather than a captured prop.
+  // The hold interval outlives renders, so it reads the live value through a
+  // ref rather than a captured prop.
   const valueRef = useRef(value);
   useEffect(() => {
     valueRef.current = value;
@@ -81,24 +97,9 @@ export function NumberWell({
 
   useEffect(() => stopHold, []);
 
-  const dragOrigin = useRef(value);
-  const pan = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 12 && Math.abs(g.dy) > Math.abs(g.dx),
-      onPanResponderGrant: () => {
-        dragOrigin.current = valueRef.current;
-      },
-      onPanResponderMove: (_, g) => {
-        const steps = Math.round(-g.dy / DRAG_PIXELS_PER_STEP);
-        apply(dragOrigin.current + steps * step);
-      },
-    }),
-  ).current;
-
   return (
-    <View style={{ flex: 1 }}>
+    <View style={style}>
       <View
-        {...pan.panHandlers}
         style={{
           height: WELL_HEIGHT,
           backgroundColor: c.bgSunken,
@@ -110,13 +111,6 @@ export function NumberWell({
           overflow: 'hidden',
         }}
       >
-        <Stepper
-          glyph="−"
-          onPress={() => bump(-1)}
-          onHold={() => startHold(-1)}
-          onRelease={stopHold}
-          label={`Decrease ${accessibilityLabel}`}
-        />
         <Pressable
           onPress={onPressValue}
           accessibilityRole="button"
@@ -127,13 +121,36 @@ export function NumberWell({
             {trimNumber(value, decimals)}
           </Text>
         </Pressable>
-        <Stepper
-          glyph="+"
-          onPress={() => bump(1)}
-          onHold={() => startHold(1)}
-          onRelease={stopHold}
-          label={`Increase ${accessibilityLabel}`}
-        />
+        {/*
+          A hairline between value and column, so the + of the weight well
+          does not read as part of the reps value beside it.
+        */}
+        <View
+          style={{
+            // +1 for the hairline, so each stepper keeps a full 48 dp target.
+            width: HIT + 1,
+            height: '100%',
+            justifyContent: 'center',
+            gap: space.s,
+            borderLeftWidth: 1,
+            borderColor: c.hairline,
+          }}
+        >
+          <Stepper
+            icon="plus"
+            onPress={() => bump(1)}
+            onHold={() => startHold(1)}
+            onRelease={stopHold}
+            label={`Increase ${accessibilityLabel}`}
+          />
+          <Stepper
+            icon="minus"
+            onPress={() => bump(-1)}
+            onHold={() => startHold(-1)}
+            onRelease={stopHold}
+            label={`Decrease ${accessibilityLabel}`}
+          />
+        </View>
       </View>
       <Text variant="label" color="textTertiary" align="center" style={{ marginTop: space.s }}>
         {unit}
@@ -143,13 +160,13 @@ export function NumberWell({
 }
 
 function Stepper({
-  glyph,
+  icon,
   onPress,
   onHold,
   onRelease,
   label,
 }: {
-  glyph: string;
+  icon: IconName;
   onPress: () => void;
   onHold: () => void;
   onRelease: () => void;
@@ -165,16 +182,14 @@ function Stepper({
       delayLongPress={320}
       onPressOut={onRelease}
       style={({ pressed }) => ({
-        width: 56,
-        height: '100%',
+        width: HIT,
+        height: HIT,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: pressed ? c.bgRaised : 'transparent',
       })}
     >
-      <Text variant="titleL" color="textSecondary">
-        {glyph}
-      </Text>
+      <Icon name={icon} size={20} color="textSecondary" />
     </Pressable>
   );
 }

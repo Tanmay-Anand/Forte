@@ -36,19 +36,19 @@ export function ResumeBar() {
         borderRadius: radius.pill,
         backgroundColor: pressed ? c.bgSunken : c.bgElevated,
         borderWidth: 1,
-        borderColor: c.hairline,
+        borderColor: c.lineFloating,
       })}
     >
       <View
         style={{
           width: 7,
           height: 7,
-          borderRadius: 4,
+          borderRadius: radius.pill,
           backgroundColor: resting ? c.rest : c.focus,
           marginRight: space.s,
         }}
       />
-      <Text variant="caption" color="textPrimary" numberOfLines={1} style={{ flex: 1 }}>
+      <Text variant="caption" color="textPrimary" numberOfLines={1} style={{ flex: 1, marginRight: space.s }}>
         {session.name}
       </Text>
       <WorkoutClock startedAt={session.started_at} />

@@ -46,6 +46,7 @@ jobs:
           fi
 
       - run: npm run typecheck
+      - run: npm run lint
       - run: npm test
 
       - uses: expo/expo-github-action@v8

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Text } from '@/ui/Text';
+import { Text, useTextStyle } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { Button } from '@/ui/Button';
 import { Divider, Screen, SectionLabel, Spacer, StatGrid } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
-import { space } from '@/ui/tokens';
+import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import {
   compareExercises,
@@ -27,6 +27,7 @@ export default function SummaryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { c } = useTheme();
+  const noteType = useTextStyle('body');
   const unit = useSettings((s) => s.unit);
   const [writingNote, setWritingNote] = useState(false);
 
@@ -149,12 +150,12 @@ export default function SummaryScreen() {
           placeholder="How did it feel?"
           placeholderTextColor={c.textTertiary}
           style={{
+            ...noteType,
             minHeight: 72,
             color: c.textPrimary,
-            fontSize: 16,
             borderWidth: 1,
             borderColor: c.hairline,
-            borderRadius: 8,
+            borderRadius: radius.input,
             padding: space.m,
             textAlignVertical: 'top',
           }}

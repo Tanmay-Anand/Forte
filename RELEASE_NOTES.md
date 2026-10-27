@@ -5,6 +5,49 @@ A personal, offline workout tracker for Android.
 
 ---
 
+## Unreleased
+
+Rename this heading to the version number when tagging (`docs/RELEASING.md`).
+
+**Fixed**
+
+- **The keypad and menus could open as an invisible, frozen layer** (bug introduced in v1.1.0).
+  - Tapping a weight to type it, the ⋯ menu, and the exercise pickers each opened a window that
+    drew nothing and swallowed every tap until Back was pressed.
+  - Cause: v1.1.0 hides Android's navigation bar, and a popup opened while the bar is hidden
+    didn't draw.
+  - The bar now appears while a sheet is open, which Android does for any popup anyway, and hides
+    again afterwards.
+- **Large text sizes:** labels no longer run into their values ("TODAY'S WORKOUT5 EXERCISES"), the
+  set table's "SET" header no longer wraps, and the clock digits no longer spread apart.
+- **The rest timer stays on screen while resting.** It now sits above the next set's inputs
+  instead of below the controls, where it fell off a narrow phone's screen.
+- **Switches that are off are visible in dark mode.** The off thumb was nearly the same colour as
+  its track.
+
+- **Much smaller APK.** It's now built for arm64 phones only, with code shrinking (R8) and
+  compressed native libraries: about 15–23 MB instead of 103 MB. Every Android phone from roughly
+  2017 onward is arm64. The release APK no longer installs on x86_64 emulators.
+- **Number wells fit the number.** The `+` and `−` now stack in one column on the right, so
+  "102.5" shows at full size on a narrow phone instead of shrinking to less than half. At large
+  system font sizes, weight and reps stack vertically. Drag-to-change was removed: it only worked
+  when the screen couldn't scroll.
+- **The rest clock no longer jitters.** Its digits sit in fixed-width cells, as do the workout
+  clock and the resume bar's clocks.
+- **Easier to read.**
+  - Hint text is brighter, and every text colour now meets 4.5:1 contrast.
+  - The "Last time" line is a step brighter.
+  - Text inputs use the app's font.
+- **Calmer selection.** Selected filter chips and segments are outlined instead of filled. The
+  bright fill now means only "the thing to do". In light mode, the tab bar and the resume and
+  update bars have a visible edge.
+- **Smoother set confirmation.** The set flash runs on the UI thread. With *Reduce motion* on,
+  it shows instantly and clears without fading, and screen transitions become fades.
+- **Lists clear the bars.** The last row of a list now scrolls clear of the resume and update
+  bars.
+
+---
+
 ## v1.1.0
 
 **This is a new APK, not an over-the-air update.** It adds two native modules, so `npm run update`

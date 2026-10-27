@@ -4,9 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Feather from '@expo/vector-icons/Feather';
 import { useTheme } from './theme';
-import { NAV, radius, space } from './tokens';
+import { NAV, radius, space, spring } from './tokens';
 import { ResumeBar } from '@/features/workout/ResumeBar';
 import { UpdateBar } from '@/features/updates/UpdateBar';
+import { useNavOverlay } from './nav-overlay';
 
 const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   index: 'home',
@@ -42,6 +43,7 @@ const PAD = 6;
 export function PillNav({ state, navigation }: BottomTabBarProps) {
   const { c, reducedMotion } = useTheme();
   const insets = useSafeAreaInsets();
+  const setOverlayHeight = useNavOverlay((s) => s.setHeight);
 
   // Continuous position of the disc, in slot units. Interpolating from this
   // single value keeps the disc and the icon crossfades perfectly in step.
@@ -55,11 +57,7 @@ export function PillNav({ state, navigation }: BottomTabBarProps) {
     Animated.spring(pos, {
       toValue: state.index,
       useNativeDriver: true,
-      // Just shy of critically damped: it arrives quickly and settles without
-      // a bounce, which would read as playful rather than precise.
-      damping: 18,
-      stiffness: 220,
-      mass: 0.9,
+      ...spring.nav,
     }).start();
   }, [state.index, pos, reducedMotion]);
 
@@ -67,6 +65,8 @@ export function PillNav({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View
+      // Screens read this to clear the bars and the pill (see nav-overlay.ts).
+      onLayout={(e) => setOverlayHeight(e.nativeEvent.layout.height)}
       style={{
         position: 'absolute',
         left: 0,
@@ -91,7 +91,7 @@ export function PillNav({ state, navigation }: BottomTabBarProps) {
           borderRadius: radius.pill,
           backgroundColor: c.bgElevated,
           borderWidth: 1,
-          borderColor: c.hairline,
+          borderColor: c.lineFloating,
         }}
       >
         {/* The travelling disc, behind the icons. */}

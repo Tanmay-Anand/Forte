@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Pressable, TextInput, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
-import { Text } from '@/ui/Text';
+import { Text, useTextStyle } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { Button } from '@/ui/Button';
 import { Divider, IconButton, Screen, SectionLabel, Spacer } from '@/ui/primitives';
@@ -37,6 +37,9 @@ export default function CustomizeDayScreen() {
   const dow = Number(day);
   const router = useRouter();
   const { c } = useTheme();
+  // Same variant as the title it replaces, so renaming doesn't resize it. No
+  // lineHeight: single-line Android inputs clip with one.
+  const { lineHeight: _nameLineHeight, ...nameType } = useTextStyle('displayM');
   const undo = useUndo();
 
   const [picking, setPicking] = useState(false);
@@ -111,7 +114,7 @@ export default function CustomizeDayScreen() {
           </Text>
         </Pressable>
         <Pressable onPress={() => router.back()} accessibilityRole="button" hitSlop={12}>
-          <Text variant="bodyStrong" color="accent">
+          <Text variant="bodyStrong" color="textPrimary">
             Done
           </Text>
         </Pressable>
@@ -132,12 +135,11 @@ export default function CustomizeDayScreen() {
           placeholder="Chest + Triceps"
           placeholderTextColor={c.textTertiary}
           style={{
+            ...nameType,
             marginTop: space.xs,
-            fontSize: 32,
-            fontWeight: '700',
             color: c.textPrimary,
             borderBottomWidth: 1,
-            borderColor: c.accent,
+            borderColor: c.textSecondary,
             paddingVertical: space.xs,
           }}
         />

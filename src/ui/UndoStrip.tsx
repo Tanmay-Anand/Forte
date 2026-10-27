@@ -62,7 +62,7 @@ export function UndoStrip({ pending, onDismiss }: { pending: PendingUndo; onDism
         accessibilityLabel="Undo"
         hitSlop={12}
       >
-        <Text variant="bodyStrong" color="accent">
+        <Text variant="bodyStrong" color="textPrimary">
           Undo
         </Text>
       </Pressable>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, Alert } from 'react-native';
+import { View, ScrollView, Alert, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
@@ -12,7 +12,7 @@ import { ControlChip, Divider, IconButton, useGutter } from '@/ui/primitives';
 import { UndoStrip, useUndo } from '@/ui/UndoStrip';
 import { ActionSheet, type SheetAction } from '@/ui/ActionSheet';
 import { useTheme } from '@/ui/theme';
-import { space, WORKOUT_ACTION_HEIGHT } from '@/ui/tokens';
+import { radius, space, WORKOUT_ACTION_HEIGHT } from '@/ui/tokens';
 
 import { useQuery } from '@/lib/db-hooks';
 import { useSettings } from '@/store/settings';
@@ -65,6 +65,10 @@ export default function ActiveWorkoutScreen() {
   const router = useRouter();
   const { c } = useTheme();
   const gutter = useGutter();
+  // At large OS font sizes even the stepper-column wells cannot hold weight and
+  // reps side by side, so they stack (DESIGN.md 9).
+  const { fontScale } = useWindowDimensions();
+  const stackWells = fontScale >= 1.5;
   const unit = useSettings((s) => s.unit);
   const keepAwakeEnabled = useSettings((s) => s.keepAwake);
   const undo = useUndo();
@@ -118,10 +122,17 @@ export default function ActiveWorkoutScreen() {
     const fill = prefillFor(session.id, current.id, current.exercise_id);
     setWeight(Number(toDisplayWeight(fill.weightKg, unit).toFixed(2)));
     setReps(fill.reps);
+    // Keyed on ids, not objects: useQuery hands back fresh objects on every
+    // revision, and re-filling on each one would wipe what the user just typed.
+    // sets.length is the trigger to re-fill for the next set.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.id, current?.id, sets.length, unit]);
 
   const doneCount = useMemo(
     () => exercises.filter((e) => getSets(e.id).length > 0).length,
+    // getSets reads SQLite, which React cannot see: sets.length is what tells
+    // this to recount after a set is logged or removed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [exercises, sets.length],
   );
 
@@ -302,7 +313,7 @@ export default function ActiveWorkoutScreen() {
             accessibilityValue={{ min: 0, max: exercises.length, now: doneCount }}
             style={{
               height: 3,
-              borderRadius: 2,
+              borderRadius: radius.pill,
               backgroundColor: c.lineStrong,
               marginTop: space.s,
               overflow: 'hidden',
@@ -312,7 +323,7 @@ export default function ActiveWorkoutScreen() {
               style={{
                 width: `${exercises.length ? (doneCount / exercises.length) * 100 : 0}%`,
                 height: '100%',
-                borderRadius: 2,
+                borderRadius: radius.pill,
                 backgroundColor: c.focus,
               }}
             />
@@ -379,10 +390,32 @@ export default function ActiveWorkoutScreen() {
 
             {/* -------------------------------------------- active row */}
             <View style={{ marginTop: space.l }}>
+              {/*
+                While resting, the clock comes first — rest, then the next set.
+                It is the thing being watched, and placed after the inputs it
+                fell below the fold on a 360 dp phone and at large text sizes.
+              */}
+              {resting && rest ? (
+                <View style={{ marginBottom: space.l }}>
+                  <RestPanel
+                    state={rest}
+                    onPause={() => pauseRest(session.id)}
+                    onResume={() => resumeRest(session.id)}
+                    onReset={() => resetRest(session.id)}
+                    onSkip={endRest}
+                  />
+                </View>
+              ) : null}
               <Text variant="label" color="textSecondary">
                 {editingSet ? `Editing set ${editingSet.set_number}` : `Set ${sets.length + 1}`}
               </Text>
-              <View style={{ flexDirection: 'row', gap: space.m, marginTop: space.s }}>
+              <View
+                style={{
+                  flexDirection: stackWells ? 'column' : 'row',
+                  gap: space.m,
+                  marginTop: space.s,
+                }}
+              >
                 <NumberWell
                   value={weight}
                   step={current.weight_step}
@@ -391,6 +424,7 @@ export default function ActiveWorkoutScreen() {
                   onChange={setWeight}
                   onPressValue={() => setKeypad({ field: 'weight' })}
                   accessibilityLabel="Weight"
+                  style={stackWells ? undefined : { flex: 1 }}
                 />
                 <NumberWell
                   value={reps}
@@ -402,6 +436,7 @@ export default function ActiveWorkoutScreen() {
                   onChange={(n) => setReps(Math.round(n))}
                   onPressValue={() => setKeypad({ field: 'reps' })}
                   accessibilityLabel="Reps"
+                  style={stackWells ? undefined : { flex: 1 }}
                 />
               </View>
 
@@ -448,18 +483,6 @@ export default function ActiveWorkoutScreen() {
               </View>
             </View>
 
-            {/* ------------------------------------------- rest panel */}
-            {resting && rest ? (
-              <View style={{ marginTop: space.xl }}>
-                <RestPanel
-                  state={rest}
-                  onPause={() => pauseRest(session.id)}
-                  onResume={() => resumeRest(session.id)}
-                  onReset={() => resetRest(session.id)}
-                  onSkip={endRest}
-                />
-              </View>
-            ) : null}
           </>
         )}
       </ScrollView>

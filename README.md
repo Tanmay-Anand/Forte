@@ -47,7 +47,8 @@ ways to get a real installable APK.
 | `npm start` | Dev server for Expo Go |
 | `npm run android` | Dev server, opening on a connected device or emulator |
 | `npm run typecheck` | TypeScript, strict |
-| `npm test` | 26 tests, plain Node — no test framework |
+| `npm run lint` | ESLint: Expo defaults plus the design-system rules (no hex colours, raw type styles, raw radii or accent text) |
+| `npm test` | 79 tests, plain Node — no test framework. Includes the contrast suite, which reads `tokens.ts` |
 | `npm run build:apk` | Installable Android APK via EAS cloud build |
 | `npm run build:apk:unix` | Same build locally — **macOS/Linux/WSL2 only** |
 | `npm run prebuild` | Generate `android/` for a local Gradle build |

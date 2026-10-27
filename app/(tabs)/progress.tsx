@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
+import { SystemModal } from '@/ui/SystemModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
@@ -256,7 +257,7 @@ function NotEnoughYet({ name, have, need }: { name: string; have: number; need: 
             style={{
               width: 8,
               height: 8,
-              borderRadius: 4,
+              borderRadius: radius.pill,
               marginRight: space.s,
               backgroundColor: i < have ? c.focus : 'transparent',
               borderWidth: 1,
@@ -375,9 +376,13 @@ function ExerciseSelector({
   onSelect: (id: string) => void;
   onClose: () => void;
 }) {
-  const { c } = useTheme();
+  const { c, reducedMotion } = useTheme();
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+    <SystemModal
+      visible={visible}
+      animationType={reducedMotion ? 'fade' : 'slide'}
+      onRequestClose={onClose}
+    >
       <SafeAreaView style={{ flex: 1, backgroundColor: c.bgBase }} edges={['top', 'bottom']}>
         <View
           style={{
@@ -407,7 +412,10 @@ function ExerciseSelector({
                 borderColor: c.hairline,
               }}
             >
-              <Text variant="body" color={e.id === selectedId ? 'accent' : 'textPrimary'}>
+              <Text
+                variant={e.id === selectedId ? 'bodyStrong' : 'body'}
+                color="textPrimary"
+              >
                 {e.name}
               </Text>
               <Text variant="caption" color="textTertiary">
@@ -417,6 +425,6 @@ function ExerciseSelector({
           ))}
         </ScrollView>
       </SafeAreaView>
-    </Modal>
+    </SystemModal>
   );
 }

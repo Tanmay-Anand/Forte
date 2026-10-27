@@ -16,7 +16,6 @@ import type { Unit } from '@/lib/format';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { c } = useTheme();
   const s = useSettings();
   const [busy, setBusy] = useState(false);
 
@@ -175,8 +174,11 @@ function Toggle({
         <Switch
           value={value}
           onValueChange={onChange}
-          trackColor={{ true: c.accent, false: c.lineStrong }}
-          thumbColor={c.bgRaised}
+          // Neutral, not accent: the thumb's position is the state. The off
+          // thumb is textTertiary because a bgRaised thumb on the lineStrong
+          // track measured ~1.3:1 in dark — the off switch was invisible.
+          trackColor={{ true: c.textSecondary, false: c.lineStrong }}
+          thumbColor={value ? c.bgRaised : c.textTertiary}
           accessibilityLabel={label}
         />
       </View>

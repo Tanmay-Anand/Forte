@@ -5,7 +5,6 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
-import * as NavigationBar from 'expo-navigation-bar';
 import {
   useFonts,
   Urbanist_400Regular,
@@ -23,6 +22,7 @@ import {
 } from '@/features/workout/workout-notification';
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { palette } from '@/ui/tokens';
+import { hideNavigationBar } from '@/ui/system-bars';
 
 // Hold the native splash — the Forte wordmark on the dark ground — until the
 // database has migrated and Urbanist has loaded, so the first painted frame is
@@ -87,17 +87,16 @@ export default function RootLayout() {
  * app.json sets the same state at launch so there is no flash of the bar;
  * this re-applies it on every return to the foreground, because some OEM
  * skins (MIUI/HyperOS among them) restore the bar after a trip to another app.
+ *
+ * While a modal sheet is open the bar is shown instead — a dialog opened over
+ * a hidden bar renders blank (src/ui/system-bars.ts, SystemModal).
  */
 function useImmersiveNavigationBar() {
   useEffect(() => {
     if (Platform.OS !== 'android') return;
-    const hide = () => {
-      void NavigationBar.setBehaviorAsync('overlay-swipe').catch(() => {});
-      void NavigationBar.setVisibilityAsync('hidden').catch(() => {});
-    };
-    hide();
+    hideNavigationBar();
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') hide();
+      if (state === 'active') hideNavigationBar();
     });
     return () => sub.remove();
   }, []);
@@ -122,7 +121,10 @@ function useWorkoutNotification() {
 }
 
 function Chrome() {
-  const { c, name } = useTheme();
+  const { c, name, reducedMotion } = useTheme();
+  // Reduced motion keeps transitions but makes them opacity-only (DESIGN.md 3.5).
+  const slide = (motion: 'slide_from_bottom' | 'slide_from_right') =>
+    reducedMotion ? ('fade' as const) : motion;
   useImmersiveNavigationBar();
   useWorkoutNotification();
   return (
@@ -143,12 +145,12 @@ function Chrome() {
         */}
         <Stack.Screen
           name="workout/active"
-          options={{ animation: 'slide_from_bottom', gestureEnabled: false }}
+          options={{ animation: slide('slide_from_bottom'), gestureEnabled: false }}
         />
         <Stack.Screen name="workout/summary" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="day/[day]" options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="session/[id]" options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="settings" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="day/[day]" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="session/[id]" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="settings" options={{ animation: slide('slide_from_right') }} />
       </Stack>
     </>
   );

@@ -4,6 +4,7 @@ import * as Updates from 'expo-updates';
 import Feather from '@expo/vector-icons/Feather';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/theme';
+import { ControlChip } from '@/ui/primitives';
 import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import { getActiveSession } from '@/db/queries/session';
@@ -54,38 +55,31 @@ export function UpdateBar() {
         borderRadius: radius.pill,
         backgroundColor: c.bgElevated,
         borderWidth: 1,
-        borderColor: c.hairline,
+        borderColor: c.lineFloating,
       }}
     >
       <View
         style={{
           width: 7,
           height: 7,
-          borderRadius: 4,
+          borderRadius: radius.pill,
           backgroundColor: c.positive,
           marginRight: space.s,
         }}
       />
-      <Text variant="caption" color="textPrimary" numberOfLines={1} style={{ flex: 1 }}>
+      <Text variant="caption" color="textPrimary" numberOfLines={1} style={{ flex: 1, marginRight: space.s }}>
         Update ready
       </Text>
-      <Pressable
-        onPress={() => void Updates.reloadAsync().catch(() => {})}
-        accessibilityRole="button"
+      {/*
+        Outlined, not accent-filled: this bar shares the screen with the page's
+        real primary action, and the accent fill means "the thing to do".
+      */}
+      <ControlChip
+        label="Restart"
+        tone="accent"
         accessibilityLabel="Restart Forte to apply the update"
-        hitSlop={6}
-        style={({ pressed }) => ({
-          height: 32,
-          paddingHorizontal: space.m,
-          justifyContent: 'center',
-          borderRadius: radius.pill,
-          backgroundColor: pressed ? c.bgSunken : c.accent,
-        })}
-      >
-        <Text variant="caption" style={{ color: c.accentInk }}>
-          Restart
-        </Text>
-      </Pressable>
+        onPress={() => void Updates.reloadAsync().catch(() => {})}
+      />
       <Pressable
         onPress={() => setDismissed(true)}
         accessibilityRole="button"

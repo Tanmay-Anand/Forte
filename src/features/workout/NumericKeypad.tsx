@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, View, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import { SystemModal } from '@/ui/SystemModal';
 import { Text } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { useTheme } from '@/ui/theme';
@@ -30,7 +31,7 @@ export function NumericKeypad({
   onCancel: () => void;
   onDone: (value: number) => void;
 }) {
-  const { c } = useTheme();
+  const { c, reducedMotion } = useTheme();
   const [buffer, setBuffer] = useState('');
 
   // Fresh entry replaces the value rather than appending to it: the user
@@ -62,8 +63,13 @@ export function NumericKeypad({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={dismiss}>
-      <Pressable style={{ flex: 1, backgroundColor: '#000000B8' }} onPress={dismiss} />
+    <SystemModal
+      visible={visible}
+      transparent
+      animationType={reducedMotion ? 'fade' : 'slide'}
+      onRequestClose={dismiss}
+    >
+      <Pressable style={{ flex: 1, backgroundColor: c.scrim }} onPress={dismiss} />
       {/*
         Rounded top edge, matching the action sheet. With a square edge the
         pad sliced whatever control it happened to land on clean in half, which
@@ -162,6 +168,6 @@ export function NumericKeypad({
           </Pressable>
         </View>
       </View>
-    </Modal>
+    </SystemModal>
   );
 }

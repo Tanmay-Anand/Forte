@@ -5,7 +5,7 @@ import { Text } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { Card, Divider, Screen, Spacer } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
-import { space } from '@/ui/tokens';
+import { radius, space } from '@/ui/tokens';
 import { useBreakpoint } from '@/ui/primitives';
 import { useQuery } from '@/lib/db-hooks';
 import { getWeek, type RoutineDaySummary } from '@/db/queries/routine';
@@ -98,12 +98,13 @@ function DayRow({
               style={{
                 width: 6,
                 height: 6,
-                borderRadius: 3,
-                backgroundColor: c.accent,
+                borderRadius: radius.pill,
+                // focus marks "now"; accent fills are reserved for actions.
+                backgroundColor: c.focus,
                 marginRight: space.xs,
               }}
             />
-            <Text variant="label" color="accent">
+            <Text variant="label" color="textPrimary">
               Today
             </Text>
           </View>
@@ -131,7 +132,7 @@ function DayRow({
               {day.exercise_count} {day.exercise_count === 1 ? 'exercise' : 'exercises'}
             </Text>
           ) : unconfigured ? (
-            <Text variant="caption" color="accent" style={{ marginTop: 2 }}>
+            <Text variant="caption" color="textPrimary" style={{ marginTop: 2 }}>
               + Add workout
             </Text>
           ) : null}

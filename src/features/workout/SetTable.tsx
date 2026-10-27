@@ -1,13 +1,34 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Pressable, Animated } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import Reanimated, {
+  cancelAnimation,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { Text } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { useTheme } from '@/ui/theme';
-import { space } from '@/ui/tokens';
+import { duration, space } from '@/ui/tokens';
 import { formatWeight } from '@/lib/format';
 import { formatDuration } from '@/lib/time';
 import type { SetRow } from '@/db/queries/session';
 import type { Unit } from '@/lib/format';
+
+/**
+ * Fixed column widths, scaled with the OS font size like the text in them —
+ * at 44 dp the "SET" header wrapped to "SE / T" on large text settings.
+ */
+function useColumns() {
+  const { fontScale } = useWindowDimensions();
+  // Capped: Android 14+ scales large text non-linearly, so the reported scale
+  // (up to 2) overstates how much the glyphs actually grow.
+  const k = Math.min(1.5, Math.max(1, fontScale));
+  return { set: Math.round(44 * k), reps: Math.round(72 * k) };
+}
 
 /**
  * Logged sets for the current exercise.
@@ -30,18 +51,19 @@ export function SetTable({
   /** Row to flash once, confirming a set was committed. */
   flashId?: string | null;
 }) {
+  const cols = useColumns();
   if (sets.length === 0) return null;
 
   return (
     <View>
       <View style={{ flexDirection: 'row', paddingBottom: space.s }}>
-        <Text variant="label" color="textTertiary" style={{ width: 44 }}>
+        <Text variant="label" color="textTertiary" style={{ width: cols.set }}>
           Set
         </Text>
         <Text variant="label" color="textTertiary" style={{ flex: 1 }}>
           Weight
         </Text>
-        <Text variant="label" color="textTertiary" style={{ width: 72 }}>
+        <Text variant="label" color="textTertiary" style={{ width: cols.reps }}>
           Reps
         </Text>
         <View style={{ width: 28 }} />
@@ -58,7 +80,7 @@ export function SetTable({
           />
 
           {showRest && set.rest_before_s != null ? (
-            <Text variant="caption" color="textTertiary" style={{ paddingLeft: 44 }}>
+            <Text variant="caption" color="textTertiary" style={{ paddingLeft: cols.set }}>
               rest {formatDuration(set.rest_before_s)}
             </Text>
           ) : null}
@@ -76,6 +98,18 @@ export function SetTable({
  * left, so it is deliberately visible rather than subtle — but it fades to the
  * recessive logged style within half a second so it never competes with the
  * active row.
+ *
+ * Runs on the UI thread (Reanimated): the flash starts in the same frame as the
+ * set's database write and the revision bump that re-renders the screen, and a
+ * JS-driven fade stuttered under that load. Only opacities animate:
+ *   - an accent fill behind the row,
+ *   - the normal-ink row fading out while
+ *   - an accentInk copy of the row fades in on top.
+ * The fill and the copy are mounted only while this row is flashing, and the
+ * copy is hidden from screen readers so the set is announced once.
+ *
+ * Reduced motion: inverted instantly, held for duration.flashHold, cleared
+ * with no fade.
  */
 function LoggedRow({
   set,
@@ -90,35 +124,73 @@ function LoggedRow({
   onEdit?: (set: SetRow) => void;
   onRemove?: (set: SetRow) => void;
 }) {
-  const { c } = useTheme();
-  const glow = useRef(new Animated.Value(flash ? 1 : 0)).current;
-  // The row's own text must invert while the accent is behind it, or the set
-  // you just logged is unreadable for the half-second it is being confirmed.
-  const [hot, setHot] = useState(flash);
+  const { c, reducedMotion } = useTheme();
+  const cols = useColumns();
+  const glow = useSharedValue(0);
+  const [flashing, setFlashing] = useState(false);
 
   useEffect(() => {
     if (!flash) return;
-    glow.setValue(1);
-    setHot(true);
-    Animated.timing(glow, {
-      toValue: 0,
-      duration: 520,
-      delay: 80,
-      useNativeDriver: false,
-    }).start();
-    const id = setTimeout(() => setHot(false), 460);
-    return () => clearTimeout(id);
-  }, [flash, glow]);
+    setFlashing(true);
+    const settle = (finished?: boolean) => {
+      'worklet';
+      if (finished) runOnJS(setFlashing)(false);
+    };
+    glow.value = withSequence(
+      withTiming(1, { duration: 0 }),
+      reducedMotion
+        ? withDelay(duration.flashHold, withTiming(0, { duration: 0 }, settle))
+        : withDelay(duration.instant, withTiming(0, { duration: duration.flash }, settle)),
+    );
+    return () => {
+      // Another row took the flash, or this one unmounted: never leave the
+      // overlay stuck half-visible.
+      cancelAnimation(glow);
+      glow.value = 0;
+      setFlashing(false);
+    };
+  }, [flash, glow, reducedMotion]);
+
+  const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value }));
+  const baseStyle = useAnimatedStyle(() => ({ opacity: 1 - glow.value }));
+
+  const cells = (ink: boolean) => (
+    <>
+      <Text variant="num" color={ink ? 'accentInk' : 'textTertiary'} style={{ width: cols.set }}>
+        {set.set_number}
+      </Text>
+      {set.skipped ? (
+        <Text variant="num" color={ink ? 'accentInk' : 'textTertiary'} style={{ flex: 1 }}>
+          Skipped
+        </Text>
+      ) : (
+        <>
+          <Text variant="num" color={ink ? 'accentInk' : 'textSecondary'} style={{ flex: 1 }}>
+            {formatWeight(set.weight_kg, unit)}
+          </Text>
+          <Text variant="num" color={ink ? 'accentInk' : 'textSecondary'} style={{ width: cols.reps }}>
+            {set.reps}
+          </Text>
+        </>
+      )}
+      <View style={{ width: 28, alignItems: 'flex-end' }}>
+        <Icon
+          name={set.skipped ? 'minus' : 'check'}
+          size={16}
+          color={ink ? 'accentInk' : set.skipped ? 'textTertiary' : 'positive'}
+        />
+      </View>
+    </>
+  );
 
   return (
-    <Animated.View
-      style={{
-        backgroundColor: glow.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['transparent', c.accent],
-        }),
-      }}
-    >
+    <View>
+      {flashing ? (
+        <Reanimated.View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, { backgroundColor: c.accent }, glowStyle]}
+        />
+      ) : null}
       <Pressable
         onPress={() => (set.skipped ? onRemove?.(set) : onEdit?.(set))}
         onLongPress={() => onRemove?.(set)}
@@ -128,47 +200,37 @@ function LoggedRow({
             ? `Set ${set.set_number}, skipped. Tap to remove.`
             : `Set ${set.set_number}, ${formatWeight(set.weight_kg, unit)} for ${set.reps} reps. Tap to edit.`
         }
-        style={({ pressed }) => ({
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 48,
-          borderTopWidth: 1,
-          borderColor: c.hairline,
-          backgroundColor: pressed ? c.bgRaised : 'transparent',
-        })}
+        style={({ pressed }) => [
+          ROW,
+          { borderColor: c.hairline, backgroundColor: pressed ? c.bgRaised : 'transparent' },
+        ]}
       >
-        <Text variant="num" color={hot ? 'accentInk' : 'textTertiary'} style={{ width: 44 }}>
-          {set.set_number}
-        </Text>
-        {set.skipped ? (
-          <Text variant="num" color="textTertiary" style={{ flex: 1 }}>
-            Skipped
-          </Text>
-        ) : (
-          <>
-            <Text variant="num" color={hot ? 'accentInk' : 'textSecondary'} style={{ flex: 1 }}>
-              {formatWeight(set.weight_kg, unit)}
-            </Text>
-            <Text variant="num" color={hot ? 'accentInk' : 'textSecondary'} style={{ width: 72 }}>
-              {set.reps}
-            </Text>
-          </>
-        )}
-        <View style={{ width: 28, alignItems: 'flex-end' }}>
-          <Icon
-            name={set.skipped ? 'minus' : 'check'}
-            size={16}
-            color={set.skipped ? 'textTertiary' : hot ? 'accentInk' : 'positive'}
-          />
-        </View>
+        <Reanimated.View style={[ROW_CELLS, baseStyle]}>{cells(false)}</Reanimated.View>
       </Pressable>
-    </Animated.View>
+      {flashing ? (
+        <Reanimated.View
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={[StyleSheet.absoluteFill, ROW, { borderColor: 'transparent' }, glowStyle]}
+        >
+          <View style={ROW_CELLS}>{cells(true)}</View>
+        </Reanimated.View>
+      ) : null}
+    </View>
   );
 }
 
+/** Shared by the row and its flash copy, so the two lay out identically. */
+const ROW = { flexDirection: 'row', alignItems: 'center', height: 48, borderTopWidth: 1 } as const;
+const ROW_CELLS = { flex: 1, flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch' } as const;
+
 /**
  * Last session's sets, above today's inputs — DESIGN.md 5.4.1.
- * One line, always tertiary. It must never compete with today's numbers.
+ *
+ * Secondary, not tertiary: this is the number the user is trying to match or
+ * beat, read at arm's length between sets, so it must be plainly legible. It
+ * still sits a step below today's primary-tone values and in a smaller variant.
  */
 export function PreviousLine({
   sets,
@@ -185,10 +247,10 @@ export function PreviousLine({
     .join('    ');
   return (
     <View style={{ marginBottom: space.l }}>
-      <Text variant="label" color="textTertiary">
+      <Text variant="label" color="textSecondary">
         Last time · {when}
       </Text>
-      <Text variant="caption" color="textTertiary" numberOfLines={2} style={{ marginTop: space.xs }}>
+      <Text variant="caption" color="textSecondary" numberOfLines={2} style={{ marginTop: space.xs }}>
         {text}
       </Text>
     </View>

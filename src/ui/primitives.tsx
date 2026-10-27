@@ -12,6 +12,7 @@ import { Text } from './Text';
 import { Icon, type IconName } from './Icon';
 import { useTheme } from './theme';
 import { gutter, radius, space, HIT, NAV } from './tokens';
+import { useNavOverlay } from './nav-overlay';
 
 /** Responsive gutter — DESIGN.md 8. Interaction model never changes, only density. */
 export function useGutter(): number {
@@ -46,6 +47,9 @@ export function Screen({
 }) {
   const { c } = useTheme();
   const g = useGutter();
+  // The measured overlay grows when ResumeBar or UpdateBar appears, so the last
+  // row of a list is never hidden behind them.
+  const overlay = useNavOverlay((s) => s.height);
   const body = (
     <View style={[{ paddingHorizontal: g, maxWidth: 1100, width: '100%', alignSelf: 'center' }, contentStyle]}>
       {children}
@@ -57,7 +61,7 @@ export function Screen({
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
-            paddingBottom: navClearance ? NAV.clearance + space.xl : space.xxxl,
+            paddingBottom: navClearance ? (overlay || NAV.clearance) + space.xl : space.xxxl,
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -93,12 +97,16 @@ export function SectionLabel({
   children: React.ReactNode;
   right?: string;
 }) {
+  // Wraps rather than collides: at large OS font sizes "TODAY'S WORKOUT" and
+  // "5 EXERCISES" ran into each other with no gap. The right value keeps to the
+  // right edge on either line.
   return (
     <View
       style={{
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexWrap: 'wrap',
         alignItems: 'center',
+        columnGap: space.m,
         marginBottom: space.s,
       }}
     >
@@ -106,7 +114,7 @@ export function SectionLabel({
         {children}
       </Text>
       {right ? (
-        <Text variant="label" color="textTertiary">
+        <Text variant="label" color="textTertiary" style={{ marginLeft: 'auto' }}>
           {right}
         </Text>
       ) : null}
@@ -259,6 +267,12 @@ export function Chip({
   onPress: () => void;
 }) {
   const { c } = useTheme();
+  // Selected is a state, not an action, so it does not get the accent fill —
+  // that is reserved for the thing to do (DESIGN_SYSTEM_FORTE.md 6). It is
+  // marked by a raised fill, a strong border and brighter text. The border is
+  // the colour-independent cue; inactive chips carry a transparent one so
+  // selecting never shifts the row by a pixel. Weight stays the same: bolder
+  // text would widen the chip and could reflow a wrapping row.
   return (
     <Pressable
       onPress={onPress}
@@ -270,10 +284,12 @@ export function Chip({
         justifyContent: 'center',
         borderRadius: radius.pill,
         marginRight: space.s,
-        backgroundColor: active ? c.accent : c.bgRaised,
+        borderWidth: 1,
+        borderColor: active ? c.textSecondary : 'transparent',
+        backgroundColor: active ? c.bgElevated : c.bgRaised,
       }}
     >
-      <Text variant="caption" color={active ? 'accentInk' : 'textSecondary'}>
+      <Text variant="caption" color={active ? 'textPrimary' : 'textSecondary'}>
         {label}
       </Text>
     </Pressable>
@@ -295,6 +311,7 @@ export function ControlChip({
   iconSide = 'left',
   tone = 'default',
   disabled,
+  accessibilityLabel,
 }: {
   label: string;
   onPress: () => void;
@@ -302,6 +319,8 @@ export function ControlChip({
   iconSide?: 'left' | 'right';
   tone?: 'default' | 'accent';
   disabled?: boolean;
+  /** Defaults to the label; give more when the label alone is ambiguous. */
+  accessibilityLabel?: string;
 }) {
   const { c } = useTheme();
   const ink = tone === 'accent' ? 'textPrimary' : 'textSecondary';
@@ -310,7 +329,7 @@ export function ControlChip({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPress={onPress}
@@ -360,11 +379,12 @@ export function Segmented<T extends string>({
         flexDirection: 'row',
         backgroundColor: c.bgSunken,
         borderRadius: radius.pill,
-        padding: 4,
+        padding: space.xs,
       }}
     >
       {options.map((o) => {
         const active = o.value === value;
+        // Same selected treatment as Chip: raised fill + strong border, no accent.
         return (
           <Pressable
             key={o.value}
@@ -377,10 +397,12 @@ export function Segmented<T extends string>({
               borderRadius: radius.pill,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: active ? c.accent : 'transparent',
+              borderWidth: 1,
+              borderColor: active ? c.textSecondary : 'transparent',
+              backgroundColor: active ? c.bgElevated : 'transparent',
             }}
           >
-            <Text variant="caption" color={active ? 'accentInk' : 'textSecondary'}>
+            <Text variant="caption" color={active ? 'textPrimary' : 'textSecondary'}>
               {o.label}
             </Text>
           </Pressable>

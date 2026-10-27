@@ -1,8 +1,8 @@
 # Forte — Design System
 
 The working reference for building Forte's UI: every token, every component, and the rules that
-connect them. It describes **what the code does today** (v1.1.0), checked against `src/ui/` and the
-feature components.
+connect them. It describes **what the code does today** (after the post-v1.1.0 design-system pass),
+checked against `src/ui/` and the feature components.
 
 Companion documents: [`DESIGN.md`](DESIGN.md) explains *why* (product intent, screens,
 interaction). This file explains *how* (the system you build with). Where they disagree,
@@ -24,10 +24,10 @@ free hand. Every rule below follows from that.
 
 | Principle | System consequence |
 |---|---|
-| **The brightest thing is the thing to do** | One light-filled `accent` capsule per screen: the primary action, or the selected tab |
+| **The brightest thing is the thing to do** | The `accent` fill appears on exactly four things: the primary `Button`, the pill nav's selected disc, the keypad's **Done** (the sheet's own primary action), and the half-second set flash. Selection elsewhere uses a border, not accent |
 | **Colour means state, never decoration** | `rest` blue appears only while a rest timer runs. `focus` teal marks live or "now" data. `positive`/`negative` appear only next to a delta |
-| **Numbers are the content** | Large tabular numerals, a dedicated `num` style, no jitter while counting |
-| **Depth by tone, not shadow** | Four background tones plus two line tones. No drop shadows anywhere |
+| **Numbers are the content** | Large numerals and a dedicated `num` style. Anything that ticks uses fixed-width digits (`TabularDigits`), so clocks never shuffle sideways |
+| **Depth by tone and line, not shadow** | Four background tones plus three line tones. No drop shadows anywhere |
 | **Every target is thumb-sized** | 48 dp minimum, a 60 dp primary action, a 68 dp in-workout action |
 | **Feedback is visual only** | No haptics. The set-completion flash *is* the confirmation, so it is never subtle |
 | **Quiet voice** | Typographic, no emoji, no illustrations, no celebration beyond one flash |
@@ -38,7 +38,7 @@ free hand. Every rule below follows from that.
 
 ### 2.1 Colour
 
-Sixteen tokens, two themes. **Dark is the default outright.** It does not follow the OS. *System*
+Eighteen tokens, two themes. **Dark is the default outright.** It does not follow the OS. *System*
 and *Light* are opt-ins in Settings.
 
 | Token | Dark | Light | Role |
@@ -49,22 +49,23 @@ and *Light* are opt-ins in Settings.
 | `bgElevated` | `#1B1D20` | `#FFFFFF` | Floating surfaces: pill nav, sheets, resume/update bars |
 | `hairline` | `#1F2124` | `#E7E8EB` | 1 px dividers, quiet borders |
 | `lineStrong` | `#2C3034` | `#D2D5D9` | Input borders, dashed cards, accent-tone chip borders |
-| `textPrimary` | `#F3F4F6` | `#111214` | Numbers, exercise names, titles |
+| `lineFloating` | `#1F2124` | `#D2D5D9` | Border of floating surfaces: pill nav, resume/update bars. Hairline in dark; `lineStrong` in light, where it is the only thing separating white-on-white |
+| `textPrimary` | `#F3F4F6` | `#111214` | Numbers, exercise names, titles, the chart's selected value |
 | `textSecondary` | `#9AA0A6` | `#5B6068` | Labels, metadata, logged set values |
-| `textTertiary` | `#62676E` | `#8B9199` | Previous-session values, hints, table headers |
+| `textTertiary` | `#80868E` | `#686E76` | Hints, table headers, axis labels. Recessive, but ≥ 4.5:1 everywhere |
 | `accent` | `#F3F4F6` | `#16181B` | Primary-action fill, selected tab, active chip/segment, set flash |
 | `accentInk` | `#0A0A0B` | `#FFFFFF` | Anything drawn **on** `accent` |
-| `focus` | `#5FD3BC` | `#0F9E8A` | Live data, chart's selected point, progress bar fill |
+| `focus` | `#5FD3BC` | `#0B7F6F` | Live data: chart's selected point, progress bar fill, history dots. A graphic colour; not used for text |
 | `positive` | `#72CBA4` | `#1C7A55` | Progression up, logged-set tick, update-ready dot |
 | `negative` | `#DD8B80` | `#B4463A` | Regression, destructive menu items |
 | `rest` | `#8FB4E8` | `#2A63BE` | Rest timer state **only** |
 | `restInk` | `#0A0A0B` | `#FFFFFF` | Anything drawn on `rest` |
+| `scrim` | `#000000B8` | `#000000B8` | Behind modal sheets (ActionSheet, NumericKeypad) |
 
 **Rules**
 
-1. **Never hard-code a colour.** Read `c` from `useTheme()`. The two exceptions in the codebase are
-   the modal scrim `#000000B8` (ActionSheet, NumericKeypad) and the app-icon backgrounds in
-   `app.json`.
+1. **Never hard-code a colour.** Read `c` from `useTheme()`. The only literal colours left are the
+   app-icon and splash backgrounds in `app.json`.
 2. **`accent` is a light fill, not a hue.** On dark it's near-white; on light it inverts to
    near-black. At most one accent-filled *action* per screen (selected tab and active chips are
    state, not actions).
@@ -74,23 +75,35 @@ and *Light* are opt-ins in Settings.
 5. **No saturated fields.** Status colours colour text, dots, strokes and thin borders, never a
    large surface.
 
-**Measured contrast** (WCAG ratio, against the background each pair actually sits on):
+**Measured contrast** (WCAG ratio, against the background each pair actually sits on). Text needs
+4.5:1; graphics such as dots and bars need 3:1.
 
-| Pair | Dark | Light | Verdict |
+| Pair | Dark | Light | Floor |
 |---|---|---|---|
-| `textPrimary` / `bgBase` | 18.0 | 18.0 | Pass |
-| `textSecondary` / `bgBase` | 7.5 | 6.1 | Pass |
-| `textSecondary` / `bgSunken` | 7.2 | 5.7 | Pass |
-| `accentInk` / `accent` | 18.0 | 17.8 | Pass |
-| `positive` / `bgBase` | 10.2 | 5.1 | Pass |
-| `negative` / `bgBase` | 7.6 | 5.2 | Pass |
-| `rest` / `bgRaised` | 8.6 | 5.8 | Pass |
-| `focus` / `bgBase` | 10.9 | **3.2** | Light fails for text |
-| `textTertiary` / `bgBase` | **3.5** | **3.0** | Fails 4.5:1 in both themes |
-| `textTertiary` / `bgRaised` | **3.2** | **3.2** | Fails 4.5:1 in both themes |
+| `textPrimary` / `bgBase` | 18.0 | 18.0 | 4.5 |
+| `textSecondary` / `bgBase` | 7.5 | 6.1 | 4.5 |
+| `textSecondary` / `bgSunken` | 7.2 | 5.7 | 4.5 |
+| `textSecondary` / `bgElevated` | 6.4 | 6.3 | 4.5 |
+| `textTertiary` / `bgBase` | 5.4 | 4.9 | 4.5 |
+| `textTertiary` / `bgRaised` | 5.0 | 5.1 | 4.5 |
+| `textTertiary` / `bgSunken` | 5.1 | 4.6 | 4.5 |
+| `textTertiary` / `bgElevated` | 4.6 | 5.1 | 4.5 |
+| `accentInk` / `accent` | 18.0 | 17.8 | 4.5 |
+| `restInk` / `rest` | 9.3 | 5.8 | 4.5 |
+| `rest` / `bgRaised` (RestPanel label) | 8.6 | 5.8 | 4.5 |
+| `rest` / `bgElevated` (ResumeBar label) | 7.9 | 5.8 | 4.5 |
+| `positive` / `bgBase` | 10.2 | 5.1 | 4.5 |
+| `positive` / `bgRaised` | 9.4 | 5.3 | 4.5 |
+| `negative` / `bgBase` | 7.6 | 5.2 | 4.5 |
+| `negative` / `bgElevated` | 6.5 | 5.4 | 4.5 |
+| `focus` / `bgBase` (graphic) | 10.9 | 4.7 | 3 |
+| `focus` / `lineStrong` (progress bar on its track) | 7.3 | 3.3 | 3 |
+| `lineFloating` / `bgRaised` (floating border) | 1.1 | 1.5 | 1.4, light only |
 
-`textTertiary` is deliberately recessive, but `DESIGN.md` §9 promises ≥ 4.5:1 for all text. See
-§9.
+**This table is enforced.** `tests/contrast.test.mjs` reads `tokens.ts` directly and fails `npm
+test` if any of these pairs (and every text token on all four backgrounds) drops below its floor.
+It also fails if the two palettes stop defining the same tokens. A failing test means fix the
+token, not the floor.
 
 ### 2.2 Typography
 
@@ -98,25 +111,40 @@ and *Light* are opt-ins in Settings.
 font at the mapped weight, so the first frame is never blank. The native splash screen stays up
 until fonts and the database are ready, so in practice users never see the fallback.
 
-| Variant | Size / line | Tracking | Weight | Tabular | Used for |
-|---|---|---|---|---|---|
-| `displayXl` | 68 / 72 | −2.5 | 700 | yes | Reserved, unused today |
-| `displayL` | 44 / 48 | −1.2 | 700 | yes | Today's workout name, number wells, keypad display, summary and progress heroes |
-| `displayM` | 30 / 36 | −0.7 | 700 | — | Rest clock, `StatGrid` values |
-| `titleL` | 23 / 29 | −0.4 | 600 | — | Exercise name in Active Workout, keypad keys, stepper glyphs |
-| `titleM` | 18 / 24 | −0.2 | 600 | — | Screen titles, large-button labels (≥ 60 dp) |
-| `body` | 16 / 22 | −0.1 | 400 | — | Running text, list rows, sheet items |
-| `bodyStrong` | 16 / 22 | −0.1 | 600 | — | Small-button labels, Undo, sheet cancel |
-| `label` | 12 / 16 | +0.7 | 500 | — | **Always uppercase.** Section labels, table headers |
-| `num` | 15 / 20 | −0.1 | 500 | yes | Set tables, history values, clocks in bars |
-| `caption` | 13 / 18 | −0.1 | 400 | — | Hints, chips, metadata, previous-session lines |
+| Variant | Size / line | Tracking | Weight | Used for |
+|---|---|---|---|---|
+| `displayL` | 44 / 48 | −1.2 | 700 | Today's workout name, number wells, keypad display, summary and progress heroes |
+| `displayM` | 30 / 36 | −0.7 | 700 | Rest clock, `StatGrid` values, the day name (and its rename input) |
+| `titleL` | 23 / 29 | −0.4 | 600 | Exercise name in Active Workout, keypad keys |
+| `titleM` | 18 / 24 | −0.2 | 600 | Screen titles, large-button labels (≥ 60 dp) |
+| `body` | 16 / 22 | −0.1 | 400 | Running text, list rows, sheet items, search and note inputs |
+| `bodyStrong` | 16 / 22 | −0.1 | 600 | Text actions (Done, Undo, + Create), small-button labels, sheet cancel |
+| `label` | 12 / 16 | +0.7 | 500 | **Always uppercase.** Section labels, table headers |
+| `num` | 15 / 20 | −0.1 | 500 | Set tables, history values, clocks in bars |
+| `caption` | 13 / 18 | −0.1 | 400 | Hints, chips, metadata, previous-session lines |
+
+**Urbanist has no tabular figures.** The font has no `tnum` feature, so `fontVariant:
+['tabular-nums']` (which `Text` still requests for `displayL` and `num`) does nothing: at
+`displayL` a "1" is 14.5 dp wide and a "0" 26.6 dp. Two consequences:
+
+- **Clocks use `TabularDigits`** (§4), which puts each digit in a fixed-width cell as wide as a
+  rendered "0" — Urbanist's widest digit in every weight — measured on screen. Measuring matters:
+  Android 14+ scales large text non-linearly, so a computed width spread the digits apart at 200%
+  text. `TABULAR_DIGIT_EM` (the widest digit per weight, from the font files) only sizes the first
+  frame. `RestClock`, `WorkoutClock` and therefore `ResumeBar` all use it.
+- **Static numbers stay proportional.** Number wells and set tables only change on a tap, so a
+  small width change is acceptable there, and fixed cells would make "102.5" about 12 dp wider —
+  past the number well's width budget at 360 dp.
 
 **Rules**
 
 - **`Text` is the only text component.** Choose a `variant` and a `color` token. Don't set
   `fontSize`, `fontFamily` or `fontWeight` in a style.
-- **Anything that counts uses a tabular variant** (`displayXl`, `displayL`, `num`) or
-  `tabular={true}`, so digits don't shift as a timer ticks.
+- **Inputs use `useTextStyle(variant)`** from `Text.tsx`, which returns the variant's size,
+  tracking and line height, and the weight-specific Urbanist family with **no** `fontWeight` (on
+  Android, adding a weight to a custom family can fall back to the system font). Drop
+  `lineHeight` on single-line `TextInput`s; Android clips them with one.
+- **Anything that ticks uses `TabularDigits`.**
 - `label` uppercases itself; `uppercase` is available for other variants, but nothing else in the
   app uses it. Uppercase is for small labels only.
 - Display sizes carry negative tracking; `label` carries positive tracking. Leave tracking alone,
@@ -142,10 +170,9 @@ Typical rhythm:
 
 | Token | Value | Used for |
 |---|---|---|
-| `radius.chip` | 10 | Reserved, unused today |
-| `radius.input` | 14 | Number wells, undo strip, keypad buttons |
+| `radius.input` | 14 | Number wells, text inputs, undo strip, keypad buttons, sheet rows |
 | `radius.card` | 20 | Cards, rest panel. Sheets use `card + 8` = 28 at the top |
-| `radius.pill` | 999 | **Every button**, chips, segmented control, pill nav, resume/update bars |
+| `radius.pill` | 999 | **Every button**, chips, segmented control, pill nav, resume/update bars — and every dot and thin bar (status dots, progress bar, sheet handle), since a pill radius on a small square is a circle |
 | `radius.none` | 0 | Reserved |
 
 Sharp corners appear nowhere. A sheet's top edge is always rounded, because a square edge reads as
@@ -153,15 +180,21 @@ a clipped control.
 
 ### 2.5 Elevation
 
-There are no shadows. Depth comes from **tone** and **hairlines**:
+There are no shadows. Depth comes from **tone** and **lines**:
 
 ```
 bgBase  →  bgRaised (cards, rows)  →  bgElevated (floating: nav, sheets, bars)
                ↘ bgSunken (recessed: wells, tracks, pressed)
 ```
 
-A floating surface is `bgElevated` + 1 px `hairline` border + `radius.pill` or a 28 pt sheet
-radius. Scrims are `#000000B8`.
+- **Floating bars and the pill nav:** `bgElevated` + 1 px `lineFloating` border +
+  `radius.pill`. In dark, the tone step from `bgRaised` (`#141517`) to `bgElevated`
+  (`#1B1D20`) does the lifting, and the border is a hairline. In light, both are white, so the
+  `lineStrong`-weight border is what separates them. A grey tint was rejected: it measured 1.01:1
+  against `bgSunken`, which would make floating and recessed surfaces the same colour.
+- **Sheets:** `bgElevated` with a 28 pt top radius over `scrim`. The scrim does the separating, so
+  sheets need no border.
+- **Pressed states** stay `bgSunken` everywhere, including inside sheets.
 
 ### 2.6 Layout and sizing
 
@@ -174,10 +207,13 @@ radius. Scrims are `#000000B8`.
 | `PRIMARY_ACTION_HEIGHT` | 60 | Default `Button` height |
 | `WORKOUT_ACTION_HEIGHT` | 68 | Complete Set / Start Set / Next Exercise |
 | `NAV.height` / `button` / `inset` | 64 / 52 / 18 | Floating pill nav |
-| `NAV.clearance` | 98 | Bottom space a tab screen leaves so content clears the nav |
+| Nav overlay height | measured | `useNavOverlay` (`src/ui/nav-overlay.ts`): PillNav's `onLayout` height, covering UpdateBar, ResumeBar, the pill and the bottom inset |
+| `NAV.clearance` | 98 | Fallback for the above, used only before PillNav's first layout |
 
 Rules:
-- Tab screens pass `navClearance` to `Screen`.
+- Tab screens pass `navClearance` to `Screen`, which pads scroll content by the **measured** overlay
+  height + `space.xl`. When ResumeBar or UpdateBar appears the padding grows with it, so the last
+  row is never hidden.
 - Active Workout is a full-screen modal above the tabs. It has no tab bar, and its primary action
   is pinned to the bottom of the screen.
 - Larger screens gain *space*, never *steps*: the only responsive adaptation today is the gutter
@@ -185,16 +221,19 @@ Rules:
 
 ### 2.7 Motion
 
-Physical and brief. Only two things animate today:
+Physical and brief. This is everything that moves:
 
-| Element | Motion | Respects reduced motion |
-|---|---|---|
-| Pill nav disc | Spring (damping 18, stiffness 220, mass 0.9) between slots; icons crossfade in step | Yes, jumps instantly |
-| Set-completion flash | Row fills with `accent`, text inverts to `accentInk`, fades over 520 ms | No (see §9) |
-| Screen transitions | Stack default `fade`; Active Workout `slide_from_bottom`; detail screens `slide_from_right` | No |
+| Element | Motion | Tokens | Reduced motion |
+|---|---|---|---|
+| Set-completion flash | Accent fill behind the row; the row's normal ink crossfades to an `accentInk` copy, then everything fades back. Reanimated, UI thread, opacity only | `duration.instant` delay, `duration.flash` (520 ms) fade | Inverts instantly, holds `duration.flashHold` (400 ms), clears with no fade |
+| Pill nav disc | Spring between slots; icons crossfade in step (RN Animated, native driver) | `spring.nav` (damping 18, stiffness 220, mass 0.9) | Jumps instantly |
+| Screen transitions | Stack default `fade`; Active Workout `slide_from_bottom`; detail screens `slide_from_right` | Platform-timed (Android's native stack ignores durations) | All become `fade` |
+| Sheets | ActionSheet `fade`; NumericKeypad, ExercisePicker and the Progress exercise picker `slide` | Platform-timed | `slide` becomes `fade` |
 
-`duration` tokens (`instant 100`, `fast 120`, `base 200`, `slow 220`) exist but nothing reads them
-yet. New animation should use them. Reanimated is installed and configured but unused.
+**Rules:** time every animation with a `duration.*` token, or a `spring.*` token for physics.
+Animate opacity and transforms, not colours or layout, so it can run on the UI thread. Check
+`reducedMotion` from `useTheme()`, and under it keep the state change but drop the movement.
+`duration.fast`, `base` and `slow` are defined for new work but nothing reads them yet.
 
 **Live values tick without re-rendering the screen.** `RestClock` and `WorkoutClock` are the only
 components that re-render each second. They compute from stored timestamps, and the interval only
@@ -203,8 +242,8 @@ triggers a redraw. Follow this pattern for anything that counts.
 ### 2.8 Iconography
 
 **Feather**, stroked, via `Icon` (or `Feather` directly inside `src/ui/`). Default 18 pt in
-`textSecondary`. Common sizes: 14 (inside chips), 16–17 (bar and timer controls), 21 (nav),
-22 (header).
+`textSecondary`. Common sizes: 14 (inside chips), 16–17 (bar and timer controls), 20 (number-well
+steppers, add buttons), 21 (nav), 22 (header).
 
 - No emoji, and no Unicode glyphs used as icons. Font substitution moves their baseline and can
   render them as colour emoji.
@@ -232,37 +271,41 @@ const { c, name, reducedMotion, fontsReady } = useTheme(); // or useColors() for
 | Component | Purpose | Key spec | Rules |
 |---|---|---|---|
 | **`Text`** | All text | `variant`, `color`, `tabular`, `uppercase`, `align` | The only text component |
+| **`useTextStyle(variant)`** | Type ramp for non-`Text` components (`TextInput`) | Returns size, line height, tracking, and the weight-specific Urbanist family with no `fontWeight` (system font at the mapped weight before load) | `Text` uses it too, so the two cannot drift. Drop `lineHeight` on single-line inputs |
+| **`TabularDigits`** | Anything that ticks | Each digit in a fixed cell the width of a rendered "0", measured by a hidden copy (`TABULAR_DIGIT_EM` estimates the first frame); separators natural width. One accessible element with a spoken `accessibilityLabel`; glyphs hidden from screen readers | Clocks only. Not for number wells or tables (§2.2) |
 | **`Button`** | Full-width actions | Pill. Height 60 (68 in workout). Label `titleM` if height ≥ 60, else `bodyStrong`. Pressed opacity 0.82, disabled 0.35 | Variants: `primary` (accent), `secondary` (bgRaised), `ghost`, `rest`. `shout` for headline actions. One `primary` per screen |
-| **`ControlChip`** | Secondary controls beside a primary action | Pill, min height 40, 1 px border (`hairline`, or `lineStrong` for `tone="accent"`), `caption` text, optional 14 pt icon left/right | Must look like a button. Bare tinted text gets missed mid-workout |
-| **`Chip`** | Filters | Pill, height 38. Active is `accent` fill + `accentInk` text, inactive `bgRaised` | Selection state only, never actions |
-| **`Segmented`** | Exclusive metric switch | `bgSunken` pill track, 4 pt padding, 40 pt thumbs, active thumb `accent` | `accessibilityRole="tab"` |
+| **`ControlChip`** | Secondary controls beside a primary action, and the Restart in UpdateBar | Pill, min height 40, 1 px border (`hairline`, or `lineStrong` for `tone="accent"`), `caption` text, optional 14 pt icon left/right, optional `accessibilityLabel` | Must look like a button. Bare tinted text gets missed mid-workout. `tone="accent"` is a stronger outline, **not** an accent fill |
+| **`Chip`** | Filters | Pill, height 38, `caption`. Active: `bgElevated` fill, 1 px `textSecondary` border, `textPrimary` text. Inactive: `bgRaised`, transparent 1 px border, `textSecondary` | Selection is state, not an action, so no accent. The border is the colour-independent cue. Same weight in both states, so selecting never widens a chip or reflows a wrapping row |
+| **`Segmented`** | Exclusive switch (Progress metric, units, theme) | `bgSunken` pill track, `space.xs` padding, 40 pt thumbs. Active thumb: `bgElevated` + 1 px `textSecondary` border + `textPrimary`; inactive transparent | `accessibilityRole="tab"`, `selected` state. Same treatment as Chip |
 | **`IconButton`** | Icon-only actions | 48 × 48 minimum, hitSlop 8, pressed opacity 0.6 | Requires `label` |
 | **`Icon`** | Feather glyph with a token colour | Default 18, `textSecondary` | No emoji or glyph characters |
-| **`Screen`** | Page scaffold | SafeArea top, responsive gutter, max width 1100, optional scroll | `navClearance` on tab screens |
+| **`Screen`** | Page scaffold | SafeArea top, responsive gutter, max width 1100, optional scroll | `navClearance` on tab screens pads by the measured nav overlay (§2.6) |
 | **`Card`** | Grouped content | `bgRaised`, radius 20, padding 16. `muted` → `bgSunken`. `dashed` → transparent with a dashed `lineStrong` border (empty or unconfigured states) | Pressable cards dim to 0.75 |
 | **`Divider`** | Separation | 1 px `hairline`, optional left inset | Prefer over borders and cards |
 | **`Spacer`** | Vertical gap | Default `space.l` | Use grid values |
-| **`SectionLabel`** | Section heading | `label` in `textSecondary`, optional right-hand value in `textTertiary` | Uppercase via variant |
+| **`SectionLabel`** | Section heading | `label` in `textSecondary`, optional right-hand value in `textTertiary`. Wraps instead of colliding: when both don't fit, the value drops to its own line, still right-aligned | Uppercase via variant. Label–value rows (`MetaRow` on Today) follow the same wrap rule |
 | **`StatGrid`** | Big-number summaries | 2 columns; `label` over a `displayM` value; `tone` positive/negative | Tone only on deltas |
 | **`EmptyState`** | No-data states | `titleM` + `body` (max 380 wide) + one action | One sentence of context, one of guidance, one action. No illustrations |
+| **`SystemModal`** | Every modal | Drop-in for React Native's `Modal`. Shows the Android navigation bar, waits `BAR_SETTLE_MS` (150 ms), then opens; hides the bar again when the last modal closes (`src/ui/system-bars.ts`) | **The only way to open a modal**: lint rejects a raw `Modal` import. A modal opened while the bar is hidden renders blank and blocks every tap |
 | **`ActionSheet`** | Menus | `bgElevated` sheet, top radius 28, 36 × 4 handle, 56 pt rows, optional hint, `negative` for destructive | Replaces `Alert` menus. Android's AlertDialog drops buttons past three |
-| **`UndoStrip`** + `useUndo` | Reversible removal | `bgRaised`, radius 14, 48 high, 5 s window, `Undo` in `accent` | The default answer to "are you sure?" |
-| **`PillNav`** | Tab bar | Floating `bgElevated` capsule, 64 high, four 52 pt circular buttons, sliding `accent` disc. Hosts `UpdateBar` and `ResumeBar` above it | Icon-only, fixed order, labelled |
-| **`LineChart`** | Single-series trend | SVG; 2 px `textPrimary` line, `hairline` gridlines on rounded steps, points r4 (`r6 focus` when selected), labelled y-axis that need not start at zero | No area fill, no legend, no second axis. Shown only at ≥ 3 points (`MIN_POINTS_FOR_TREND`) |
+| **`UndoStrip`** + `useUndo` | Reversible removal | `bgRaised`, radius 14, 48 high, 5 s window, **Undo** in `bodyStrong` `textPrimary` | The default answer to "are you sure?" |
+| **`PillNav`** | Tab bar | Floating `bgElevated` capsule, 1 px `lineFloating` border, 64 high, four 52 pt circular buttons, sliding `accent` disc (`spring.nav`). Hosts `UpdateBar` and `ResumeBar` above it, and reports the whole overlay's height to `useNavOverlay` | Icon-only, fixed order, labelled |
+| **`LineChart`** | Single-series trend | SVG; 2 px `textPrimary` line, `hairline` gridlines on rounded steps, points r4 (r6 in `focus` when selected), labelled y-axis that need not start at zero. The selected value is written below in `textPrimary` | No area fill, no legend, no second axis. Shown only at ≥ 3 points (`MIN_POINTS_FOR_TREND`). `focus` marks the point, never text |
+| **Settings `Switch`** | On/off settings | On: `bgRaised` thumb on a `textSecondary` track. Off: `textTertiary` thumb on a `lineStrong` track. Both ≥ 3:1, tested | Neutral, not accent: the thumb position is the state. The off thumb used to be `bgRaised` too, which measured ~1.3:1 on its track in dark, so it was invisible |
 
 ## 5. Components: workout and feature
 
 | Component | File | Spec | Why it looks like this |
 |---|---|---|---|
-| **`NumberWell`** | `features/workout/NumberWell.tsx` | 88 high, `bgSunken`, radius 14, `lineStrong` border; `displayL` value (auto-shrinks), 56 pt steppers at each side, `label` unit below | Three input modes: steppers (hold to repeat), tap for the keypad, vertical drag at 12 px per step |
-| **`NumericKeypad`** | `features/workout/NumericKeypad.tsx` | Bottom sheet, top radius 28; `displayL` read-out; 3 × 4 grid of 64 pt keys in `titleL`; Cancel / Done 56 pt, radius 14 | Digits where the thumb is. The first key press replaces the value |
-| **`SetTable`** / `LoggedRow` | `features/workout/SetTable.tsx` | `num` rows, `label` headers in `textTertiary`, a `positive` tick per logged set, optional inline `rest mm:ss` | Recessive by design: logged rows stay quiet so the eye stays on the active row. The flash is the commit confirmation |
-| **`PreviousLine`** | same | `label` + `caption`, both `textTertiary` | Last time's numbers sit directly above today's inputs |
-| **`RestPanel`** | `features/workout/RestPanel.tsx` | `bgRaised` bar, radius 20, **3 px `rest` left edge**, `REST` / `REST · PAUSED` label, `displayM` clock at 60% opacity when paused, three 44 pt round controls on `bgSunken` | A compact bar, not a takeover. The thing you're resting *from* stays visible. Counts up, because there's no target to count down to |
-| **`RestClock`** / **`WorkoutClock`** | same | Isolated 1 s re-render, derived from timestamps | The battery and correctness pattern for live values |
-| **`ResumeBar`** | `features/workout/ResumeBar.tsx` | 46 high pill, `bgElevated` + hairline, 7 pt status dot (`rest` while resting, else `focus`), name + clocks | The minimised workout is never lost |
-| **`UpdateBar`** | `features/updates/UpdateBar.tsx` | Same geometry as ResumeBar; `positive` dot, *Update ready*, accent **Restart** pill, Feather `x` to dismiss | Hidden during a workout. A restart is never offered between sets |
-| **`ExercisePicker`** | `features/routine/ExercisePicker.tsx` | Sheet with search, muscle-group chips, recents, multi-add | Stays open for adding several exercises |
+| **`NumberWell`** | `features/workout/NumberWell.tsx` | 106 high (two 48 dp steppers + 8 dp gap + border), `bgSunken`, radius 14, `lineStrong` border. `displayL` value on the left (auto-shrink kept as a backstop); a 49 dp column on the right, behind a hairline, holds Feather `plus` over `minus`; `label` unit below. Sized by the caller (`style`) | Two inputs: steppers (hold to repeat, accelerating) and tap-for-keypad. The column costs 48 dp where flanking steppers cost 112, so "102.5" (95.5 dp) renders at full size in the ~103 dp value area at 360 dp. Wells sit side by side, and stack when OS font scale ≥ 1.5. Drag-to-scrub was removed: the scroll view stole it once the screen could scroll |
+| **`NumericKeypad`** | `features/workout/NumericKeypad.tsx` | Bottom sheet over `scrim`, top radius 28; `displayL` read-out; 3 × 4 grid of 64 pt keys in `titleL`; Cancel / **Done** 56 pt, radius 14. Done is accent-filled | Digits where the thumb is. The first key press replaces the value. The sheet is its own context, so Done is its one accent action |
+| **`SetTable`** / `LoggedRow` | `features/workout/SetTable.tsx` | `num` rows, `label` headers in `textTertiary`, a `positive` tick per logged set, optional inline `rest mm:ss`. The set and reps columns (44 and 72 dp) scale with the OS font size, capped at 1.5×. Flash per §2.7: accent fill plus a crossfaded `accentInk` copy, mounted only on the flashing row and hidden from screen readers | Recessive by design: logged rows stay quiet so the eye stays on the active row. The flash is the commit confirmation, and it's legible (inverted ink) even on a skipped row |
+| **`PreviousLine`** | same | `label` + `caption`, both `textSecondary` | The number you're trying to beat, read at arm's length, so it must be plainly legible. Still a step below today's primary-tone values |
+| **`RestPanel`** | `features/workout/RestPanel.tsx` | `bgRaised` bar, radius 20, **3 px `rest` left edge**, `REST` / `REST · PAUSED` label, `displayM` `TabularDigits` clock at 60% opacity when paused, three 44 pt round controls on `bgSunken` | A compact bar, not a takeover. While resting it sits **above** the next set's inputs (rest, then set *n*), so it stays on screen at 360 dp and at large text sizes. Counts up, because there's no target to count down to |
+| **`RestClock`** / **`WorkoutClock`** | same | `TabularDigits`; isolated 1 s re-render, derived from timestamps; spoken labels ("Rest 1 minute 42 seconds, paused") with live region off | The battery and correctness pattern for live values |
+| **`ResumeBar`** | `features/workout/ResumeBar.tsx` | 46 high pill, `bgElevated` + `lineFloating`, 7 pt status dot (`rest` while resting, else `focus`), name (truncates, with `space.s` before the clocks) + both clocks | The minimised workout is never lost |
+| **`UpdateBar`** | `features/updates/UpdateBar.tsx` | Same geometry as ResumeBar; `positive` dot, *Update ready*, an outlined **Restart** `ControlChip`, Feather `x` to dismiss | Hidden during a workout. Outlined because the screen's real primary action is elsewhere |
+| **`ExercisePicker`** | `features/routine/ExercisePicker.tsx` | Sheet with a `body` search input, muscle-group chips, recents, multi-add; rows end in a Feather `plus`. Text actions (Done · n added, + Create) in `bodyStrong` `textPrimary` | Stays open for adding several exercises |
 
 ### 5.1 Surfaces outside the app UI
 
@@ -281,12 +324,21 @@ const { c, name, reducedMotion, fontsReady } = useTheme(); // or useColors() for
 headline verbs (START WORKOUT, COMPLETE SET, START SET *n*). The label names exactly what happens:
 on the last exercise, "Next exercise" becomes "Finish workout".
 
+**Accent discipline.** `accent` is a fill and only a fill, on the four things listed in §1. Text
+actions such as Done, Undo and + Create are `bodyStrong` in `textPrimary`. Selected states (chips,
+segments, a list's selected row) use a border or a weight, never accent. "Today" markers use
+`focus`. Search the code for `'accent'` and `c.accent` in review: every hit should be one of the
+four.
+
 **Secondary actions.** `ControlChip`s in a wrapping row above the primary action. Rarely-used or
 destructive actions go in the `⋯` `ActionSheet`.
 
 **Confirmation.** Undo, not dialogs. Only two actions are truly unrecoverable and get a dialog:
 discarding a workout and deleting a session. Everything else removes immediately and offers a 5 s
 `UndoStrip`.
+
+**Modals.** Always `SystemModal`, never React Native's `Modal` (lint enforces it). Native `Alert`
+dialogs are unaffected by the hidden navigation bar and stay as they are.
 
 **Feedback.**
 - Logging a set: the row flash, plus the rest panel appearing.
@@ -316,24 +368,30 @@ how many more sessions it needs rather than drawing a line through two points.
 
 - Touch targets are ≥ 48 dp (`HIT`, `IconButton`, `hitSlop` on small controls).
 - Icon-only controls carry `accessibilityLabel`. Buttons, tabs and segments declare `accessibilityRole` and `accessibilityState`.
-- Progress uses `accessibilityRole="progressbar"` with a value. The rest clock sets `accessibilityLiveRegion="none"`, so screen readers are not interrupted every second.
-- Meaning never relies on colour alone: rest state changes label text, and deltas carry signs.
-- Numbers use tabular figures.
-- Dynamic type is honoured by default (RN `allowFontScaling`). The 200% layout promised in `DESIGN.md` §9 is unverified.
+- Progress uses `accessibilityRole="progressbar"` with a value.
+- Clocks are one element each with a spoken label ("Workout time 32 minutes 10 seconds"). The live region is off, so screen readers are not interrupted every second.
+- Meaning never relies on colour alone: rest state changes label text, deltas carry signs, and selected chips and segments carry a border.
+- Text contrast is ≥ 4.5:1 on every surface and enforced by `tests/contrast.test.mjs` (§2.1).
+- Dynamic type is honoured by default (RN `allowFontScaling`). `TabularDigits` cells scale with it. At font scale ≥ 1.5 the number wells stack vertically.
 
 ---
 
 ## 8. Adding to the system
 
-Before merging UI work:
+Before merging UI work. Rules 1, 2, 3 and 5 are partly enforced: `npm run lint` rejects hex
+colours, literal type styles, literal radii, `color="accent"` and raw `Modal` imports, and
+`npm test` rejects contrast below the floors. The release workflow runs both.
 
-1. Every colour comes from `c.*`, and every new token exists in both palettes.
-2. Every text node is `Text` with a `variant`. There are no raw `fontSize`/`fontFamily` values.
-3. Spacing, radii and sizes come from tokens.
+1. Every colour comes from `c.*`, and every new token exists in both palettes. `npm test` passes,
+   including the contrast suite. Add a pair to `tests/contrast.test.mjs` for any new
+   foreground/background combination.
+2. Every text node is `Text` with a `variant`; inputs use `useTextStyle`. There are no raw
+   `fontSize`/`fontFamily`/`fontWeight` values.
+3. Spacing, radii and sizes come from tokens. Dots and thin bars use `radius.pill`.
 4. Touch targets are ≥ 48 dp. Icon-only controls are labelled.
-5. There is at most one accent-filled action on the screen.
-6. Anything animated checks `reducedMotion` and uses `duration.*`.
-7. Anything that ticks is isolated and derived from timestamps.
+5. `accent` is only on the four things in §1.
+6. Anything animated checks `reducedMotion` and uses `duration.*` or `spring.*`.
+7. Anything that ticks is isolated, derived from timestamps, and drawn with `TabularDigits`.
 8. The change has been checked in both themes on a device. Fast Refresh has silently skipped edits
    before, so reload fully when in doubt.
 9. A new reusable piece goes in `src/ui/` if it's generic, or in `src/features/<area>/` if it's
@@ -343,20 +401,25 @@ Before merging UI work:
 
 ## 9. Drift and debt
 
-The specification and the implementation disagree in these places. Each item is either a bug to
-fix or a spec line to update. Decide which, then delete the row.
+Where the specification and the implementation still disagree, or where something is implemented
+but not yet verified. Each item is either a bug to fix or a spec line to update. Decide which, then
+delete the row.
 
-| # | Area | `DESIGN.md` says | Code does | Suggested resolution |
+Resolved in the design-system pass and removed from this table:
+- contrast, and `focus` used as text
+- the type ramp, and raw text styles on inputs
+- motion and reduced motion
+- unused tokens (`displayXl`, `radius.chip`)
+- the responsive spec, now marked future work in `DESIGN.md` §8
+- the hard-coded scrim
+
+| # | Area | Expected | Today | Next step |
 |---|---|---|---|---|
-| 1 | Contrast | All text ≥ 4.5:1 (§9) | `textTertiary` is 3.0–3.5:1, and it's used for previous-session values | Lighten dark `textTertiary` toward `#7A8088` and darken light toward `#6E747C`, or keep it for non-essential hints only |
-| 2 | Contrast | — | Light `focus` `#0F9E8A` is 3.2:1 as text (chart's selected value) | Darken to about `#0B7F6F` for text, or use `textPrimary` for the value |
-| 3 | Type ramp | display/xl 64/60, title/l 24, title/m 19, label 13, caption 12 (§3.3) | 68/72, 23, 18, 12, 13; adds `displayM` and `bodyStrong` | Update §3.3 to the code. The code is what has been tested on device |
-| 4 | Raw text styles | "Nothing may hard-code a font size" (`tokens.ts`) | Three `TextInput`s set `fontSize`/`fontWeight` directly, so they render in the **system font**, not Urbanist (day name, session note, exercise search) | Add a `useTextStyle(variant)` helper and apply it to `TextInput` |
-| 5 | Motion | Row flip, rest panel rise, exercise collapse, slide, summary count-up (§3.5) | Only the nav disc and set flash animate | Trim §3.5 to what exists, or build them with `duration.*` tokens |
-| 6 | Reduced motion | "Replaces all of the above with opacity-only fades" | Honoured by the nav only; the set flash and stack transitions ignore it | Pass `reducedMotion` to SetTable (instant invert, hold, clear) and to the stack's `animation` |
-| 7 | Tokens | — | `duration.*` and `radius.chip` are never used; Reanimated is installed but unused | Use them or remove them |
-| 8 | Responsive | Tablet left rail, two-column Active Workout, desktop sidebar (§8) | Only gutters and max width change | Mark §8 as future work, or implement it |
-| 9 | Accessibility | Dynamic type to 200%, wells stack vertically (§9) | Not verified | Test at 200% on device |
-| 10 | Accessibility | Timer state announced as polite live-region updates | The clock is silenced (`none`), but pause/resume aren't announced either | Add a polite announcement on state change only |
-| 11 | Scrim | Tokens for every colour | `#000000B8` hard-coded twice | Add a `scrim` token |
-| 12 | Haptics | None | None, consistent | — |
+| 1 | Light-mode depth | Floating surfaces read as floating over white cards | Only the `lineFloating` border (1.5:1 on white) separates them. Not yet checked on a device | If it looks flat, add one shadow token, used in light mode only, for floating surfaces |
+| 2 | Large text | `DESIGN.md` §9: usable at 200% font scale | Checked on an Android 16 emulator at 200%: Today, Active Workout (wells stacked, rest timer on screen), Progress, History and the resume bar all fit without overlaps; long labels wrap. Not yet checked on a real phone | Spot-check on your phone at its largest font size |
+| 3 | Narrow screens | "102.5" at full `displayL` in a 360 dp well | Checked on the emulator at 360 dp: wells, rest timer and controls all fit above the primary action. "247.5" (104 dp) relies on auto-shrink | On a real phone, watch for mis-taps between the weight well's `+` and the reps value |
+| 8 | Modal workaround | Modals just work | `SystemModal` shows the nav bar before opening because a dialog over a hidden bar rendered blank (Android 16 emulator, RN 0.76, Expo Go). The root cause sits in RN or Android, not in Forte | After each Expo SDK or RN upgrade, try a raw `Modal` with the bar hidden; if it renders, the workaround can go |
+| 4 | Announcements | Timer state changes announced politely | The clock's live region is off, which is correct, but pause, resume and skip aren't announced at all | Announce rest state changes only, with `AccessibilityInfo.announceForAccessibility` |
+| 5 | Figures | "Numbers don't jitter" | True for clocks (`TabularDigits`). Number wells, set tables and history use Urbanist's proportional figures, by decision (§2.2) | Nothing unless a static column visibly misaligns. If one does, a tabular typeface for numerals is the real fix |
+| 6 | Motion tokens | Every token has a reader | Nothing reads `duration.fast`, `base` or `slow` | Use them in the next animation, or remove them |
+| 7 | Transition timing | Transitions on `duration.*` | Android's native stack ignores durations, so screen transitions stay platform-timed | Accepted |

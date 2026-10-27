@@ -46,7 +46,7 @@ npm run typecheck
 npm test
 ```
 
-Expected: no TypeScript output and `pass 26` across three suites. `expo-doctor` passes 17/18: it flags `@notifee/react-native` as unmaintained (see `RELEASE_NOTES.md`, v1.1.0).
+Expected: no TypeScript output, a clean `npm run lint`, and `pass 79` across five suites. `expo-doctor` passes 17/18: it flags `@notifee/react-native` as unmaintained (see `RELEASE_NOTES.md`, v1.1.0).
 
 The rest-timer suite is the one to care about — backgrounding, pause/resume cycling,
 reset-while-paused, process death, a clock that moves backwards. The format suite guards a bug
@@ -157,6 +157,13 @@ npm run build:apk
 
 Runs on Expo's servers, typically 10–20 minutes; the free tier queues at busy times. You get a
 URL when it finishes.
+
+> **Release APKs are arm64-only.** `plugins/with-android-abis.js` limits release builds to
+> `arm64-v8a`, which every Android phone from roughly 2017 onward uses. It also enables R8 code
+> shrinking and compresses the native libraries (`expo-build-properties` in `app.json`). Together
+> these take the APK from 103 MB to an estimated 15–23 MB. The catch: a release APK will **not**
+> install on an x86_64 emulator. Use `npx expo run:android` there instead, which builds for the
+> emulator's own architecture.
 
 > `npm run build:apk:unix` runs the same build on your own machine — but **EAS local builds are
 > supported on macOS and Linux only.** On Windows they need WSL2. For a Windows-native local
@@ -334,7 +341,7 @@ Export monthly. The JSON restores exactly — it is also how you move data from 
 installed APK, or between phones. The CSV is insurance against this app itself going away.
 
 **Storage growth:** roughly **4 KB per workout**, about **0.8 MB per year** at four sessions a
-week; ten years is around 8 MB. The installed app is ~35–40 MB and fixed.
+week; ten years is around 8 MB. The installed app is roughly 40 MB and fixed.
 
 ---
 

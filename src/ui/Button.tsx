@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, View, type ViewStyle, type StyleProp } from 'react-native';
 import { Text } from './Text';
 import { useTheme } from './theme';
-import { HIT, PRIMARY_ACTION_HEIGHT, radius, space } from './tokens';
+import { HIT, PRIMARY_ACTION_HEIGHT, radius, space, tracking } from './tokens';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'rest';
 
@@ -76,7 +76,7 @@ export function Button({
         <Text
           variant={height >= PRIMARY_ACTION_HEIGHT ? 'titleM' : 'bodyStrong'}
           color={ink[variant]}
-          style={shout ? { letterSpacing: 0.4 } : undefined}
+          style={shout ? { letterSpacing: tracking.shout } : undefined}
         >
           {label}
         </Text>

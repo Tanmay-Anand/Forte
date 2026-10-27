@@ -98,20 +98,25 @@ LIGHT
 
 ### 3.3 Typography
 
-**Urbanist** throughout — a geometric sans with open counters and a tall x-height, which stays legible at a glance and at distance. Numeric styles request tabular figures so digits do not jitter as the timer counts. The platform font is the fallback for the first frame before Urbanist loads.
+**Urbanist** throughout — a geometric sans with open counters and a tall x-height, which stays legible at a glance and at distance. The platform font is the fallback for the first frame before Urbanist loads.
+
+The ramp below is `src/ui/tokens.ts` (size / line height in pt, tracking in pt):
 
 ```
-display/xl    64 / 60   -3%   tabular   timer, workout summary hero
-display/l     44 / 44   -2%   tabular   weight & rep inputs, big stats
-title/l       24 / 30   -1%             exercise name in active workout
-title/m       19 / 24   -1%             screen titles, day names
-body          16 / 22    0%             general text, list rows
-label         13 / 16   +4%   uppercase section labels, table headers
-mono/num      15 / 20    0%   tabular   set tables, history values
-caption       12 / 16    0%             previous-session lines, hints
+displayL     44 / 48   -1.2   700   weight & rep inputs, workout name, big stats
+displayM     30 / 36   -0.7   700   rest clock, stat values, day name
+titleL       23 / 29   -0.4   600   exercise name in active workout
+titleM       18 / 24   -0.2   600   screen titles, large-button labels
+body         16 / 22   -0.1   400   general text, list rows, inputs
+bodyStrong   16 / 22   -0.1   600   text actions (Done, Undo), small buttons
+label        12 / 16   +0.7   500   uppercase section labels, table headers
+num          15 / 20   -0.1   500   set tables, history values, small clocks
+caption      13 / 18   -0.1   400   previous-session lines, hints, chips
 ```
 
-Weights: 400 body, 500 labels and numerals, 600 titles, 700 display. Nothing heavier — bold-everything reads as shouting. Display sizes carry negative tracking; nothing is set in uppercase except small labels.
+Weights: 400 body, 500 labels and numerals, 600 titles and text actions, 700 display. Nothing heavier — bold-everything reads as shouting. Display sizes carry negative tracking; nothing is set in uppercase except small labels.
+
+**Figures.** Urbanist has no tabular figures (no `tnum`). Clocks therefore draw each digit in a fixed-width cell (`TabularDigits`) so they never shift as they tick; static numbers keep proportional figures. Details in `DESIGN_SYSTEM_FORTE.md` §2.2.
 
 ### 3.35 Identity
 
@@ -134,19 +139,16 @@ The launch screen is **dark in both OS appearance modes**, matching the app's da
 
 ### 3.5 Motion
 
-Fast and physical. Nothing decorative.
+Fast and physical. Nothing decorative. This is everything that moves; anything not listed changes state instantly.
 
-| Event | Motion |
-|---|---|
-| Set completed | Row flips to logged state, 120 ms; accent flash on the row, fading over ~500 ms. **The row's own text inverts to `accent/ink` for the duration** — grey-on-accent is illegible, and a confirmation you cannot read is not a confirmation |
-| Rest timer starts | Timer bar rises from bottom, 180 ms ease-out; digits begin at 00:00 |
-| Rest timer pause/resume | Digits dim to 60% / return, 100 ms |
-| Exercise completed | Card collapses to summary, 200 ms |
-| Next exercise | Horizontal slide, 220 ms; the direction encodes forward/back |
-| Tab change | The nav disc springs to the new slot (~250 ms); icons crossfade in step with it |
-| Exercise progressed | The header progress bar grows to its new proportion |
-| Workout completed | Summary numbers count up once over 400 ms, then hold. Nothing else. |
-| Screen transitions | 200 ms; reduced-motion setting replaces all of the above with opacity-only fades |
+| Event | Motion | Reduced motion |
+|---|---|---|
+| Set completed | Accent flash on the row, fading over 520 ms after a 100 ms hold. **The row's own text inverts to `accent/ink` for the duration** — grey-on-accent is illegible, and a confirmation you cannot read is not a confirmation. Runs on the UI thread so the set's database write can't make it stutter | Inverts instantly, holds 400 ms, clears with no fade |
+| Tab change | The nav disc springs to the new slot; icons crossfade in step with it | Jumps instantly |
+| Screen transitions | Fade by default; Active Workout slides up, detail screens slide in from the right. Platform-timed | All fade |
+| Sheets | Action menus fade; the keypad and exercise pickers slide up | All fade |
+
+The rest panel appearing, a pause dimming the digits to 60%, and the progress bar growing are instant state changes, not animations. Timings come from `duration.*` and `spring.*` in `tokens.ts`.
 
 **No haptics or vibration.** Every state change is carried visually. Because there is no second channel, the set-completion flash is not decoration — it is the confirmation that the set was committed, and it must stay clearly visible rather than subtle.
 
@@ -296,7 +298,7 @@ A schedule, not a calendar. Seven fixed rows, no month grid, no dates — this i
 │  Your training split                    │  caption
 │                                         │
 │  ┌─────────────────────────────────┐    │
-│  │ MON                       ● TODAY│   │  accent dot
+│  │ MON                       ● TODAY│   │  focus dot
 │  │ Chest + Triceps                  │   │  title/m
 │  │ 5 exercises                    › │   │  caption
 │  └─────────────────────────────────┘    │
@@ -344,7 +346,7 @@ A schedule, not a calendar. Seven fixed rows, no month grid, no dates — this i
 | Rest | `bg/base`, solid hairline | title/m secondary, no count | Deliberately quieter — rest is a choice, not a gap |
 | Not configured | `bg/base`, **dashed** hairline | tertiary + inline `+ Add workout` | Visibly incomplete |
 
-Today's row carries an accent dot and label. It is not otherwise enlarged — the week must read as a flat, comparable set of seven.
+Today's row carries a `focus` dot and a primary-tone label (accent is reserved for actions). It is not otherwise enlarged — the week must read as a flat, comparable set of seven.
 
 **Interactions**
 - Tap any row → Customize Day.
@@ -454,10 +456,11 @@ Everything else in the app exists to feed this screen. It is optimised for one-h
 │    3    62.5 kg        7            ✓   │
 │   ────────────────────────────────────  │
 │                                         │
-│    4    ┌─────────┐   ┌─────────┐       │  ACTIVE ROW
-│         │  62.5   │   │    8    │       │  display/l, 88 dp tall wells
-│         │ −     + │   │ −     + │       │  steppers inside the well
-│         └─────────┘   └─────────┘       │
+│    4    ┌──────────┐  ┌──────────┐      │  ACTIVE ROW
+│         │      │ + │  │      │ + │      │  displayL, 106 dp tall wells
+│         │ 62.5 │   │  │   8  │   │      │  + over − in one column,
+│         │      │ − │  │      │ − │      │  right edge of each well
+│         └──────────┘  └──────────┘      │
 │              kg          reps           │
 │                                         │
 │         + Add set     ⋯ Set options     │  caption controls
@@ -471,14 +474,15 @@ Everything else in the app exists to feed this screen. It is optimised for one-h
 
 **Why this arrangement.** The user's eye travels top-to-bottom in the order they need information: *which exercise → what did I do last time → what have I done today → what am I entering now → the button*. The active row is the visual centre of gravity; logged sets recede to secondary tone so the eye is never drawn backwards.
 
-**The number wells.** Each is 88 dp tall with the value at display/l (44 pt). Three ways to change a value, all supported simultaneously:
-1. Tap `−` / `+` steppers — weight steps by a configurable increment (default 2.5 kg, 1.25 kg for dumbbells and cables); reps step by 1. Hold to repeat-accelerate.
+**The number wells.** Each is 106 dp tall with the value at displayL (44 pt) on the left and a single column of `+` over `−` on the right (48 dp targets, 8 dp apart). A column rather than steppers on both sides, because flanking steppers left a 360 dp phone 40 dp for the number and "102.5" shrank to 42%. The wells stack vertically at OS font scale ≥ 1.5. Two ways to change a value, both supported at once:
+1. Tap `+` / `−` — weight steps by a configurable increment (default 2.5 kg, 1.25 kg for dumbbells and cables); reps step by 1. Hold to repeat-accelerate.
 2. Tap the number itself → a full-width custom numeric keypad slides up (not the OS keyboard — a purpose-built pad with big keys, `.`, and a `Done` that is the same accent as COMPLETE SET).
-3. Vertical drag on the well scrubs the value — for jumping 20 kg without twelve taps.
 
-Values pre-fill from the previous set of this exercise in this session; on set 1, from the last session's set 1. The most common gym action — repeating the same weight and reps — therefore costs exactly one tap: COMPLETE SET.
+(Vertical drag-to-scrub was specified and built, then removed: the scroll view claimed the gesture whenever the screen could scroll, which is after a few sets, so it worked only sometimes.)
 
-**Previous-session line.** Always visible, always tertiary, always one line. If it wraps beyond one line (more than 4 sets), it truncates with `…` and expands on tap. It must never compete with today's numbers.
+Values pre-fill from the same set number of the last session of this workout; beyond that, from today's previous set. The most common gym action — repeating last time's weight and reps — therefore costs exactly one tap: COMPLETE SET.
+
+**Previous-session line.** Always visible, always one line, in secondary tone: it is the number the user is trying to beat, read at arm's length, so it must be plainly legible — but it stays a smaller variant than today's values. If it wraps beyond one line (more than 4 sets), it truncates with `…`.
 
 #### 5.4.2 Layout — resting state
 
@@ -503,7 +507,7 @@ The instant COMPLETE SET is tapped, the screen changes character. The set row fl
 │                                         │
 │   R E S T                               │  label, rest colour
 │                                         │
-│      0 1 : 2 7                          │  display/xl, 64 pt, tabular
+│      0 1 : 2 7                          │  displayM, fixed-width digits
 │                                         │
 │    ⏸ Pause      ↺ Reset      ⏭ Skip     │  three 48 dp controls
 │                                         │
@@ -516,7 +520,8 @@ The instant COMPLETE SET is tapped, the screen changes character. The set row fl
 
 **The rest panel is a compact bar, not a hero.** The timer's job is to inform, not to take over:
 at full display size it pushed the set table and the primary action off screen, so the thing you
-were resting *from* disappeared while you rested. It is now a single row — `REST` label and the
+were resting *from* disappeared while you rested. It sits directly above the next set's inputs —
+rest, then set *n* — so it stays on screen on a 360 dp phone and at large text sizes. It is now a single row — `REST` label and the
 elapsed value on the left, three circular icon controls on the right, a blue rule down the leading
 edge. The digits stay large enough to read at arm's length; everything else shrinks.
 
@@ -526,7 +531,7 @@ edge. The digits stay large enough to read at arm's length; everything else shri
 - Starts **automatically** on set completion. The user never starts it.
 - Stops **automatically** when the user taps START SET *n*. That elapsed value is written as the rest preceding set *n*. The user never types a rest time.
 - The timer panel uses `rest` blue and is the only blue in the app — peripheral vision alone tells the user they are resting.
-- Digits are tabular so the layout does not shift each second.
+- Digits sit in fixed-width cells (`TabularDigits`) so the layout does not shift each second — Urbanist's own figures are proportional.
 - **Pause** freezes the count (bathroom, a set stolen by someone else); digits dim; the panel label becomes `REST · PAUSED`. **Resume** continues from the frozen value.
 - **Reset** returns to 00:00 and keeps running. No confirmation.
 - **Skip** stops the timer, records the rest as-is, and returns immediately to the logging state without starting the next set — for supersetting or moving straight on.
@@ -612,7 +617,7 @@ If the app is killed mid-workout, the next launch opens directly into the in-pro
 #### 5.4.6 Gym-environment considerations
 
 - Screen stays awake for the duration of the workout.
-- Minimum body text 16 pt; all logged values ≥15 pt tabular; active values 44 pt.
+- Minimum body text 16 pt; all logged values ≥15 pt; active values 44 pt; clocks use fixed-width digits.
 - Contrast ratio ≥ 7:1 for all numerals against their surface (readable through glare and sweat-smeared glass).
 - All primary controls sit in the bottom 40% of the screen — thumb reach, one-handed.
 - No horizontal swipe gestures on the logging area (an accidental swipe with a chalky thumb must not change exercise); exercise navigation is by button only.
@@ -677,7 +682,7 @@ Answers exactly one question: **am I getting stronger?** Structured per-exercise
 │  Latest · 12 Sep                        │  caption
 │                                         │
 │   70 ┤                            ●     │
-│      │                      ●──── │     │  line chart, 2px accent
+│      │                      ●──── │     │  line chart, 2px text/primary
 │   65 ┤                ●─────      │     │  hairline grid, no fill,
 │      │          ●─────            │     │  no legend, no axis clutter
 │   60 ┤   ●──────                  │     │
@@ -858,7 +863,7 @@ Rule: one sentence of context, one sentence of guidance, one action. No illustra
 
 | Event | Feedback |
 |---|---|
-| Set completed | Row flip + accent flash (~500 ms, text inverted to `accent/ink`) + rest panel rises. Two simultaneous visual changes, because this is the confirmation the whole loop depends on |
+| Set completed | Accent flash (520 ms, text inverted to `accent/ink`) + rest panel appears. Two simultaneous visual changes, because this is the confirmation the whole loop depends on |
 | Rest timer running | Persistent blue panel; blue dot in resume bar when minimised |
 | Rest paused | Digits at 60% opacity, label `REST · PAUSED` |
 | Rest skipped | Panel drops away, 150 ms; rest value written silently |
@@ -875,6 +880,11 @@ The reduced-motion setting disables the animation layer without removing any sta
 ---
 
 ## 8. Responsive behaviour
+
+> **Status: future work.** Only the mobile-portrait layout is built. On larger screens the app
+> today widens its gutter (20 → 32 → 40 pt) and caps content at 1100 pt; everything from
+> "Mobile landscape" down — the left rail, two-column Active Workout, master–detail screens,
+> desktop sidebar and keyboard shortcuts — is design intent, not implemented behaviour.
 
 The interaction model never changes across sizes. Only density and column count do.
 
@@ -908,7 +918,7 @@ Active Workout splits horizontally: set table on the left, number wells and the 
 ## 9. Accessibility
 
 - All text ≥ 4.5:1 contrast; all numerals in Active Workout ≥ 7:1.
-- Full support for OS dynamic type up to 200%; the Active Workout layout is tested at 200% and reflows the number wells to stack vertically rather than truncate.
+- Full support for OS dynamic type up to 200%; the Active Workout number wells stack vertically from font scale 1.5 rather than truncate. (Checked on an Android 16 emulator at 200% across Today, Active Workout, Progress and History.)
 - Every icon-only control (`⌄`, `⋯`, `⣿`, timer controls) carries an accessible label.
 - Timer state changes are announced to screen readers as polite live-region updates, not per-second.
 - Colour is never the sole carrier of meaning: rest state also changes the label text; progression deltas also carry `↑ ↓ —` glyphs.

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, View, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import { SystemModal } from './SystemModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './Text';
 import { useTheme } from './theme';
@@ -36,9 +37,9 @@ export function ActionSheet({
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <SystemModal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
-        style={{ flex: 1, backgroundColor: '#000000B8', justifyContent: 'flex-end' }}
+        style={{ flex: 1, backgroundColor: c.scrim, justifyContent: 'flex-end' }}
         onPress={onClose}
         accessibilityLabel="Dismiss menu"
       >
@@ -59,7 +60,7 @@ export function ActionSheet({
               alignSelf: 'center',
               width: 36,
               height: 4,
-              borderRadius: 2,
+              borderRadius: radius.pill,
               backgroundColor: c.lineStrong,
               marginBottom: space.m,
             }}
@@ -123,6 +124,6 @@ export function ActionSheet({
           </Pressable>
         </Pressable>
       </Pressable>
-    </Modal>
+    </SystemModal>
   );
 }

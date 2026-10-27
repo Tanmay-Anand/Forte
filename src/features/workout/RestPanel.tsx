@@ -4,7 +4,8 @@ import { Text } from '@/ui/Text';
 import { Icon, type IconName } from '@/ui/Icon';
 import { useTheme } from '@/ui/theme';
 import { radius, space } from '@/ui/tokens';
-import { formatDuration } from '@/lib/time';
+import { TabularDigits } from '@/ui/TabularDigits';
+import { formatDuration, spokenDuration } from '@/lib/time';
 import { restElapsedSeconds, type RestState } from './rest-timer';
 
 /**
@@ -24,7 +25,7 @@ export function RestClock({
   variant = 'displayM',
 }: {
   state: RestState;
-  variant?: 'displayXl' | 'displayM' | 'num';
+  variant?: 'displayM' | 'num';
 }) {
   const [, force] = useState(0);
   const running = state.startedAt !== null && state.pausedAt === null;
@@ -38,15 +39,18 @@ export function RestClock({
   const elapsed = restElapsedSeconds(state, Date.now());
   const paused = state.pausedAt !== null;
 
+  // Fixed-width digits: Urbanist's proportional figures made this shuffle
+  // sideways every second. The live region stays off — announcing every tick
+  // would drown a screen reader.
   return (
-    <Text
+    <TabularDigits
+      text={formatDuration(elapsed)}
+      accessibilityLabel={`Rest ${spokenDuration(elapsed)}${paused ? ', paused' : ''}`}
       variant={variant}
       color="textPrimary"
       style={{ opacity: paused ? 0.6 : 1 }}
       accessibilityLiveRegion="none"
-    >
-      {formatDuration(elapsed)}
-    </Text>
+    />
   );
 }
 
@@ -151,9 +155,14 @@ export function WorkoutClock({ startedAt }: { startedAt: number }) {
     const id = setInterval(() => force((n) => n + 1), 1000);
     return () => clearInterval(id);
   }, []);
+  const elapsed = (Date.now() - startedAt) / 1000;
   return (
-    <Text variant="num" color="textSecondary">
-      {formatDuration((Date.now() - startedAt) / 1000)}
-    </Text>
+    <TabularDigits
+      text={formatDuration(elapsed)}
+      accessibilityLabel={`Workout time ${spokenDuration(elapsed)}`}
+      variant="num"
+      color="textSecondary"
+      accessibilityLiveRegion="none"
+    />
   );
 }
