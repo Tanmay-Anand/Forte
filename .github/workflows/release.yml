@@ -29,7 +29,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # eas-cli 26+ refuses to install on anything older than Node 22.
+          node-version: 22
           cache: npm
 
       - run: npm ci
