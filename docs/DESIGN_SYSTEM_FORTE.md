@@ -263,7 +263,7 @@ const { c, name, reducedMotion, fontsReady } = useTheme(); // or useColors() for
 - `c` is a flat token map. Pick by role (`c.bgRaised`), never by hex.
 - Light is a full theme, not an inversion. When adding a token, add it to **both** palettes.
   `Colors` is derived from the dark palette's keys, so a token missing from light is a type error.
-- `StatusBar` follows the theme; the splash and Android navigation-bar colour stay dark in both.
+- `StatusBar` and the splash follow the theme (splash ground `#FCFCFB` light, `#111213` dark); the Android navigation bar is hidden during use.
 
 ---
 
@@ -328,8 +328,8 @@ const { c, name, reducedMotion, fontsReady } = useTheme(); // or useColors() for
 | Surface | Spec |
 |---|---|
 | **Lock-screen notification** (`workout-notification.ts`) | Silent ongoing notification. Android's own chronometer draws the time from the derived rest start. Titles: `Resting · Bench Press`, `Rest paused · 01:23`, `Bench Press · Set 4`. At most two actions: `Pause`/`Resume` + `Start set n`, or `Log 80 kg × 8`. Copy follows the in-app button labels exactly |
-| **Splash** | White **Forte.** wordmark on `#0A0A0B`, dark in both OS modes, held until fonts and database are ready |
-| **App icon** | Bordered dark square, off-centre white disc, wordmark low-left; adaptive foreground inset to 62% on `#1C1C1C` |
+| **Splash** | Mountain-range mark and **Forte** wordmark; `#FCFCFB` in light, `#111213` in dark; held until fonts and database are ready |
+| **App icon** | Mountain-range shield on pale lake `#E9F5F8`; adaptive foreground fits a 62% circle; monochrome layer with ridge cut-outs for Android 13 themed icons; notification small icon `ic_stat_forte`. All drawn by `tools/bake-brand.mjs` |
 | **Android nav bar** | Hidden; `overlay-swipe` reveals it over the app without moving the layout |
 | **Forte Companion** (`companion/web/`) | A local PC page in the same palette (CSS variables copied from `tokens.ts`, dark by default, light on a toggle) and Tabler icons. Not linted by the app's design rules. **Setup → Phone** card: last backup received (`focus` dot), a `warn` line in `--neg` when the PC's address changed, and the pairing QR |
 | **Pairing QR** | Black on white in both themes, 188 px, inside a radius-12 white tile. A deliberate exception to theming: phone cameras read dark-on-light most reliably. Steps beside it, the raw link and addresses folded under a `details`. Shown open until the first backup arrives, then behind **Pair again** |

@@ -61,6 +61,9 @@ const STATIC = {
   '/body-map.js': ['web/body-map.js', 'text/javascript; charset=utf-8'],
 };
 STATIC['/body-data.js'] = ['web/body-data.js', 'text/javascript; charset=utf-8'];
+// The mountain-range mark, drawn by tools/bake-brand.mjs.
+STATIC['/favicon.png'] = ['web/favicon.png', 'image/png'];
+STATIC['/mark.png'] = ['web/mark.png', 'image/png'];
 // The grey body photos made by tools/bake-body.mjs, shared with the phone app.
 for (const body of ['male-front', 'male-back', 'female-front', 'female-back']) {
   STATIC[`/body/${body}.webp`] = [`../assets/body/${body}-base.webp`, 'image/webp'];

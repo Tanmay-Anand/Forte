@@ -16,7 +16,8 @@
       "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1C1C1C"
+        "monochromeImage": "./assets/adaptive-icon-monochrome.png",
+        "backgroundColor": "#E9F5F8"
       },
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
@@ -29,13 +30,13 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-dark.png",
+          "image": "./assets/splash-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#0A0A0B",
+          "backgroundColor": "#FCFCFB",
           "dark": {
             "image": "./assets/splash-dark.png",
-            "backgroundColor": "#0A0A0B"
+            "backgroundColor": "#111213"
           }
         }
       ],
@@ -45,7 +46,7 @@
           "visibility": "hidden",
           "behavior": "overlay-swipe",
           "position": "absolute",
-          "backgroundColor": "#0A0A0B"
+          "backgroundColor": "#111213"
         }
       ],
       [
@@ -66,7 +67,8 @@
             "arm64-v8a"
           ]
         }
-      ]
+      ],
+      "./plugins/with-notification-icon"
     ],
     "experiments": {
       "typedRoutes": true

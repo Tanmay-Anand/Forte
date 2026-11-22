@@ -68,6 +68,13 @@ export const palette = {
 /** Widened to string so the light and dark palettes share one type. */
 export type Colors = Record<keyof (typeof palette)['dark'], string>;
 
+/**
+ * Colours that live outside the running app: the launcher icon's ground and
+ * the brand mark's own tones. Read by tools/bake-brand.mjs; app.json repeats
+ * iconGround as the adaptive-icon background.
+ */
+export const brand = { iconGround: '#E9F5F8' } as const;
+
 /** Urbanist, with a system fallback until the font finishes loading. */
 export const fonts = {
   regular: 'Urbanist_400Regular',

@@ -383,8 +383,10 @@ src/
   lib/                     time · format · id · export · db-hooks
   data/exercises.seed.ts   145 seeded exercises
 
-assets/                    icon · adaptive-icon · splash-dark · splash-light
-Resources/                 original brand artwork (source for assets/)
+assets/                    icon · adaptive-icon (+ monochrome) · splash-light · splash-dark
+                           notification/ (status-bar icon) · body/ (figures)
+Resources/                 logo-mountain-range.png, the source for every brand image
+                           (node tools/bake-brand.mjs)
 tests/                     rest-timer (13) + format (6), plain Node
 ```
 
