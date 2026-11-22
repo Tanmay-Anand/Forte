@@ -1,7 +1,11 @@
 # Forte — Explanation
 
+> **Dated:** this describes Forte as built for v1.0 (September 2026). Since then it has become a
+> health and training app with analysis, a Profile tab and blood reports; see
+> `docs/AI_TRAINER_PLAN.md`. Statements below such as "no network calls at all" were true of v1.0.
+
 > **Status: built, running, and verified on device.** Unlike a blueprint, every claim here can be
-> checked against `D:\Tanm\Projects\Forte`. The app runs on an Android emulator and in Expo Go;
+> checked against this repository. The app runs on an Android emulator and in Expo Go;
 > typecheck is clean, 19 tests pass, `expo-doctor` reports 18/18.
 >
 > Claims are tagged so you can tell what kind of statement each one is:

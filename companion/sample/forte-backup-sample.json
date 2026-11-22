@@ -1,0 +1,3403 @@
+{
+  "format": "forte-export",
+  "schemaVersion": 2,
+  "exportedAt": 1794666600000,
+  "exercises": [
+    {
+      "id": "ex_bench",
+      "name": "Bench Press",
+      "equipment": "barbell",
+      "muscle_group": "chest",
+      "is_custom": 0,
+      "weight_step": 2.5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_incline",
+      "name": "Incline Dumbbell Press",
+      "equipment": "dumbbell",
+      "muscle_group": "chest",
+      "is_custom": 0,
+      "weight_step": 2,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_pushdown",
+      "name": "Tricep Pushdown",
+      "equipment": "cable",
+      "muscle_group": "arms",
+      "is_custom": 0,
+      "weight_step": 2.5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_row",
+      "name": "Barbell Row",
+      "equipment": "barbell",
+      "muscle_group": "back",
+      "is_custom": 0,
+      "weight_step": 2.5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_pulldown",
+      "name": "Lat Pulldown",
+      "equipment": "cable",
+      "muscle_group": "back",
+      "is_custom": 0,
+      "weight_step": 2.5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_curl",
+      "name": "Barbell Curl",
+      "equipment": "barbell",
+      "muscle_group": "arms",
+      "is_custom": 0,
+      "weight_step": 2.5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_squat",
+      "name": "Squat",
+      "equipment": "barbell",
+      "muscle_group": "legs",
+      "is_custom": 0,
+      "weight_step": 2.5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_rdl",
+      "name": "Romanian Deadlift",
+      "equipment": "barbell",
+      "muscle_group": "legs",
+      "is_custom": 0,
+      "weight_step": 2.5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    },
+    {
+      "id": "ex_legpress",
+      "name": "Leg Press",
+      "equipment": "machine",
+      "muscle_group": "legs",
+      "is_custom": 0,
+      "weight_step": 5,
+      "is_bodyweight": 0,
+      "archived_at": null
+    }
+  ],
+  "routineDays": [
+    {
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "is_rest": 0,
+      "updated_at": 1789993800000
+    },
+    {
+      "day_of_week": 2,
+      "name": null,
+      "is_rest": 1,
+      "updated_at": 1789993800000
+    },
+    {
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "is_rest": 0,
+      "updated_at": 1789993800000
+    },
+    {
+      "day_of_week": 4,
+      "name": null,
+      "is_rest": 1,
+      "updated_at": 1789993800000
+    },
+    {
+      "day_of_week": 5,
+      "name": "Legs",
+      "is_rest": 0,
+      "updated_at": 1789993800000
+    },
+    {
+      "day_of_week": 6,
+      "name": null,
+      "is_rest": 1,
+      "updated_at": 1789993800000
+    },
+    {
+      "day_of_week": 7,
+      "name": null,
+      "is_rest": 1,
+      "updated_at": 1789993800000
+    }
+  ],
+  "routineExercises": [
+    {
+      "id": "rx_1_0",
+      "day_of_week": 1,
+      "exercise_id": "ex_bench",
+      "position": 0
+    },
+    {
+      "id": "rx_1_1",
+      "day_of_week": 1,
+      "exercise_id": "ex_incline",
+      "position": 1
+    },
+    {
+      "id": "rx_1_2",
+      "day_of_week": 1,
+      "exercise_id": "ex_pushdown",
+      "position": 2
+    },
+    {
+      "id": "rx_3_0",
+      "day_of_week": 3,
+      "exercise_id": "ex_row",
+      "position": 0
+    },
+    {
+      "id": "rx_3_1",
+      "day_of_week": 3,
+      "exercise_id": "ex_pulldown",
+      "position": 1
+    },
+    {
+      "id": "rx_3_2",
+      "day_of_week": 3,
+      "exercise_id": "ex_curl",
+      "position": 2
+    },
+    {
+      "id": "rx_5_0",
+      "day_of_week": 5,
+      "exercise_id": "ex_squat",
+      "position": 0
+    },
+    {
+      "id": "rx_5_1",
+      "day_of_week": 5,
+      "exercise_id": "ex_rdl",
+      "position": 1
+    },
+    {
+      "id": "rx_5_2",
+      "day_of_week": 5,
+      "exercise_id": "ex_legpress",
+      "position": 2
+    }
+  ],
+  "sessions": [
+    {
+      "id": "s_0_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1789993800000,
+      "ended_at": 1789995593000,
+      "status": "completed",
+      "note": null,
+      "effort": null,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_0_3",
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "started_at": 1790167500000,
+      "ended_at": 1790169253000,
+      "status": "completed",
+      "note": null,
+      "effort": null,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_0_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1790339820000,
+      "ended_at": 1790341854000,
+      "status": "completed",
+      "note": null,
+      "effort": null,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_1_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1790599560000,
+      "ended_at": 1790601361000,
+      "status": "completed",
+      "note": null,
+      "effort": null,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_1_3",
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "started_at": 1790772480000,
+      "ended_at": 1790774226000,
+      "status": "completed",
+      "note": null,
+      "effort": null,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_1_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1790944560000,
+      "ended_at": 1790946600000,
+      "status": "completed",
+      "note": null,
+      "effort": null,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_2_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1791203460000,
+      "ended_at": 1791205243000,
+      "status": "completed",
+      "note": null,
+      "effort": 2,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_2_3",
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "started_at": 1791376260000,
+      "ended_at": 1791378016000,
+      "status": "completed",
+      "note": null,
+      "effort": 4,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_2_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1791549480000,
+      "ended_at": 1791551465000,
+      "status": "completed",
+      "note": null,
+      "effort": 3,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_3_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1791808500000,
+      "ended_at": 1791810325000,
+      "status": "completed",
+      "note": null,
+      "effort": 3,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_3_3",
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "started_at": 1791981600000,
+      "ended_at": 1791983397000,
+      "status": "completed",
+      "note": null,
+      "effort": 2,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_3_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1792154220000,
+      "ended_at": 1792156242000,
+      "status": "completed",
+      "note": null,
+      "effort": 4,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_4_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1792413120000,
+      "ended_at": 1792414889000,
+      "status": "completed",
+      "note": null,
+      "effort": 4,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_4_3",
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "started_at": 1792585980000,
+      "ended_at": 1792587791000,
+      "status": "completed",
+      "note": null,
+      "effort": 3,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_4_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1792759680000,
+      "ended_at": 1792761670000,
+      "status": "completed",
+      "note": null,
+      "effort": 2,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_5_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1793017800000,
+      "ended_at": 1793019590000,
+      "status": "completed",
+      "note": null,
+      "effort": 2,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_5_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1793364480000,
+      "ended_at": 1793366452000,
+      "status": "completed",
+      "note": null,
+      "effort": 3,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_6_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1793623680000,
+      "ended_at": 1793625496000,
+      "status": "completed",
+      "note": "Shoulder felt tight on the last bench set.",
+      "effort": 3,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_6_3",
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "started_at": 1793796060000,
+      "ended_at": 1793797845000,
+      "status": "completed",
+      "note": null,
+      "effort": 2,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_6_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1793969100000,
+      "ended_at": 1793971113000,
+      "status": "completed",
+      "note": null,
+      "effort": 4,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_7_1",
+      "day_of_week": 1,
+      "name": "Chest + Triceps",
+      "started_at": 1794227580000,
+      "ended_at": 1794229416000,
+      "status": "completed",
+      "note": null,
+      "effort": 4,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_7_3",
+      "day_of_week": 3,
+      "name": "Back + Biceps",
+      "started_at": 1794401340000,
+      "ended_at": 1794403183000,
+      "status": "completed",
+      "note": null,
+      "effort": 3,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    },
+    {
+      "id": "s_7_5",
+      "day_of_week": 5,
+      "name": "Legs",
+      "started_at": 1794573300000,
+      "ended_at": 1794575334000,
+      "status": "completed",
+      "note": null,
+      "effort": 2,
+      "current_index": 0,
+      "rest_started_at": null,
+      "rest_paused_at": null,
+      "rest_accumulated_s": 0,
+      "pending_rest_s": null
+    }
+  ],
+  "sessionExercises": [
+    {
+      "id": "sx_0_1_0",
+      "session_id": "s_0_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_1_1",
+      "session_id": "s_0_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_1_2",
+      "session_id": "s_0_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_3_0",
+      "session_id": "s_0_3",
+      "exercise_id": "ex_row",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_3_1",
+      "session_id": "s_0_3",
+      "exercise_id": "ex_pulldown",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_3_2",
+      "session_id": "s_0_3",
+      "exercise_id": "ex_curl",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_5_0",
+      "session_id": "s_0_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_5_1",
+      "session_id": "s_0_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_0_5_2",
+      "session_id": "s_0_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_1_0",
+      "session_id": "s_1_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_1_1",
+      "session_id": "s_1_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_1_2",
+      "session_id": "s_1_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_3_0",
+      "session_id": "s_1_3",
+      "exercise_id": "ex_row",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_3_1",
+      "session_id": "s_1_3",
+      "exercise_id": "ex_pulldown",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_3_2",
+      "session_id": "s_1_3",
+      "exercise_id": "ex_curl",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_5_0",
+      "session_id": "s_1_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_5_1",
+      "session_id": "s_1_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_1_5_2",
+      "session_id": "s_1_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_1_0",
+      "session_id": "s_2_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_1_1",
+      "session_id": "s_2_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_1_2",
+      "session_id": "s_2_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_3_0",
+      "session_id": "s_2_3",
+      "exercise_id": "ex_row",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_3_1",
+      "session_id": "s_2_3",
+      "exercise_id": "ex_pulldown",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_3_2",
+      "session_id": "s_2_3",
+      "exercise_id": "ex_curl",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_5_0",
+      "session_id": "s_2_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_5_1",
+      "session_id": "s_2_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_2_5_2",
+      "session_id": "s_2_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_1_0",
+      "session_id": "s_3_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_1_1",
+      "session_id": "s_3_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_1_2",
+      "session_id": "s_3_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_3_0",
+      "session_id": "s_3_3",
+      "exercise_id": "ex_row",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_3_1",
+      "session_id": "s_3_3",
+      "exercise_id": "ex_pulldown",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_3_2",
+      "session_id": "s_3_3",
+      "exercise_id": "ex_curl",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_5_0",
+      "session_id": "s_3_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_5_1",
+      "session_id": "s_3_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_3_5_2",
+      "session_id": "s_3_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_1_0",
+      "session_id": "s_4_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_1_1",
+      "session_id": "s_4_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_1_2",
+      "session_id": "s_4_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_3_0",
+      "session_id": "s_4_3",
+      "exercise_id": "ex_row",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_3_1",
+      "session_id": "s_4_3",
+      "exercise_id": "ex_pulldown",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_3_2",
+      "session_id": "s_4_3",
+      "exercise_id": "ex_curl",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_5_0",
+      "session_id": "s_4_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_5_1",
+      "session_id": "s_4_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_4_5_2",
+      "session_id": "s_4_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_5_1_0",
+      "session_id": "s_5_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_5_1_1",
+      "session_id": "s_5_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_5_1_2",
+      "session_id": "s_5_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_5_5_0",
+      "session_id": "s_5_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_5_5_1",
+      "session_id": "s_5_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_5_5_2",
+      "session_id": "s_5_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_1_0",
+      "session_id": "s_6_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_1_1",
+      "session_id": "s_6_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_1_2",
+      "session_id": "s_6_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_3_0",
+      "session_id": "s_6_3",
+      "exercise_id": "ex_row",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_3_1",
+      "session_id": "s_6_3",
+      "exercise_id": "ex_pulldown",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_3_2",
+      "session_id": "s_6_3",
+      "exercise_id": "ex_curl",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_5_0",
+      "session_id": "s_6_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_5_1",
+      "session_id": "s_6_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_6_5_2",
+      "session_id": "s_6_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_1_0",
+      "session_id": "s_7_1",
+      "exercise_id": "ex_bench",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_1_1",
+      "session_id": "s_7_1",
+      "exercise_id": "ex_incline",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_1_2",
+      "session_id": "s_7_1",
+      "exercise_id": "ex_pushdown",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_3_0",
+      "session_id": "s_7_3",
+      "exercise_id": "ex_row",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_3_1",
+      "session_id": "s_7_3",
+      "exercise_id": "ex_pulldown",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_3_2",
+      "session_id": "s_7_3",
+      "exercise_id": "ex_curl",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_5_0",
+      "session_id": "s_7_5",
+      "exercise_id": "ex_squat",
+      "position": 0,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_5_1",
+      "session_id": "s_7_5",
+      "exercise_id": "ex_rdl",
+      "position": 1,
+      "skipped": 0,
+      "ad_hoc": 0
+    },
+    {
+      "id": "sx_7_5_2",
+      "session_id": "s_7_5",
+      "exercise_id": "ex_legpress",
+      "position": 2,
+      "skipped": 0,
+      "ad_hoc": 0
+    }
+  ],
+  "sets": [
+    {
+      "id": "set_0_1_0_0",
+      "session_exercise_id": "sx_0_1_0",
+      "set_number": 1,
+      "weight_kg": 60,
+      "reps": 8,
+      "completed_at": 1789993960000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_0_1",
+      "session_exercise_id": "sx_0_1_0",
+      "set_number": 2,
+      "weight_kg": 60,
+      "reps": 8,
+      "completed_at": 1789994158000,
+      "rest_before_s": 158,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_0_2",
+      "session_exercise_id": "sx_0_1_0",
+      "set_number": 3,
+      "weight_kg": 60,
+      "reps": 7,
+      "completed_at": 1789994329000,
+      "rest_before_s": 131,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_1_0",
+      "session_exercise_id": "sx_0_1_1",
+      "set_number": 1,
+      "weight_kg": 22,
+      "reps": 10,
+      "completed_at": 1789994579000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_1_1",
+      "session_exercise_id": "sx_0_1_1",
+      "set_number": 2,
+      "weight_kg": 22,
+      "reps": 9,
+      "completed_at": 1789994719000,
+      "rest_before_s": 100,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_1_2",
+      "session_exercise_id": "sx_0_1_1",
+      "set_number": 3,
+      "weight_kg": 22,
+      "reps": 8,
+      "completed_at": 1789994877000,
+      "rest_before_s": 118,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_2_0",
+      "session_exercise_id": "sx_0_1_2",
+      "set_number": 1,
+      "weight_kg": 22.5,
+      "reps": 12,
+      "completed_at": 1789995127000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_2_1",
+      "session_exercise_id": "sx_0_1_2",
+      "set_number": 2,
+      "weight_kg": 22.5,
+      "reps": 12,
+      "completed_at": 1789995258000,
+      "rest_before_s": 91,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_1_2_2",
+      "session_exercise_id": "sx_0_1_2",
+      "set_number": 3,
+      "weight_kg": 22.5,
+      "reps": 11,
+      "completed_at": 1789995383000,
+      "rest_before_s": 85,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_0_0",
+      "session_exercise_id": "sx_0_3_0",
+      "set_number": 1,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1790167660000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_0_1",
+      "session_exercise_id": "sx_0_3_0",
+      "set_number": 2,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1790167829000,
+      "rest_before_s": 129,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_0_2",
+      "session_exercise_id": "sx_0_3_0",
+      "set_number": 3,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1790167991000,
+      "rest_before_s": 122,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_1_0",
+      "session_exercise_id": "sx_0_3_1",
+      "set_number": 1,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1790168241000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_1_1",
+      "session_exercise_id": "sx_0_3_1",
+      "set_number": 2,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1790168387000,
+      "rest_before_s": 106,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_1_2",
+      "session_exercise_id": "sx_0_3_1",
+      "set_number": 3,
+      "weight_kg": 55,
+      "reps": 9,
+      "completed_at": 1790168531000,
+      "rest_before_s": 104,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_2_0",
+      "session_exercise_id": "sx_0_3_2",
+      "set_number": 1,
+      "weight_kg": 30,
+      "reps": 10,
+      "completed_at": 1790168781000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_2_1",
+      "session_exercise_id": "sx_0_3_2",
+      "set_number": 2,
+      "weight_kg": 30,
+      "reps": 9,
+      "completed_at": 1790168920000,
+      "rest_before_s": 99,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_3_2_2",
+      "session_exercise_id": "sx_0_3_2",
+      "set_number": 3,
+      "weight_kg": 30,
+      "reps": 8,
+      "completed_at": 1790169043000,
+      "rest_before_s": 83,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_0_0",
+      "session_exercise_id": "sx_0_5_0",
+      "set_number": 1,
+      "weight_kg": 80,
+      "reps": 6,
+      "completed_at": 1790339980000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_0_1",
+      "session_exercise_id": "sx_0_5_0",
+      "set_number": 2,
+      "weight_kg": 80,
+      "reps": 6,
+      "completed_at": 1790340211000,
+      "rest_before_s": 191,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_0_2",
+      "session_exercise_id": "sx_0_5_0",
+      "set_number": 3,
+      "weight_kg": 80,
+      "reps": 5,
+      "completed_at": 1790340442000,
+      "rest_before_s": 191,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_1_0",
+      "session_exercise_id": "sx_0_5_1",
+      "set_number": 1,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1790340692000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_1_1",
+      "session_exercise_id": "sx_0_5_1",
+      "set_number": 2,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1790340862000,
+      "rest_before_s": 130,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_1_2",
+      "session_exercise_id": "sx_0_5_1",
+      "set_number": 3,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1790341060000,
+      "rest_before_s": 158,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_2_0",
+      "session_exercise_id": "sx_0_5_2",
+      "set_number": 1,
+      "weight_kg": 140,
+      "reps": 12,
+      "completed_at": 1790341310000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_2_1",
+      "session_exercise_id": "sx_0_5_2",
+      "set_number": 2,
+      "weight_kg": 140,
+      "reps": 12,
+      "completed_at": 1790341469000,
+      "rest_before_s": 119,
+      "skipped": 0
+    },
+    {
+      "id": "set_0_5_2_2",
+      "session_exercise_id": "sx_0_5_2",
+      "set_number": 3,
+      "weight_kg": 140,
+      "reps": 10,
+      "completed_at": 1790341644000,
+      "rest_before_s": 135,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_0_0",
+      "session_exercise_id": "sx_1_1_0",
+      "set_number": 1,
+      "weight_kg": 60,
+      "reps": 8,
+      "completed_at": 1790599720000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_0_1",
+      "session_exercise_id": "sx_1_1_0",
+      "set_number": 2,
+      "weight_kg": 60,
+      "reps": 8,
+      "completed_at": 1790599884000,
+      "rest_before_s": 124,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_0_2",
+      "session_exercise_id": "sx_1_1_0",
+      "set_number": 3,
+      "weight_kg": 60,
+      "reps": 7,
+      "completed_at": 1790600065000,
+      "rest_before_s": 141,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_1_0",
+      "session_exercise_id": "sx_1_1_1",
+      "set_number": 1,
+      "weight_kg": 22,
+      "reps": 10,
+      "completed_at": 1790600315000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_1_1",
+      "session_exercise_id": "sx_1_1_1",
+      "set_number": 2,
+      "weight_kg": 22,
+      "reps": 9,
+      "completed_at": 1790600479000,
+      "rest_before_s": 124,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_1_2",
+      "session_exercise_id": "sx_1_1_1",
+      "set_number": 3,
+      "weight_kg": 22,
+      "reps": 8,
+      "completed_at": 1790600635000,
+      "rest_before_s": 116,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_2_0",
+      "session_exercise_id": "sx_1_1_2",
+      "set_number": 1,
+      "weight_kg": 22.5,
+      "reps": 12,
+      "completed_at": 1790600885000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_2_1",
+      "session_exercise_id": "sx_1_1_2",
+      "set_number": 2,
+      "weight_kg": 22.5,
+      "reps": 12,
+      "completed_at": 1790601019000,
+      "rest_before_s": 94,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_1_2_2",
+      "session_exercise_id": "sx_1_1_2",
+      "set_number": 3,
+      "weight_kg": 22.5,
+      "reps": 11,
+      "completed_at": 1790601151000,
+      "rest_before_s": 92,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_0_0",
+      "session_exercise_id": "sx_1_3_0",
+      "set_number": 1,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1790772640000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_0_1",
+      "session_exercise_id": "sx_1_3_0",
+      "set_number": 2,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1790772823000,
+      "rest_before_s": 143,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_0_2",
+      "session_exercise_id": "sx_1_3_0",
+      "set_number": 3,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1790772985000,
+      "rest_before_s": 122,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_1_0",
+      "session_exercise_id": "sx_1_3_1",
+      "set_number": 1,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1790773235000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_1_1",
+      "session_exercise_id": "sx_1_3_1",
+      "set_number": 2,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1790773370000,
+      "rest_before_s": 95,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_1_2",
+      "session_exercise_id": "sx_1_3_1",
+      "set_number": 3,
+      "weight_kg": 55,
+      "reps": 9,
+      "completed_at": 1790773520000,
+      "rest_before_s": 110,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_2_0",
+      "session_exercise_id": "sx_1_3_2",
+      "set_number": 1,
+      "weight_kg": 30,
+      "reps": 10,
+      "completed_at": 1790773770000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_2_1",
+      "session_exercise_id": "sx_1_3_2",
+      "set_number": 2,
+      "weight_kg": 30,
+      "reps": 9,
+      "completed_at": 1790773895000,
+      "rest_before_s": 85,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_3_2_2",
+      "session_exercise_id": "sx_1_3_2",
+      "set_number": 3,
+      "weight_kg": 30,
+      "reps": 8,
+      "completed_at": 1790774016000,
+      "rest_before_s": 81,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_0_0",
+      "session_exercise_id": "sx_1_5_0",
+      "set_number": 1,
+      "weight_kg": 82.5,
+      "reps": 6,
+      "completed_at": 1790944720000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_0_1",
+      "session_exercise_id": "sx_1_5_0",
+      "set_number": 2,
+      "weight_kg": 82.5,
+      "reps": 6,
+      "completed_at": 1790944936000,
+      "rest_before_s": 176,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_0_2",
+      "session_exercise_id": "sx_1_5_0",
+      "set_number": 3,
+      "weight_kg": 82.5,
+      "reps": 5,
+      "completed_at": 1790945145000,
+      "rest_before_s": 169,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_1_0",
+      "session_exercise_id": "sx_1_5_1",
+      "set_number": 1,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1790945395000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_1_1",
+      "session_exercise_id": "sx_1_5_1",
+      "set_number": 2,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1790945605000,
+      "rest_before_s": 170,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_1_2",
+      "session_exercise_id": "sx_1_5_1",
+      "set_number": 3,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1790945798000,
+      "rest_before_s": 153,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_2_0",
+      "session_exercise_id": "sx_1_5_2",
+      "set_number": 1,
+      "weight_kg": 140,
+      "reps": 12,
+      "completed_at": 1790946048000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_2_1",
+      "session_exercise_id": "sx_1_5_2",
+      "set_number": 2,
+      "weight_kg": 140,
+      "reps": 12,
+      "completed_at": 1790946216000,
+      "rest_before_s": 128,
+      "skipped": 0
+    },
+    {
+      "id": "set_1_5_2_2",
+      "session_exercise_id": "sx_1_5_2",
+      "set_number": 3,
+      "weight_kg": 140,
+      "reps": 10,
+      "completed_at": 1790946390000,
+      "rest_before_s": 134,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_0_0",
+      "session_exercise_id": "sx_2_1_0",
+      "set_number": 1,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1791203620000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_0_1",
+      "session_exercise_id": "sx_2_1_0",
+      "set_number": 2,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1791203790000,
+      "rest_before_s": 130,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_0_2",
+      "session_exercise_id": "sx_2_1_0",
+      "set_number": 3,
+      "weight_kg": 62.5,
+      "reps": 6,
+      "completed_at": 1791203973000,
+      "rest_before_s": 143,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_1_0",
+      "session_exercise_id": "sx_2_1_1",
+      "set_number": 1,
+      "weight_kg": 22,
+      "reps": 10,
+      "completed_at": 1791204223000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_1_1",
+      "session_exercise_id": "sx_2_1_1",
+      "set_number": 2,
+      "weight_kg": 22,
+      "reps": 9,
+      "completed_at": 1791204373000,
+      "rest_before_s": 110,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_1_2",
+      "session_exercise_id": "sx_2_1_1",
+      "set_number": 3,
+      "weight_kg": 22,
+      "reps": 8,
+      "completed_at": 1791204520000,
+      "rest_before_s": 107,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_2_0",
+      "session_exercise_id": "sx_2_1_2",
+      "set_number": 1,
+      "weight_kg": 22.5,
+      "reps": 12,
+      "completed_at": 1791204770000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_2_1",
+      "session_exercise_id": "sx_2_1_2",
+      "set_number": 2,
+      "weight_kg": 22.5,
+      "reps": 12,
+      "completed_at": 1791204892000,
+      "rest_before_s": 82,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_1_2_2",
+      "session_exercise_id": "sx_2_1_2",
+      "set_number": 3,
+      "weight_kg": 22.5,
+      "reps": 11,
+      "completed_at": 1791205033000,
+      "rest_before_s": 101,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_0_0",
+      "session_exercise_id": "sx_2_3_0",
+      "set_number": 1,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1791376420000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_0_1",
+      "session_exercise_id": "sx_2_3_0",
+      "set_number": 2,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1791376589000,
+      "rest_before_s": 129,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_0_2",
+      "session_exercise_id": "sx_2_3_0",
+      "set_number": 3,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1791376757000,
+      "rest_before_s": 128,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_1_0",
+      "session_exercise_id": "sx_2_3_1",
+      "set_number": 1,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1791377007000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_1_1",
+      "session_exercise_id": "sx_2_3_1",
+      "set_number": 2,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1791377152000,
+      "rest_before_s": 105,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_1_2",
+      "session_exercise_id": "sx_2_3_1",
+      "set_number": 3,
+      "weight_kg": 55,
+      "reps": 9,
+      "completed_at": 1791377305000,
+      "rest_before_s": 113,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_2_0",
+      "session_exercise_id": "sx_2_3_2",
+      "set_number": 1,
+      "weight_kg": 30,
+      "reps": 10,
+      "completed_at": 1791377555000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_2_1",
+      "session_exercise_id": "sx_2_3_2",
+      "set_number": 2,
+      "weight_kg": 30,
+      "reps": 9,
+      "completed_at": 1791377685000,
+      "rest_before_s": 90,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_3_2_2",
+      "session_exercise_id": "sx_2_3_2",
+      "set_number": 3,
+      "weight_kg": 30,
+      "reps": 8,
+      "completed_at": 1791377806000,
+      "rest_before_s": 81,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_0_0",
+      "session_exercise_id": "sx_2_5_0",
+      "set_number": 1,
+      "weight_kg": 85,
+      "reps": 6,
+      "completed_at": 1791549640000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_0_1",
+      "session_exercise_id": "sx_2_5_0",
+      "set_number": 2,
+      "weight_kg": 85,
+      "reps": 6,
+      "completed_at": 1791549848000,
+      "rest_before_s": 168,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_0_2",
+      "session_exercise_id": "sx_2_5_0",
+      "set_number": 3,
+      "weight_kg": 85,
+      "reps": 5,
+      "completed_at": 1791550061000,
+      "rest_before_s": 173,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_1_0",
+      "session_exercise_id": "sx_2_5_1",
+      "set_number": 1,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1791550311000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_1_1",
+      "session_exercise_id": "sx_2_5_1",
+      "set_number": 2,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1791550498000,
+      "rest_before_s": 147,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_1_2",
+      "session_exercise_id": "sx_2_5_1",
+      "set_number": 3,
+      "weight_kg": 70,
+      "reps": 8,
+      "completed_at": 1791550680000,
+      "rest_before_s": 142,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_2_0",
+      "session_exercise_id": "sx_2_5_2",
+      "set_number": 1,
+      "weight_kg": 150,
+      "reps": 12,
+      "completed_at": 1791550930000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_2_1",
+      "session_exercise_id": "sx_2_5_2",
+      "set_number": 2,
+      "weight_kg": 150,
+      "reps": 12,
+      "completed_at": 1791551091000,
+      "rest_before_s": 121,
+      "skipped": 0
+    },
+    {
+      "id": "set_2_5_2_2",
+      "session_exercise_id": "sx_2_5_2",
+      "set_number": 3,
+      "weight_kg": 150,
+      "reps": 10,
+      "completed_at": 1791551255000,
+      "rest_before_s": 124,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_0_0",
+      "session_exercise_id": "sx_3_1_0",
+      "set_number": 1,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1791808660000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_0_1",
+      "session_exercise_id": "sx_3_1_0",
+      "set_number": 2,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1791808857000,
+      "rest_before_s": 157,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_0_2",
+      "session_exercise_id": "sx_3_1_0",
+      "set_number": 3,
+      "weight_kg": 62.5,
+      "reps": 6,
+      "completed_at": 1791809035000,
+      "rest_before_s": 138,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_1_0",
+      "session_exercise_id": "sx_3_1_1",
+      "set_number": 1,
+      "weight_kg": 22,
+      "reps": 10,
+      "completed_at": 1791809285000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_1_1",
+      "session_exercise_id": "sx_3_1_1",
+      "set_number": 2,
+      "weight_kg": 22,
+      "reps": 9,
+      "completed_at": 1791809447000,
+      "rest_before_s": 122,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_1_2",
+      "session_exercise_id": "sx_3_1_1",
+      "set_number": 3,
+      "weight_kg": 22,
+      "reps": 8,
+      "completed_at": 1791809601000,
+      "rest_before_s": 114,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_2_0",
+      "session_exercise_id": "sx_3_1_2",
+      "set_number": 1,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1791809851000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_2_1",
+      "session_exercise_id": "sx_3_1_2",
+      "set_number": 2,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1791809985000,
+      "rest_before_s": 94,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_1_2_2",
+      "session_exercise_id": "sx_3_1_2",
+      "set_number": 3,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1791810115000,
+      "rest_before_s": 90,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_0_0",
+      "session_exercise_id": "sx_3_3_0",
+      "set_number": 1,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1791981760000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_0_1",
+      "session_exercise_id": "sx_3_3_0",
+      "set_number": 2,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1791981949000,
+      "rest_before_s": 149,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_0_2",
+      "session_exercise_id": "sx_3_3_0",
+      "set_number": 3,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1791982149000,
+      "rest_before_s": 160,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_1_0",
+      "session_exercise_id": "sx_3_3_1",
+      "set_number": 1,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1791982399000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_1_1",
+      "session_exercise_id": "sx_3_3_1",
+      "set_number": 2,
+      "weight_kg": 55,
+      "reps": 10,
+      "completed_at": 1791982536000,
+      "rest_before_s": 97,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_1_2",
+      "session_exercise_id": "sx_3_3_1",
+      "set_number": 3,
+      "weight_kg": 55,
+      "reps": 9,
+      "completed_at": 1791982682000,
+      "rest_before_s": 106,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_2_0",
+      "session_exercise_id": "sx_3_3_2",
+      "set_number": 1,
+      "weight_kg": 30,
+      "reps": 10,
+      "completed_at": 1791982932000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_2_1",
+      "session_exercise_id": "sx_3_3_2",
+      "set_number": 2,
+      "weight_kg": 30,
+      "reps": 9,
+      "completed_at": 1791983055000,
+      "rest_before_s": 83,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_3_2_2",
+      "session_exercise_id": "sx_3_3_2",
+      "set_number": 3,
+      "weight_kg": 30,
+      "reps": 8,
+      "completed_at": 1791983187000,
+      "rest_before_s": 92,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_0_0",
+      "session_exercise_id": "sx_3_5_0",
+      "set_number": 1,
+      "weight_kg": 87.5,
+      "reps": 6,
+      "completed_at": 1792154380000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_0_1",
+      "session_exercise_id": "sx_3_5_0",
+      "set_number": 2,
+      "weight_kg": 87.5,
+      "reps": 6,
+      "completed_at": 1792154591000,
+      "rest_before_s": 171,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_0_2",
+      "session_exercise_id": "sx_3_5_0",
+      "set_number": 3,
+      "weight_kg": 87.5,
+      "reps": 5,
+      "completed_at": 1792154805000,
+      "rest_before_s": 174,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_1_0",
+      "session_exercise_id": "sx_3_5_1",
+      "set_number": 1,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1792155055000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_1_1",
+      "session_exercise_id": "sx_3_5_1",
+      "set_number": 2,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1792155258000,
+      "rest_before_s": 163,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_1_2",
+      "session_exercise_id": "sx_3_5_1",
+      "set_number": 3,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1792155465000,
+      "rest_before_s": 167,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_2_0",
+      "session_exercise_id": "sx_3_5_2",
+      "set_number": 1,
+      "weight_kg": 150,
+      "reps": 12,
+      "completed_at": 1792155715000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_2_1",
+      "session_exercise_id": "sx_3_5_2",
+      "set_number": 2,
+      "weight_kg": 150,
+      "reps": 12,
+      "completed_at": 1792155861000,
+      "rest_before_s": 106,
+      "skipped": 0
+    },
+    {
+      "id": "set_3_5_2_2",
+      "session_exercise_id": "sx_3_5_2",
+      "set_number": 3,
+      "weight_kg": 150,
+      "reps": 10,
+      "completed_at": 1792156032000,
+      "rest_before_s": 131,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_0_0",
+      "session_exercise_id": "sx_4_1_0",
+      "set_number": 1,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1792413280000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_0_1",
+      "session_exercise_id": "sx_4_1_0",
+      "set_number": 2,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1792413456000,
+      "rest_before_s": 136,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_0_2",
+      "session_exercise_id": "sx_4_1_0",
+      "set_number": 3,
+      "weight_kg": 62.5,
+      "reps": 6,
+      "completed_at": 1792413621000,
+      "rest_before_s": 125,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_1_0",
+      "session_exercise_id": "sx_4_1_1",
+      "set_number": 1,
+      "weight_kg": 24,
+      "reps": 10,
+      "completed_at": 1792413871000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_1_1",
+      "session_exercise_id": "sx_4_1_1",
+      "set_number": 2,
+      "weight_kg": 24,
+      "reps": 9,
+      "completed_at": 1792414007000,
+      "rest_before_s": 96,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_1_2",
+      "session_exercise_id": "sx_4_1_1",
+      "set_number": 3,
+      "weight_kg": 24,
+      "reps": 8,
+      "completed_at": 1792414173000,
+      "rest_before_s": 126,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_2_0",
+      "session_exercise_id": "sx_4_1_2",
+      "set_number": 1,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1792414423000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_2_1",
+      "session_exercise_id": "sx_4_1_2",
+      "set_number": 2,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1792414545000,
+      "rest_before_s": 82,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_1_2_2",
+      "session_exercise_id": "sx_4_1_2",
+      "set_number": 3,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1792414679000,
+      "rest_before_s": 94,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_0_0",
+      "session_exercise_id": "sx_4_3_0",
+      "set_number": 1,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1792586140000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_0_1",
+      "session_exercise_id": "sx_4_3_0",
+      "set_number": 2,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1792586326000,
+      "rest_before_s": 146,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_0_2",
+      "session_exercise_id": "sx_4_3_0",
+      "set_number": 3,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1792586518000,
+      "rest_before_s": 152,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_1_0",
+      "session_exercise_id": "sx_4_3_1",
+      "set_number": 1,
+      "weight_kg": 60,
+      "reps": 10,
+      "completed_at": 1792586768000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_1_1",
+      "session_exercise_id": "sx_4_3_1",
+      "set_number": 2,
+      "weight_kg": 60,
+      "reps": 10,
+      "completed_at": 1792586897000,
+      "rest_before_s": 89,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_1_2",
+      "session_exercise_id": "sx_4_3_1",
+      "set_number": 3,
+      "weight_kg": 60,
+      "reps": 9,
+      "completed_at": 1792587050000,
+      "rest_before_s": 113,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_2_0",
+      "session_exercise_id": "sx_4_3_2",
+      "set_number": 1,
+      "weight_kg": 30,
+      "reps": 10,
+      "completed_at": 1792587300000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_2_1",
+      "session_exercise_id": "sx_4_3_2",
+      "set_number": 2,
+      "weight_kg": 30,
+      "reps": 9,
+      "completed_at": 1792587440000,
+      "rest_before_s": 100,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_3_2_2",
+      "session_exercise_id": "sx_4_3_2",
+      "set_number": 3,
+      "weight_kg": 30,
+      "reps": 8,
+      "completed_at": 1792587581000,
+      "rest_before_s": 101,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_0_0",
+      "session_exercise_id": "sx_4_5_0",
+      "set_number": 1,
+      "weight_kg": 90,
+      "reps": 6,
+      "completed_at": 1792759840000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_0_1",
+      "session_exercise_id": "sx_4_5_0",
+      "set_number": 2,
+      "weight_kg": 90,
+      "reps": 6,
+      "completed_at": 1792760082000,
+      "rest_before_s": 202,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_0_2",
+      "session_exercise_id": "sx_4_5_0",
+      "set_number": 3,
+      "weight_kg": 90,
+      "reps": 5,
+      "completed_at": 1792760316000,
+      "rest_before_s": 194,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_1_0",
+      "session_exercise_id": "sx_4_5_1",
+      "set_number": 1,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1792760566000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_1_1",
+      "session_exercise_id": "sx_4_5_1",
+      "set_number": 2,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1792760746000,
+      "rest_before_s": 140,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_1_2",
+      "session_exercise_id": "sx_4_5_1",
+      "set_number": 3,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1792760914000,
+      "rest_before_s": 128,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_2_0",
+      "session_exercise_id": "sx_4_5_2",
+      "set_number": 1,
+      "weight_kg": 160,
+      "reps": 12,
+      "completed_at": 1792761164000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_2_1",
+      "session_exercise_id": "sx_4_5_2",
+      "set_number": 2,
+      "weight_kg": 160,
+      "reps": 12,
+      "completed_at": 1792761315000,
+      "rest_before_s": 111,
+      "skipped": 0
+    },
+    {
+      "id": "set_4_5_2_2",
+      "session_exercise_id": "sx_4_5_2",
+      "set_number": 3,
+      "weight_kg": 160,
+      "reps": 10,
+      "completed_at": 1792761460000,
+      "rest_before_s": 105,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_0_0",
+      "session_exercise_id": "sx_5_1_0",
+      "set_number": 1,
+      "weight_kg": 62.5,
+      "reps": 8,
+      "completed_at": 1793017960000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_0_1",
+      "session_exercise_id": "sx_5_1_0",
+      "set_number": 2,
+      "weight_kg": 62.5,
+      "reps": 8,
+      "completed_at": 1793018145000,
+      "rest_before_s": 145,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_0_2",
+      "session_exercise_id": "sx_5_1_0",
+      "set_number": 3,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1793018314000,
+      "rest_before_s": 129,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_1_0",
+      "session_exercise_id": "sx_5_1_1",
+      "set_number": 1,
+      "weight_kg": 24,
+      "reps": 10,
+      "completed_at": 1793018564000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_1_1",
+      "session_exercise_id": "sx_5_1_1",
+      "set_number": 2,
+      "weight_kg": 24,
+      "reps": 9,
+      "completed_at": 1793018722000,
+      "rest_before_s": 118,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_1_2",
+      "session_exercise_id": "sx_5_1_1",
+      "set_number": 3,
+      "weight_kg": 24,
+      "reps": 8,
+      "completed_at": 1793018872000,
+      "rest_before_s": 110,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_2_0",
+      "session_exercise_id": "sx_5_1_2",
+      "set_number": 1,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1793019122000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_2_1",
+      "session_exercise_id": "sx_5_1_2",
+      "set_number": 2,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1793019257000,
+      "rest_before_s": 95,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_1_2_2",
+      "session_exercise_id": "sx_5_1_2",
+      "set_number": 3,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1793019380000,
+      "rest_before_s": 83,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_0_0",
+      "session_exercise_id": "sx_5_5_0",
+      "set_number": 1,
+      "weight_kg": 92.5,
+      "reps": 6,
+      "completed_at": 1793364640000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_0_1",
+      "session_exercise_id": "sx_5_5_0",
+      "set_number": 2,
+      "weight_kg": 92.5,
+      "reps": 6,
+      "completed_at": 1793364846000,
+      "rest_before_s": 166,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_0_2",
+      "session_exercise_id": "sx_5_5_0",
+      "set_number": 3,
+      "weight_kg": 92.5,
+      "reps": 5,
+      "completed_at": 1793365059000,
+      "rest_before_s": 173,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_1_0",
+      "session_exercise_id": "sx_5_5_1",
+      "set_number": 1,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1793365309000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_1_1",
+      "session_exercise_id": "sx_5_5_1",
+      "set_number": 2,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1793365517000,
+      "rest_before_s": 168,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_1_2",
+      "session_exercise_id": "sx_5_5_1",
+      "set_number": 3,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1793365690000,
+      "rest_before_s": 133,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_2_0",
+      "session_exercise_id": "sx_5_5_2",
+      "set_number": 1,
+      "weight_kg": 160,
+      "reps": 12,
+      "completed_at": 1793365940000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_2_1",
+      "session_exercise_id": "sx_5_5_2",
+      "set_number": 2,
+      "weight_kg": 160,
+      "reps": 12,
+      "completed_at": 1793366100000,
+      "rest_before_s": 120,
+      "skipped": 0
+    },
+    {
+      "id": "set_5_5_2_2",
+      "session_exercise_id": "sx_5_5_2",
+      "set_number": 3,
+      "weight_kg": 160,
+      "reps": 10,
+      "completed_at": 1793366242000,
+      "rest_before_s": 102,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_0_0",
+      "session_exercise_id": "sx_6_1_0",
+      "set_number": 1,
+      "weight_kg": 62.5,
+      "reps": 8,
+      "completed_at": 1793623840000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_0_1",
+      "session_exercise_id": "sx_6_1_0",
+      "set_number": 2,
+      "weight_kg": 62.5,
+      "reps": 8,
+      "completed_at": 1793624026000,
+      "rest_before_s": 146,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_0_2",
+      "session_exercise_id": "sx_6_1_0",
+      "set_number": 3,
+      "weight_kg": 62.5,
+      "reps": 7,
+      "completed_at": 1793624224000,
+      "rest_before_s": 158,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_1_0",
+      "session_exercise_id": "sx_6_1_1",
+      "set_number": 1,
+      "weight_kg": 24,
+      "reps": 10,
+      "completed_at": 1793624474000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_1_1",
+      "session_exercise_id": "sx_6_1_1",
+      "set_number": 2,
+      "weight_kg": 24,
+      "reps": 9,
+      "completed_at": 1793624608000,
+      "rest_before_s": 94,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_1_2",
+      "session_exercise_id": "sx_6_1_1",
+      "set_number": 3,
+      "weight_kg": 24,
+      "reps": 8,
+      "completed_at": 1793624771000,
+      "rest_before_s": 123,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_2_0",
+      "session_exercise_id": "sx_6_1_2",
+      "set_number": 1,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1793625021000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_2_1",
+      "session_exercise_id": "sx_6_1_2",
+      "set_number": 2,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1793625143000,
+      "rest_before_s": 82,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_1_2_2",
+      "session_exercise_id": "sx_6_1_2",
+      "set_number": 3,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1793625286000,
+      "rest_before_s": 103,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_0_0",
+      "session_exercise_id": "sx_6_3_0",
+      "set_number": 1,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1793796220000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_0_1",
+      "session_exercise_id": "sx_6_3_0",
+      "set_number": 2,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1793796431000,
+      "rest_before_s": 171,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_0_2",
+      "session_exercise_id": "sx_6_3_0",
+      "set_number": 3,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1793796622000,
+      "rest_before_s": 151,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_1_0",
+      "session_exercise_id": "sx_6_3_1",
+      "set_number": 1,
+      "weight_kg": 60,
+      "reps": 10,
+      "completed_at": 1793796872000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_1_1",
+      "session_exercise_id": "sx_6_3_1",
+      "set_number": 2,
+      "weight_kg": 60,
+      "reps": 10,
+      "completed_at": 1793797004000,
+      "rest_before_s": 92,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_1_2",
+      "session_exercise_id": "sx_6_3_1",
+      "set_number": 3,
+      "weight_kg": 60,
+      "reps": 9,
+      "completed_at": 1793797135000,
+      "rest_before_s": 91,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_2_0",
+      "session_exercise_id": "sx_6_3_2",
+      "set_number": 1,
+      "weight_kg": 30,
+      "reps": 10,
+      "completed_at": 1793797385000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_2_1",
+      "session_exercise_id": "sx_6_3_2",
+      "set_number": 2,
+      "weight_kg": 30,
+      "reps": 9,
+      "completed_at": 1793797517000,
+      "rest_before_s": 92,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_3_2_2",
+      "session_exercise_id": "sx_6_3_2",
+      "set_number": 3,
+      "weight_kg": 30,
+      "reps": 8,
+      "completed_at": 1793797635000,
+      "rest_before_s": 78,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_0_0",
+      "session_exercise_id": "sx_6_5_0",
+      "set_number": 1,
+      "weight_kg": 95,
+      "reps": 6,
+      "completed_at": 1793969260000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_0_1",
+      "session_exercise_id": "sx_6_5_0",
+      "set_number": 2,
+      "weight_kg": 95,
+      "reps": 6,
+      "completed_at": 1793969491000,
+      "rest_before_s": 191,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_0_2",
+      "session_exercise_id": "sx_6_5_0",
+      "set_number": 3,
+      "weight_kg": 95,
+      "reps": 5,
+      "completed_at": 1793969723000,
+      "rest_before_s": 192,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_1_0",
+      "session_exercise_id": "sx_6_5_1",
+      "set_number": 1,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1793969973000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_1_1",
+      "session_exercise_id": "sx_6_5_1",
+      "set_number": 2,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1793970163000,
+      "rest_before_s": 150,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_1_2",
+      "session_exercise_id": "sx_6_5_1",
+      "set_number": 3,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1793970332000,
+      "rest_before_s": 129,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_2_0",
+      "session_exercise_id": "sx_6_5_2",
+      "set_number": 1,
+      "weight_kg": 170,
+      "reps": 12,
+      "completed_at": 1793970582000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_2_1",
+      "session_exercise_id": "sx_6_5_2",
+      "set_number": 2,
+      "weight_kg": 170,
+      "reps": 12,
+      "completed_at": 1793970728000,
+      "rest_before_s": 106,
+      "skipped": 0
+    },
+    {
+      "id": "set_6_5_2_2",
+      "session_exercise_id": "sx_6_5_2",
+      "set_number": 3,
+      "weight_kg": 170,
+      "reps": 10,
+      "completed_at": 1793970903000,
+      "rest_before_s": 135,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_0_0",
+      "session_exercise_id": "sx_7_1_0",
+      "set_number": 1,
+      "weight_kg": 62.5,
+      "reps": 8,
+      "completed_at": 1794227740000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_0_1",
+      "session_exercise_id": "sx_7_1_0",
+      "set_number": 2,
+      "weight_kg": 62.5,
+      "reps": 8,
+      "completed_at": 1794227928000,
+      "rest_before_s": 148,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_0_2",
+      "session_exercise_id": "sx_7_1_0",
+      "set_number": 3,
+      "weight_kg": 62.5,
+      "reps": 8,
+      "completed_at": 1794228125000,
+      "rest_before_s": 157,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_1_0",
+      "session_exercise_id": "sx_7_1_1",
+      "set_number": 1,
+      "weight_kg": 24,
+      "reps": 10,
+      "completed_at": 1794228375000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_1_1",
+      "session_exercise_id": "sx_7_1_1",
+      "set_number": 2,
+      "weight_kg": 24,
+      "reps": 9,
+      "completed_at": 1794228510000,
+      "rest_before_s": 95,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_1_2",
+      "session_exercise_id": "sx_7_1_1",
+      "set_number": 3,
+      "weight_kg": 24,
+      "reps": 8,
+      "completed_at": 1794228673000,
+      "rest_before_s": 123,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_2_0",
+      "session_exercise_id": "sx_7_1_2",
+      "set_number": 1,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1794228923000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_2_1",
+      "session_exercise_id": "sx_7_1_2",
+      "set_number": 2,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1794229063000,
+      "rest_before_s": 100,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_1_2_2",
+      "session_exercise_id": "sx_7_1_2",
+      "set_number": 3,
+      "weight_kg": 25,
+      "reps": 12,
+      "completed_at": 1794229206000,
+      "rest_before_s": 103,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_0_0",
+      "session_exercise_id": "sx_7_3_0",
+      "set_number": 1,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1794401500000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_0_1",
+      "session_exercise_id": "sx_7_3_0",
+      "set_number": 2,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1794401722000,
+      "rest_before_s": 182,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_0_2",
+      "session_exercise_id": "sx_7_3_0",
+      "set_number": 3,
+      "weight_kg": 50,
+      "reps": 10,
+      "completed_at": 1794401927000,
+      "rest_before_s": 165,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_1_0",
+      "session_exercise_id": "sx_7_3_1",
+      "set_number": 1,
+      "weight_kg": 60,
+      "reps": 10,
+      "completed_at": 1794402177000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_1_1",
+      "session_exercise_id": "sx_7_3_1",
+      "set_number": 2,
+      "weight_kg": 60,
+      "reps": 10,
+      "completed_at": 1794402309000,
+      "rest_before_s": 92,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_1_2",
+      "session_exercise_id": "sx_7_3_1",
+      "set_number": 3,
+      "weight_kg": 60,
+      "reps": 9,
+      "completed_at": 1794402456000,
+      "rest_before_s": 107,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_2_0",
+      "session_exercise_id": "sx_7_3_2",
+      "set_number": 1,
+      "weight_kg": 30,
+      "reps": 10,
+      "completed_at": 1794402706000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_2_1",
+      "session_exercise_id": "sx_7_3_2",
+      "set_number": 2,
+      "weight_kg": 30,
+      "reps": 9,
+      "completed_at": 1794402846000,
+      "rest_before_s": 100,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_3_2_2",
+      "session_exercise_id": "sx_7_3_2",
+      "set_number": 3,
+      "weight_kg": 30,
+      "reps": 8,
+      "completed_at": 1794402973000,
+      "rest_before_s": 87,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_0_0",
+      "session_exercise_id": "sx_7_5_0",
+      "set_number": 1,
+      "weight_kg": 97.5,
+      "reps": 6,
+      "completed_at": 1794573460000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_0_1",
+      "session_exercise_id": "sx_7_5_0",
+      "set_number": 2,
+      "weight_kg": 97.5,
+      "reps": 6,
+      "completed_at": 1794573675000,
+      "rest_before_s": 175,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_0_2",
+      "session_exercise_id": "sx_7_5_0",
+      "set_number": 3,
+      "weight_kg": 97.5,
+      "reps": 5,
+      "completed_at": 1794573916000,
+      "rest_before_s": 201,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_1_0",
+      "session_exercise_id": "sx_7_5_1",
+      "set_number": 1,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1794574166000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_1_1",
+      "session_exercise_id": "sx_7_5_1",
+      "set_number": 2,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1794574359000,
+      "rest_before_s": 153,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_1_2",
+      "session_exercise_id": "sx_7_5_1",
+      "set_number": 3,
+      "weight_kg": 75,
+      "reps": 8,
+      "completed_at": 1794574542000,
+      "rest_before_s": 143,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_2_0",
+      "session_exercise_id": "sx_7_5_2",
+      "set_number": 1,
+      "weight_kg": 170,
+      "reps": 12,
+      "completed_at": 1794574792000,
+      "rest_before_s": null,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_2_1",
+      "session_exercise_id": "sx_7_5_2",
+      "set_number": 2,
+      "weight_kg": 170,
+      "reps": 12,
+      "completed_at": 1794574956000,
+      "rest_before_s": 124,
+      "skipped": 0
+    },
+    {
+      "id": "set_7_5_2_2",
+      "session_exercise_id": "sx_7_5_2",
+      "set_number": 3,
+      "weight_kg": 170,
+      "reps": 10,
+      "completed_at": 1794575124000,
+      "rest_before_s": 128,
+      "skipped": 0
+    }
+  ],
+  "settings": [
+    {
+      "key": "unit",
+      "value": "\"kg\""
+    },
+    {
+      "key": "claudeIncludeNotes",
+      "value": "true"
+    },
+    {
+      "key": "claudeIncludeBody",
+      "value": "true"
+    }
+  ],
+  "profile": [
+    {
+      "id": 1,
+      "date_of_birth": "1998-04-21",
+      "sex": "male",
+      "target_weight_kg": 75,
+      "updated_at": 1789993800000
+    }
+  ],
+  "bodyMeasurements": [
+    {
+      "id": "bm_w0",
+      "kind": "weight",
+      "value": 79.5,
+      "measured_at": 1789950600000,
+      "note": null
+    },
+    {
+      "id": "bm_w1",
+      "kind": "weight",
+      "value": 79.5,
+      "measured_at": 1790555400000,
+      "note": null
+    },
+    {
+      "id": "bm_w2",
+      "kind": "weight",
+      "value": 79.2,
+      "measured_at": 1791160200000,
+      "note": null
+    },
+    {
+      "id": "bm_w3",
+      "kind": "weight",
+      "value": 78.9,
+      "measured_at": 1791765000000,
+      "note": null
+    },
+    {
+      "id": "bm_w4",
+      "kind": "weight",
+      "value": 78.8,
+      "measured_at": 1792369800000,
+      "note": null
+    },
+    {
+      "id": "bm_w5",
+      "kind": "weight",
+      "value": 78.9,
+      "measured_at": 1792974600000,
+      "note": null
+    },
+    {
+      "id": "bm_w6",
+      "kind": "weight",
+      "value": 78.7,
+      "measured_at": 1793579400000,
+      "note": null
+    },
+    {
+      "id": "bm_w7",
+      "kind": "weight",
+      "value": 78.4,
+      "measured_at": 1794184200000,
+      "note": null
+    },
+    {
+      "id": "bm_h",
+      "kind": "height",
+      "value": 178,
+      "measured_at": 1789993800000,
+      "note": null
+    },
+    {
+      "id": "bm_waist",
+      "kind": "waist",
+      "value": 84,
+      "measured_at": 1793449800000,
+      "note": null
+    }
+  ],
+  "aiAnalyses": [],
+  "labMarkers": [
+    {
+      "id": "lm_ldl",
+      "name": "LDL cholesterol",
+      "category": "Lipids",
+      "default_unit": "mg/dL",
+      "is_custom": 0
+    },
+    {
+      "id": "lm_hdl",
+      "name": "HDL cholesterol",
+      "category": "Lipids",
+      "default_unit": "mg/dL",
+      "is_custom": 0
+    },
+    {
+      "id": "lm_vitd",
+      "name": "Vitamin D (25-OH)",
+      "category": "Vitamins and minerals",
+      "default_unit": "ng/mL",
+      "is_custom": 0
+    }
+  ],
+  "labReports": [
+    {
+      "id": "lr_mar",
+      "taken_at": 1773469800000,
+      "lab_name": null,
+      "category": "Lipids",
+      "file_name": null,
+      "file_path": null,
+      "mime_type": null,
+      "note": null,
+      "created_at": 1773469800000
+    },
+    {
+      "id": "lr_jun",
+      "taken_at": 1781937000000,
+      "lab_name": null,
+      "category": "Lipids",
+      "file_name": null,
+      "file_path": null,
+      "mime_type": null,
+      "note": null,
+      "created_at": 1781937000000
+    },
+    {
+      "id": "lr_sep",
+      "taken_at": 1789194600000,
+      "lab_name": null,
+      "category": "Lipids",
+      "file_name": null,
+      "file_path": null,
+      "mime_type": null,
+      "note": null,
+      "created_at": 1789194600000
+    }
+  ],
+  "labResults": [
+    {
+      "id": "lx_0",
+      "report_id": "lr_mar",
+      "marker_id": "lm_ldl",
+      "value": 152,
+      "value_text": null,
+      "unit": "mg/dL",
+      "ref_low": null,
+      "ref_high": 100,
+      "source": "manual"
+    },
+    {
+      "id": "lx_1",
+      "report_id": "lr_jun",
+      "marker_id": "lm_ldl",
+      "value": 145,
+      "value_text": null,
+      "unit": "mg/dL",
+      "ref_low": null,
+      "ref_high": 100,
+      "source": "manual"
+    },
+    {
+      "id": "lx_2",
+      "report_id": "lr_sep",
+      "marker_id": "lm_ldl",
+      "value": 138,
+      "value_text": null,
+      "unit": "mg/dL",
+      "ref_low": null,
+      "ref_high": 100,
+      "source": "manual"
+    },
+    {
+      "id": "lx_3",
+      "report_id": "lr_mar",
+      "marker_id": "lm_hdl",
+      "value": 44,
+      "value_text": null,
+      "unit": "mg/dL",
+      "ref_low": 40,
+      "ref_high": null,
+      "source": "manual"
+    },
+    {
+      "id": "lx_4",
+      "report_id": "lr_jun",
+      "marker_id": "lm_hdl",
+      "value": 45,
+      "value_text": null,
+      "unit": "mg/dL",
+      "ref_low": 40,
+      "ref_high": null,
+      "source": "manual"
+    },
+    {
+      "id": "lx_5",
+      "report_id": "lr_sep",
+      "marker_id": "lm_hdl",
+      "value": 46,
+      "value_text": null,
+      "unit": "mg/dL",
+      "ref_low": 40,
+      "ref_high": null,
+      "source": "manual"
+    },
+    {
+      "id": "lx_6",
+      "report_id": "lr_sep",
+      "marker_id": "lm_vitd",
+      "value": 18,
+      "value_text": null,
+      "unit": "ng/mL",
+      "ref_low": 30,
+      "ref_high": 100,
+      "source": "manual"
+    }
+  ]
+}

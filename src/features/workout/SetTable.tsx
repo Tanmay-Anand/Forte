@@ -37,6 +37,7 @@ function useColumns() {
  */
 export function SetTable({
   sets,
+  drops = [],
   unit,
   onEdit,
   onRemove,
@@ -44,6 +45,8 @@ export function SetTable({
   flashId = null,
 }: {
   sets: SetRow[];
+  /** Drops (drop_index > 0), shown under the set with the same set_number. */
+  drops?: SetRow[];
   unit: Unit;
   onEdit?: (set: SetRow) => void;
   onRemove?: (set: SetRow) => void;
@@ -78,6 +81,18 @@ export function SetTable({
             onEdit={onEdit}
             onRemove={onRemove}
           />
+          {drops
+            .filter((d) => d.set_number === set.set_number)
+            .map((d) => (
+              <LoggedRow
+                key={d.id}
+                set={d}
+                unit={unit}
+                flash={flashId === d.id}
+                onEdit={onEdit}
+                onRemove={onRemove}
+              />
+            ))}
 
           {showRest && set.rest_before_s != null ? (
             <Text variant="caption" color="textTertiary" style={{ paddingLeft: cols.set }}>
@@ -151,14 +166,22 @@ function LoggedRow({
     };
   }, [flash, glow, reducedMotion]);
 
+  const drop = set.drop_index > 0;
   const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value }));
   const baseStyle = useAnimatedStyle(() => ({ opacity: 1 - glow.value }));
 
   const cells = (ink: boolean) => (
     <>
-      <Text variant="num" color={ink ? 'accentInk' : 'textTertiary'} style={{ width: cols.set }}>
-        {set.set_number}
-      </Text>
+      {drop ? (
+        // The number font has no arrow glyph; the icon set does.
+        <View style={{ width: cols.set }}>
+          <Icon name="corner-down-right" size={16} color={ink ? 'accentInk' : 'textTertiary'} />
+        </View>
+      ) : (
+        <Text variant="num" color={ink ? 'accentInk' : 'textTertiary'} style={{ width: cols.set }}>
+          {set.set_number}
+        </Text>
+      )}
       {set.skipped ? (
         <Text variant="num" color={ink ? 'accentInk' : 'textTertiary'} style={{ flex: 1 }}>
           Skipped
@@ -198,7 +221,7 @@ function LoggedRow({
         accessibilityLabel={
           set.skipped
             ? `Set ${set.set_number}, skipped. Tap to remove.`
-            : `Set ${set.set_number}, ${formatWeight(set.weight_kg, unit)} for ${set.reps} reps. Tap to edit.`
+            : `${drop ? `Drop ${set.drop_index} of set ${set.set_number}` : `Set ${set.set_number}`}, ${formatWeight(set.weight_kg, unit)} for ${set.reps} reps. Tap to edit, hold to remove.`
         }
         style={({ pressed }) => [
           ROW,
@@ -234,22 +257,36 @@ const ROW_CELLS = { flex: 1, flexDirection: 'row', alignItems: 'center', alignSe
  */
 export function PreviousLine({
   sets,
+  drops = [],
   unit,
   when,
+  target,
 }: {
   sets: SetRow[];
+  drops?: SetRow[];
   unit: Unit;
   when: string;
+  /** "Target 65 × 8" — on the same line, so the screen gains no height. */
+  target?: string;
 }) {
   if (sets.length === 0) return null;
+  const one = (s: SetRow) => `${formatWeight(s.weight_kg, unit, false)} × ${s.reps}`;
+  // A drop follows its set with an arrow: "40 × 5 ↘ 25 × 8".
   const text = sets
-    .map((s) => `${formatWeight(s.weight_kg, unit, false)} × ${s.reps}`)
+    .map((s) => [s, ...drops.filter((d) => d.set_number === s.set_number)].map(one).join(' ↘ '))
     .join('    ');
   return (
     <View style={{ marginBottom: space.l }}>
-      <Text variant="label" color="textSecondary">
-        Last time · {when}
-      </Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: space.m }}>
+        <Text variant="label" color="textSecondary">
+          Last time · {when}
+        </Text>
+        {target ? (
+          <Text variant="label" color="textPrimary" style={{ marginLeft: 'auto' }}>
+            {target}
+          </Text>
+        ) : null}
+      </View>
       <Text variant="caption" color="textSecondary" numberOfLines={2} style={{ marginTop: space.xs }}>
         {text}
       </Text>

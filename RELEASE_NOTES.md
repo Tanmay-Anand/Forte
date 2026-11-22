@@ -1,6 +1,6 @@
 # Forte — Release Notes
 
-A personal, offline workout tracker for Android.
+A personal, offline-first health and training app for Android.
 **Plan your week → log every set → see yourself getting stronger.**
 
 ---
@@ -9,7 +9,84 @@ A personal, offline workout tracker for Android.
 
 Rename this heading to the version number when tagging (`docs/RELEASING.md`).
 
+Forte is now a personal health and training app. The workout screen is unchanged: everything new
+happens after Finish, or on screens you open on purpose. Plan and decisions:
+[`docs/AI_TRAINER_PLAN.md`](docs/AI_TRAINER_PLAN.md).
+
+**New**
+
+- **A fuller workout summary.**
+  - **How hard was it?** One optional tap after the workout, five steps from Easy to Maximal.
+    Never asked during the workout; you can change it later in History.
+  - **Records:** heaviest weight, most reps at a weight, best estimated strength, or most volume,
+    at most one per exercise. A first session sets none.
+  - **Compared with last time:** each exercise shows what changed (weight, or reps at the same
+    weight) and its rest, against the previous session of the same workout.
+  - **Against your usual:** session volume against the median of your last 3–6 sessions of that
+    workout, saying whether the change is outside your normal spread.
+  - **Next time:** a target per exercise. Every set at the top weight reached the same reps → add
+    one weight step; some fell short → same weight, match the best set first.
+  - **Muscles worked:** a front and back body with the muscles this workout trained shaded teal,
+    and the sets per muscle underneath. Helper muscles count half a set.
+- **Drop sets.** After completing a set, tap **Drop set** to carry straight on at a lower weight:
+  40 kg × 5, then 25 kg × 8, logged as one set. The wells start about a quarter lighter, rounded
+  to the exercise's weight step, with the same reps. **Another drop** adds a further one. A drop
+  shows as ↳ under its set (tap to edit, hold to remove), and as `40 × 5 ↘ 25 × 8` in "Last time".
+  Drops add to volume, but not to the set count, records, targets or muscle sets. They have no
+  rest of their own; the rest after them is timed from the end of the last drop.
+- **Next-set targets elsewhere too:** beside each exercise on Today, and beside "Last time" during
+  a workout, on the same line so the screen doesn't grow. The number wells still pre-fill from what
+  you actually did last time.
+- **Insights** (Progress → Insights): up to five specific observations from your log, such as a lift
+  unchanged for four sessions, more reps at the same weight, rests getting longer, or a week well
+  above your four-week average. Each names its numbers and dates. Nothing is said about a trend
+  from fewer than three sessions. No motivational messages.
+  - **Muscles:** a front and back body shaded by sets per muscle over four weeks, the most and
+    least trained muscles, and a tap on any muscle for its sets a week, when it was last trained
+    and the exercises that trained it. The female body is used when your profile says female.
+    Body photos and outlines from MuscleMap (MIT). It's a still picture: drawn when the screen
+    opens, with no animation, so it costs no battery after that.
+  - **Muscle groups:** sets per group over four weeks, and a card when chest and back are uneven or
+    there's no leg work at all.
+- **Profile tab**, fifth in the bar, after History. Weight with a chart and target, height, body
+  fat and nine tape measurements. Every reading is kept, so each has a history. Settings has moved
+  here (the gear), from Today.
+- **Blood reports** (Profile → Blood reports): add a report with its date, type and optional PDF or
+  photo, which is kept in Forte's private storage. Record values with the lab's own range; values
+  outside it are marked. Each marker has a trend chart with the range shaded, and every point links
+  back to its report.
+  - **Read values with AI:** send a request to an AI app, attach the report there, paste the reply
+    back. Forte turns it into draft rows; nothing is saved until you tick each one, and saved values
+    are marked as read by AI.
+- **Analysis with AI, no API key.** *Analyse with AI* on the summary, *Ask AI* in Insights, session
+  detail and Blood reports. Forte opens the share menu with a text summary and you pick the app —
+  Claude, ChatGPT or Gemini; Forte itself sends nothing. You can paste the reply back into the
+  session. Settings → AI analysis chooses whether notes and body data are included, and
+  *Show what's shared* shows the exact text. Blood results are shared only from Blood reports, only
+  the markers you tick, after a confirmation.
+- **Automatic backup** (Settings): after every workout, a backup file goes to a folder you choose
+  once. The newest 12 are kept. Point a sync app at the folder to get it to Google Drive.
+- **Forte Companion** (`companion/`): a local app for your PC that reads your newest backup from
+  Google Drive. Home, Training, Body, Health and Ask AI pages, in Forte's dark theme, and a chat with
+  Claude, ChatGPT, Gemini or an offline model — each through its own login, no API keys. For
+  Claude you choose Sonnet 5.5 (the default), Opus 5.5 or Haiku 5.5 in Setup. The Body page shades
+  a realistic front and back body by how much each muscle was trained (body diagrams and photos
+  from MuscleMap, MIT licence), using the female body when your profile says female.
+
+**Changed**
+
+- **Backup format 3.** Sets carry a drop index for drop sets. Older versions of Forte refuse a
+  format 3 file instead of reading each drop as an extra set; this version still reads formats
+  1 and 2. The CSV export gains a `drop` column.
+- **Backup format 2.** Backups now include effort ratings, your profile and measurements, saved
+  AI replies and blood-report records. Report files are not included. Older backups still
+  import, and leave health data untouched.
+- Privacy wording: data leaves the phone only when you export it or share it yourself.
+
 **Fixed**
+
+- **Restoring a backup lost skipped sets.** A skipped set came back as a performed set of
+  0 kg × 0 reps, which changed set counts. Skipped sets now restore as skipped.
 
 - **The keypad and menus could open as an invisible, frozen layer** (bug introduced in v1.1.0).
   - Tapping a weight to type it, the ⋯ menu, and the exercise pickers each opened a window that

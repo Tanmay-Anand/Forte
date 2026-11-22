@@ -1,27 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Text, useTextStyle } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { Button } from '@/ui/Button';
+import { ActionSheet } from '@/ui/ActionSheet';
 import { Divider, Screen, SectionLabel, Spacer, StatGrid } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
 import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
+import { getPreviousSessionSummary, getSessionSummary } from '@/db/queries/history';
+import { setSessionEffort, setSessionNote } from '@/db/queries/session';
+import { loadHistory } from '@/db/queries/analysis';
 import {
-  compareExercises,
-  getPreviousSessionSummary,
-  getSessionSummary,
-} from '@/db/queries/history';
-import { setSessionNote } from '@/db/queries/session';
-import { deltaIcon, formatDelta, formatVolume, formatWeight, trimNumber, type Delta } from '@/lib/format';
-import { formatClock, formatLongDate, formatMinutes, formatShortDate } from '@/lib/time';
+  compareSession,
+  findSession,
+  nextTarget,
+  sessionBaseline,
+  sessionBrief,
+  sessionRecords,
+  type NextTarget,
+} from '@/features/analysis';
+import { EffortPicker } from '@/features/summary/EffortPicker';
+import { MusclesWorked } from '@/features/summary/MusclesWorked';
+import {
+  ComparisonRows,
+  NextTimeList,
+  RecordsList,
+  comparisonTitle,
+  usualVolumeLine,
+} from '@/features/summary/SessionReview';
+import {
+  currentBriefOptions,
+  sendBackupForCompanion,
+  shareTrainingBrief,
+} from '@/features/claude/share';
+import { deltaIcon, formatDelta, formatVolume, type Delta } from '@/lib/format';
+import { formatClock, formatLongDate, formatMinutes } from '@/lib/time';
 import { useSettings } from '@/store/settings';
+import { folderLabel, runAutoBackup, type BackupResult } from '@/lib/auto-backup';
 
 /**
  * Finish Workout — DESIGN.md 5.5.
  * Calm, factual, comparative. Unchanged lifts show an em dash, never a red
  * down-arrow: maintaining is not failing.
+ *
+ * Everything on this screen is calculated on the phone and works offline.
+ * Claude is one optional action at the bottom, never something that arrives.
  */
 export default function SummaryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -30,10 +55,32 @@ export default function SummaryScreen() {
   const noteType = useTextStyle('body');
   const unit = useSettings((s) => s.unit);
   const [writingNote, setWritingNote] = useState(false);
+  const [claudeMenu, setClaudeMenu] = useState(false);
+  const [backup, setBackup] = useState<BackupResult | null>(null);
+  const backupDir = useSettings((s) => s.autoBackupDir);
+
+  // Automatic backup: once, when the finished workout is first shown. Off the
+  // interaction path — the summary never waits for it.
+  useEffect(() => {
+    let alive = true;
+    void runAutoBackup().then((r) => alive && setBackup(r));
+    return () => {
+      alive = false;
+    };
+  }, [id]);
 
   const summary = useQuery(() => (id ? getSessionSummary(id) : null), [id]);
   const previous = useQuery(() => (id ? getPreviousSessionSummary(id) : null), [id]);
-  const comparisons = useQuery(() => (id ? compareExercises(id) : []), [id]);
+  const history = useQuery(() => loadHistory(), []);
+  const comparison = id ? compareSession(history, id) : null;
+  const records = id ? sessionRecords(history, id, unit) : [];
+  const baseline = id ? sessionBaseline(history, id) : null;
+  const session = id ? findSession(history, id) : null;
+  const targets = session
+    ? session.exercises
+        .map((e) => ({ name: e.name, target: nextTarget(e.sets, e.weightStep, unit) }))
+        .filter((x): x is { name: string; target: NextTarget } => x.target !== null)
+    : [];
 
   const [note, setNote] = useState(summary?.note ?? '');
 
@@ -48,11 +95,11 @@ export default function SummaryScreen() {
   }
 
   const volumeDelta = previous ? formatDelta(summary.volume, previous.volume) : null;
-
-  // Only lifts that moved appear, capped so this never becomes a report.
-  const changed = comparisons
-    .filter((x) => x.previous_top != null && x.current_top !== x.previous_top)
-    .slice(0, 5);
+  const saveNote = () => {
+    // Belt and braces: the note is already persisted on every keystroke,
+    // but leaving the screen must never be the thing that loses it.
+    if (id) setSessionNote(id, note);
+  };
 
   return (
     <Screen edges={['top', 'bottom']}>
@@ -80,40 +127,30 @@ export default function SummaryScreen() {
         ]}
       />
 
+      {baseline ? (
+        <Text variant="caption" color="textSecondary" style={{ marginTop: -space.s, marginBottom: space.l }}>
+          {usualVolumeLine(baseline, summary.name, unit)}
+        </Text>
+      ) : null}
+
+      <SectionLabel>How hard was it?</SectionLabel>
+      <EffortPicker value={summary.effort} onChange={(v) => id && setSessionEffort(id, v)} />
+
+      <Spacer h={space.xl} />
       <Divider />
       <Spacer h={space.l} />
 
-      {previous ? (
-        <>
-          <SectionLabel>Compared with {formatShortDate(previous.started_at)}</SectionLabel>
+      <RecordsList records={records} />
 
+      {previous && comparison ? (
+        <>
+          <SectionLabel>{comparisonTitle(comparison)}</SectionLabel>
           <CompareRow
             label="Volume"
             value={`${formatVolume(previous.volume, unit, false)} → ${formatVolume(summary.volume, unit, false)}`}
             delta={volumeDelta}
           />
-
-          {changed.map((x) => {
-            const delta = formatDelta(x.current_top, x.previous_top ?? 0);
-            const diff = x.current_top - (x.previous_top ?? 0);
-            return (
-              <CompareRow
-                key={x.exercise_id}
-                label={x.name}
-                value={`${formatWeight(x.previous_top ?? 0, unit, false)} → ${formatWeight(x.current_top, unit)}`}
-                delta={{
-                  ...delta,
-                  text: `${diff > 0 ? '+' : ''}${trimNumber(diff)}`,
-                }}
-              />
-            );
-          })}
-
-          {changed.length === 0 ? (
-            <Text variant="caption" color="textTertiary">
-              Same weights as last time across the board.
-            </Text>
-          ) : null}
+          <ComparisonRows comparison={comparison} unit={unit} />
         </>
       ) : (
         <Text variant="body" color="textSecondary">
@@ -121,17 +158,29 @@ export default function SummaryScreen() {
         </Text>
       )}
 
+      {session ? <MusclesWorked session={session} /> : null}
+
+      <NextTimeList targets={targets} unit={unit} />
+
       <Spacer h={space.xxl} />
       <Button
         label="Done"
         onPress={() => {
-          // Belt and braces: the note is already persisted on every keystroke,
-          // but leaving the screen must never be the thing that loses it.
-          if (id) setSessionNote(id, note);
+          saveNote();
           router.replace('/');
         }}
         shout
       />
+      <Spacer h={space.m} />
+      <Button label="Analyse with AI" variant="secondary" onPress={() => setClaudeMenu(true)} />
+
+      {backup ? (
+        <Text variant="caption" color={backup.ok ? 'textTertiary' : 'negative'} align="center" style={{ marginTop: space.m }}>
+          {backup.ok
+            ? `Backed up to ${folderLabel(backupDir)}`
+            : 'Automatic backup failed. Check the folder in Settings.'}
+        </Text>
+      ) : null}
 
       <Spacer h={space.l} />
       {writingNote ? (
@@ -167,6 +216,36 @@ export default function SummaryScreen() {
           </Text>
         </Pressable>
       )}
+
+      <ActionSheet
+        visible={claudeMenu}
+        title="Analyse with AI"
+        onClose={() => setClaudeMenu(false)}
+        actions={[
+          {
+            label: 'Ask an AI app on this phone',
+            hint: 'Opens the share menu. Pick Claude, ChatGPT or Gemini.',
+            onPress: () => {
+              saveNote();
+              if (id) void shareTrainingBrief(sessionBrief(loadHistory(), id, currentBriefOptions()));
+            },
+          },
+          {
+            label: 'Send backup for Forte Companion',
+            hint: 'Save it to Google Drive, then review on your PC.',
+            onPress: () => {
+              saveNote();
+              void sendBackupForCompanion();
+            },
+          },
+          {
+            label: "Show what's shared",
+            onPress: () => {
+              if (id) router.push(`/claude/brief?kind=session&id=${id}`);
+            },
+          },
+        ]}
+      />
     </Screen>
   );
 }

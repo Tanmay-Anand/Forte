@@ -1,12 +1,10 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import Feather from '@expo/vector-icons/Feather';
 import { Text } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { Button } from '@/ui/Button';
-import { Divider, EmptyState, IconButton, Screen, SectionLabel, Spacer } from '@/ui/primitives';
-import { useTheme } from '@/ui/theme';
+import { Divider, EmptyState, Screen, SectionLabel, Spacer } from '@/ui/primitives';
 import { space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import { getDay, getDayExercises } from '@/db/queries/routine';
@@ -15,6 +13,8 @@ import { getLastSessionByName, getTodayCompletedSession } from '@/db/queries/his
 import { dayName, formatShortDate, relativeDays, todayDayOfWeek } from '@/lib/time';
 import { formatMinutes } from '@/lib/time';
 import { formatVolume } from '@/lib/format';
+import { loadHistory } from '@/db/queries/analysis';
+import { formatTarget, workoutTargets } from '@/features/analysis';
 import { useSettings } from '@/store/settings';
 
 /**
@@ -24,7 +24,6 @@ import { useSettings } from '@/store/settings';
  */
 export default function TodayScreen() {
   const router = useRouter();
-  const { c } = useTheme();
   const unit = useSettings((s) => s.unit);
   const dow = todayDayOfWeek();
 
@@ -33,6 +32,10 @@ export default function TodayScreen() {
   const active = useQuery(() => getActiveSession(), []);
   const completedToday = useQuery(() => getTodayCompletedSession(), []);
   const last = useQuery(() => (day?.name ? getLastSessionByName(day.name) : null), [day?.name]);
+  const history = useQuery(() => loadHistory(), []);
+  const targets = day?.name
+    ? workoutTargets(history, day.name, exercises.map((e) => e.exercise_id), unit)
+    : {};
 
   const begin = () => {
     const id = active?.id ?? startSession(dow);
@@ -48,14 +51,14 @@ export default function TodayScreen() {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: space.l,
+          // Settings moved to Profile; the row keeps its height so the title
+          // below doesn't jump.
+          minHeight: space.l + 48,
         }}
       >
         <Text variant="label" color="textSecondary">
           {dayName(dow)} · {formatShortDate(Date.now())}
         </Text>
-        <IconButton label="Settings" onPress={() => router.push('/settings')}>
-          <Feather name="settings" size={18} color={c.textTertiary} />
-        </IconButton>
       </View>
 
       {day?.state === 'unconfigured' ? (
@@ -82,12 +85,26 @@ export default function TodayScreen() {
           <Divider />
           <Spacer h={space.l} />
 
-          <SectionLabel right={`${exercises.length} exercises`}>Today's workout</SectionLabel>
-          {exercises.map((e) => (
-            <View key={e.id} style={{ height: 44, justifyContent: 'center' }}>
-              <Text variant="body">{e.name}</Text>
-            </View>
-          ))}
+          <SectionLabel right={`${exercises.length} exercises${Object.keys(targets).length ? ' · next target' : ''}`}>Today's workout</SectionLabel>
+          {exercises.map((e) => {
+            const target = targets[e.exercise_id];
+            return (
+              <View
+                key={e.id}
+                style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', columnGap: space.m }}
+              >
+                <Text variant="body" style={{ flex: 1 }}>
+                  {e.name}
+                </Text>
+                {/* The next-set target: a suggestion from last time, never a pre-fill. */}
+                {target ? (
+                  <Text variant="num" color={target.progress === 'weight' ? 'textPrimary' : 'textSecondary'}>
+                    {formatTarget(target, unit)}
+                  </Text>
+                ) : null}
+              </View>
+            );
+          })}
 
           <Spacer h={space.l} />
           <Divider />

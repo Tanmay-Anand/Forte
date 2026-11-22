@@ -42,6 +42,8 @@ export type SetRow = {
   completed_at: number;
   rest_before_s: number | null;
   skipped: number;
+  /** 0 for a set; 1, 2… for its drops (see migration v6). */
+  drop_index: number;
 };
 
 // ------------------------------------------------------------- session read
@@ -70,9 +72,18 @@ export function getSessionExercises(sessionId: string): SessionExerciseRow[] {
   );
 }
 
+/** The sets of one exercise, without their drops: "Set 3" is the third row. */
 export function getSets(sessionExerciseId: string): SetRow[] {
   return sqlite.getAllSync<SetRow>(
-    `SELECT * FROM sets WHERE session_exercise_id = ? ORDER BY set_number;`,
+    `SELECT * FROM sets WHERE session_exercise_id = ? AND drop_index = 0 ORDER BY set_number;`,
+    [sessionExerciseId],
+  );
+}
+
+/** The drops of one exercise's sets, in order. Match them to a set by set_number. */
+export function getDrops(sessionExerciseId: string): SetRow[] {
+  return sqlite.getAllSync<SetRow>(
+    `SELECT * FROM sets WHERE session_exercise_id = ? AND drop_index > 0 ORDER BY set_number, drop_index;`,
     [sessionExerciseId],
   );
 }
@@ -89,7 +100,7 @@ export function getSets(sessionExerciseId: string): SetRow[] {
 export function getPreviousPerformance(
   exerciseId: string,
   excludeSessionId: string,
-): { startedAt: number; sets: SetRow[] } | null {
+): { startedAt: number; sets: SetRow[]; drops: SetRow[] } | null {
   const prev = sqlite.getFirstSync<{ id: string; started_at: number; se_id: string }>(
     `SELECT sn.id, sn.started_at, se.id AS se_id
        FROM session_exercises se
@@ -104,7 +115,7 @@ export function getPreviousPerformance(
     [exerciseId, excludeSessionId],
   );
   if (!prev) return null;
-  return { startedAt: prev.started_at, sets: getSets(prev.se_id) };
+  return { startedAt: prev.started_at, sets: getSets(prev.se_id), drops: getDrops(prev.se_id) };
 }
 
 // ------------------------------------------------------------ session write
@@ -220,6 +231,55 @@ export function logSet(
   return setId;
 }
 
+/**
+ * Logs a drop: the same set carried on straight away at a lower weight
+ * (40 kg × 5, then 25 kg × 8). It joins the exercise's last performed set,
+ * has no rest of its own, and restarts the rest stopwatch, so the rest that
+ * follows is timed from the end of the last drop. Returns null when there is
+ * no performed set to drop from. `setNumber` puts it back on a particular set
+ * (undo); by default it joins the last one.
+ */
+export function logDrop(
+  sessionId: string,
+  sessionExerciseId: string,
+  weightKg: number,
+  reps: number,
+  setNumber?: number,
+): string | null {
+  const last = sqlite.getFirstSync<{ set_number: number; skipped: number }>(
+    `SELECT set_number, skipped FROM sets
+      WHERE session_exercise_id = ?1 AND drop_index = 0 AND (?2 IS NULL OR set_number = ?2)
+      ORDER BY set_number DESC LIMIT 1;`,
+    [sessionExerciseId, setNumber ?? null],
+  );
+  if (!last || last.skipped) return null;
+  const max = sqlite.getFirstSync<{ m: number | null }>(
+    `SELECT MAX(drop_index) AS m FROM sets WHERE session_exercise_id = ? AND set_number = ?;`,
+    [sessionExerciseId, last.set_number],
+  );
+  const now = Date.now();
+  const id = newId('set_');
+  sqlite.withTransactionSync(() => {
+    sqlite.runSync(
+      `INSERT INTO sets (id, session_exercise_id, set_number, weight_kg, reps,
+                         completed_at, rest_before_s, drop_index)
+       VALUES (?, ?, ?, ?, ?, ?, NULL, ?);`,
+      [id, sessionExerciseId, last.set_number, weightKg, reps, now, (max?.m ?? 0) + 1],
+    );
+    sqlite.runSync(
+      `UPDATE sessions
+          SET pending_rest_s = NULL,
+              rest_started_at = ?,
+              rest_paused_at = NULL,
+              rest_accumulated_s = 0
+        WHERE id = ?;`,
+      [now, sessionId],
+    );
+  });
+  bumpRevision();
+  return id;
+}
+
 export function updateSet(setId: string, weightKg: number, reps: number): void {
   sqlite.runSync(`UPDATE sets SET weight_kg = ?, reps = ? WHERE id = ?;`, [weightKg, reps, setId]);
   bumpRevision();
@@ -229,7 +289,21 @@ export function deleteSet(setId: string): void {
   const row = sqlite.getFirstSync<SetRow>(`SELECT * FROM sets WHERE id = ?;`, [setId]);
   if (!row) return;
   sqlite.withTransactionSync(() => {
-    sqlite.runSync(`DELETE FROM sets WHERE id = ?;`, [setId]);
+    if (row.drop_index > 0) {
+      // One drop: the set and its other drops stay; later drops move up.
+      sqlite.runSync(`DELETE FROM sets WHERE id = ?;`, [setId]);
+      sqlite.runSync(
+        `UPDATE sets SET drop_index = drop_index - 1
+          WHERE session_exercise_id = ? AND set_number = ? AND drop_index > ?;`,
+        [row.session_exercise_id, row.set_number, row.drop_index],
+      );
+      return;
+    }
+    // A set goes with its drops.
+    sqlite.runSync(`DELETE FROM sets WHERE session_exercise_id = ? AND set_number = ?;`, [
+      row.session_exercise_id,
+      row.set_number,
+    ]);
     // Keep set numbers contiguous so the table never shows a gap.
     sqlite.runSync(
       `UPDATE sets SET set_number = set_number - 1
@@ -408,6 +482,12 @@ export function discardSession(sessionId: string): void {
   sqlite.runSync(
     `DELETE FROM sets WHERE session_exercise_id NOT IN (SELECT id FROM session_exercises);`,
   );
+  bumpRevision();
+}
+
+/** 1–5, or null to clear. Asked once, after Finish; never during the workout. */
+export function setSessionEffort(sessionId: string, effort: number | null): void {
+  sqlite.runSync(`UPDATE sessions SET effort = ? WHERE id = ?;`, [effort, sessionId]);
   bumpRevision();
 }
 

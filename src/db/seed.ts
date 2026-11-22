@@ -1,5 +1,6 @@
 import { sqlite } from './client';
 import { EXERCISE_SEED } from '@/data/exercises.seed';
+import { LAB_MARKER_SEED } from '@/data/lab-markers.seed';
 import { newId } from '@/lib/id';
 
 /**
@@ -40,7 +41,25 @@ export function seedRoutineDays(): void {
   });
 }
 
+/** Same idempotent rule as exercises: only names that are missing are added. */
+export function seedLabMarkers(): void {
+  const existing = sqlite.getAllSync<{ name: string }>('SELECT name FROM lab_markers;');
+  const known = new Set(existing.map((r) => r.name.toLowerCase()));
+  const missing = LAB_MARKER_SEED.filter(([name]) => !known.has(name.toLowerCase()));
+  if (missing.length === 0) return;
+  sqlite.withTransactionSync(() => {
+    for (const [name, category, unit] of missing) {
+      sqlite.runSync(
+        `INSERT OR IGNORE INTO lab_markers (id, name, category, default_unit, is_custom)
+         VALUES (?, ?, ?, ?, 0);`,
+        [newId('lm_'), name, category, unit],
+      );
+    }
+  });
+}
+
 export function seedAll(): void {
   seedExercises();
   seedRoutineDays();
+  seedLabMarkers();
 }

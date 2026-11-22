@@ -11,6 +11,11 @@ import { space } from '@/ui/tokens';
 import { useSettings, type ThemePreference } from '@/store/settings';
 import { exportCsv, exportJson, importJson } from '@/lib/export';
 import { vacuum } from '@/db/client';
+import { countReplies, deleteAllReplies } from '@/db/queries/ai';
+import { useQuery } from '@/lib/db-hooks';
+import { describeTrainingShare } from '@/features/claude/share';
+import { autoBackupSupported, chooseBackupFolder, folderLabel, runAutoBackup } from '@/lib/auto-backup';
+import { formatClock, formatShortDate } from '@/lib/time';
 import { ensureNotificationPermission } from '@/features/workout/workout-notification';
 import type { Unit } from '@/lib/format';
 
@@ -18,6 +23,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const s = useSettings();
   const [busy, setBusy] = useState(false);
+  const replies = useQuery(() => countReplies(), []);
 
   const run = async (label: string, fn: () => Promise<unknown>) => {
     setBusy(true);
@@ -46,7 +52,13 @@ export default function SettingsScreen() {
             void run('Import', async () => {
               const raw = await FileSystem.readAsStringAsync(uri);
               const result = importJson(raw);
-              Alert.alert('Import complete', `${result.sessions} sessions, ${result.sets} sets.`);
+              Alert.alert(
+                'Import complete',
+                `${result.sessions} sessions, ${result.sets} sets` +
+                  (result.reports
+                    ? `, ${result.reports} blood reports. Report files aren't in backups; attach them again if you need them.`
+                    : '.'),
+              );
             }),
         },
       ],
@@ -123,12 +135,88 @@ export default function SettingsScreen() {
       />
 
       <Spacer h={space.xl} />
+      <SectionLabel>AI analysis</SectionLabel>
+      <Text variant="caption" color="textTertiary" style={{ maxWidth: 460 }}>
+        Forte never contacts an AI itself. "Ask AI" opens the share menu with a text summary, and you
+        pick the app — Claude, ChatGPT, Gemini; or save a backup to Google Drive for Forte Companion on your PC. A
+        summary includes {describeTrainingShare()}.
+      </Text>
+      <Toggle
+        label="Include session notes"
+        help="What you type under “How did it feel?”."
+        value={s.claudeIncludeNotes}
+        onChange={(v) => s.set('claudeIncludeNotes', v)}
+      />
+      <Toggle
+        label="Include body data"
+        help="Your age, height, latest bodyweight with its four-week change, and target weight. Blood results are never in a training summary; they're shared only from Blood reports, after asking."
+        value={s.claudeIncludeBody}
+        onChange={(v) => s.set('claudeIncludeBody', v)}
+      />
+      <Action label="Show what's shared" onPress={() => router.push('/claude/brief?kind=session')} />
+      {replies > 0 ? (
+        <Action
+          label={`Delete saved AI replies (${replies})`}
+          onPress={() =>
+            Alert.alert('Delete saved replies?', 'Removes the AI replies you pasted into sessions. Sessions stay.', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Delete', style: 'destructive', onPress: deleteAllReplies },
+            ])
+          }
+        />
+      ) : null}
+
+      {autoBackupSupported ? (
+        <>
+          <Spacer h={space.xl} />
+          <SectionLabel>Automatic backup</SectionLabel>
+          <Toggle
+            label="Back up after every workout"
+            help="Saves a backup file to a folder you choose, each time you finish a workout. Keeps the newest 12. Point a sync app at the folder to copy it to Google Drive for Forte Companion on your PC. The file is not encrypted."
+            value={s.autoBackup}
+            onChange={(v) => {
+              if (v && !s.autoBackupDir) {
+                void chooseBackupFolder().then((ok) => ok && s.set('autoBackup', true));
+              } else {
+                s.set('autoBackup', v);
+              }
+            }}
+          />
+          <Action
+            label={s.autoBackupDir ? `Folder · ${folderLabel(s.autoBackupDir)}` : 'Choose folder'}
+            onPress={() => void chooseBackupFolder()}
+            disabled={busy}
+          />
+          {s.autoBackupDir ? (
+            <Action
+              label="Back up now"
+              onPress={() =>
+                void run('Backup', async () => {
+                  const r = await runAutoBackup(true);
+                  if (r && !r.ok) throw new Error(r.error);
+                })
+              }
+              disabled={busy}
+            />
+          ) : null}
+          <Text variant="caption" color={s.lastAutoBackupError ? 'negative' : 'textTertiary'} style={{ marginTop: space.s }}>
+            {s.lastAutoBackupError
+              ? `Last backup failed: ${s.lastAutoBackupError}`
+              : s.lastAutoBackupAt
+                ? `Last backup ${formatShortDate(s.lastAutoBackupAt)}, ${formatClock(s.lastAutoBackupAt)}`
+                : 'No automatic backup yet.'}
+          </Text>
+        </>
+      ) : null}
+
+      <Spacer h={space.xl} />
       <Divider />
       <Spacer h={space.l} />
       <SectionLabel>Your data</SectionLabel>
       <Text variant="caption" color="textTertiary" style={{ marginBottom: space.m }}>
-        Everything lives on this device only. Nothing is uploaded anywhere. Export regularly — a
-        backup is the only thing standing between you and a lost phone.
+        Everything lives on this device only. Nothing leaves it unless you export a backup or share
+        something yourself. Export regularly — a backup is the only thing standing between you and a
+        lost phone.
       </Text>
 
       <Action label="Export backup (JSON)" onPress={() => void run('Export', exportJson)} disabled={busy} />
@@ -147,7 +235,7 @@ export default function SettingsScreen() {
 
       <Spacer h={space.xxl} />
       <Text variant="caption" color="textTertiary" align="center">
-        Forte · personal training log
+        Forte · personal health and training
       </Text>
     </Screen>
   );

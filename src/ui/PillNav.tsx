@@ -14,6 +14,7 @@ const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   week: 'calendar',
   progress: 'trending-up',
   history: 'clock',
+  profile: 'user',
 };
 
 const LABELS: Record<string, string> = {
@@ -21,6 +22,7 @@ const LABELS: Record<string, string> = {
   week: 'Week',
   progress: 'Progress',
   history: 'History',
+  profile: 'Profile',
 };
 
 const GAP = 2;
@@ -37,7 +39,7 @@ const PAD = 6;
  * spatial relationship between tabs.
  *
  * Icon-only costs a beat of recognition, so every button carries an
- * accessibility label and the set is fixed at four in a stable order — the
+ * accessibility label and the set is fixed at five in a stable order — the
  * positions themselves become the affordance.
  */
 export function PillNav({ state, navigation }: BottomTabBarProps) {

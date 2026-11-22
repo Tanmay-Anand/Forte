@@ -11,14 +11,16 @@ export type SessionSummary = {
   volume: number;
   exercise_count: number;
   note: string | null;
+  /** 1–5, null when not rated. */
+  effort: number | null;
 };
 
 export function getSessionSummary(sessionId: string): SessionSummary | null {
   return (
     sqlite.getFirstSync<SessionSummary>(
-      `SELECT sn.id, sn.name, sn.started_at, sn.ended_at, sn.note,
+      `SELECT sn.id, sn.name, sn.started_at, sn.ended_at, sn.note, sn.effort,
               COALESCE(sn.ended_at, sn.started_at) - sn.started_at AS duration_ms,
-              COUNT(s.id) AS set_count,
+              COUNT(CASE WHEN s.drop_index = 0 THEN 1 END) AS set_count,
               COALESCE(SUM(s.weight_kg * s.reps), 0) AS volume,
               COUNT(DISTINCT se.id) AS exercise_count
          FROM sessions sn
@@ -40,9 +42,9 @@ export function getHistory(limit = 200, nameFilter?: string): SessionSummary[] {
   }
   params.push(limit);
   return sqlite.getAllSync<SessionSummary>(
-    `SELECT sn.id, sn.name, sn.started_at, sn.ended_at, sn.note,
+    `SELECT sn.id, sn.name, sn.started_at, sn.ended_at, sn.note, sn.effort,
             COALESCE(sn.ended_at, sn.started_at) - sn.started_at AS duration_ms,
-            COUNT(s.id) AS set_count,
+            COUNT(CASE WHEN s.drop_index = 0 THEN 1 END) AS set_count,
             COALESCE(SUM(s.weight_kg * s.reps), 0) AS volume,
             COUNT(DISTINCT se.id) AS exercise_count
        FROM sessions sn
@@ -142,6 +144,8 @@ export type HistoryExercise = {
     reps: number;
     rest_before_s: number | null;
     skipped: number;
+    /** Done straight after this set at lower weights (migration v6). */
+    drops: { id: string; weight_kg: number; reps: number }[];
   }[];
   volume: number;
   avgRest: number | null;
@@ -163,12 +167,20 @@ export function getSessionDetail(sessionId: string): HistoryExercise[] {
   );
 
   return exercises.map((ex) => {
-    const sets = sqlite.getAllSync<HistoryExercise['sets'][number]>(
-      `SELECT id, set_number, weight_kg, reps, rest_before_s, skipped
-         FROM sets WHERE session_exercise_id = ? ORDER BY set_number;`,
+    const rows = sqlite.getAllSync<Omit<HistoryExercise['sets'][number], 'drops'> & { drop_index: number }>(
+      `SELECT id, set_number, weight_kg, reps, rest_before_s, skipped, drop_index
+         FROM sets WHERE session_exercise_id = ? ORDER BY set_number, drop_index;`,
       [ex.id],
     );
-    const volume = sets.reduce((sum, s) => sum + (s.skipped ? 0 : s.weight_kg * s.reps), 0);
+    const sets = rows
+      .filter((r) => r.drop_index === 0)
+      .map(({ drop_index: _d, ...r }) => ({
+        ...r,
+        drops: rows
+          .filter((d) => d.drop_index > 0 && d.set_number === r.set_number)
+          .map((d) => ({ id: d.id, weight_kg: d.weight_kg, reps: d.reps })),
+      }));
+    const volume = rows.reduce((sum, s) => sum + (s.skipped ? 0 : s.weight_kg * s.reps), 0);
     const rests = sets.map((s) => s.rest_before_s).filter((r): r is number => r != null);
     const avgRest = rests.length ? rests.reduce((a, b) => a + b, 0) / rests.length : null;
     return { ...ex, sets, volume, avgRest };

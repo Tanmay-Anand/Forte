@@ -275,6 +275,10 @@ Quick Settings tile is a small native service. Both are cheap, both save exactly
 
 ## 4. Product features that pass the product gate
 
+> **Status, November 2026:** a session effort rating (instead of per-set RPE, §4.4), bodyweight and
+> body measurements (§4.5), and PR detection (§4.7) are built — see `AI_TRAINER_PLAN.md`.
+> Estimated 1RM (§4.6) is computed for record detection only and never shown as a number.
+
 Ordered by value against "faster logging or clearer progression". All are **T1** — pure JS/TS,
 shippable with `npm run update` — except where a migration is noted, and migrations are still JS
 (`MIGRATIONS` in `src/db/migrations.ts`, forward-only, never edit a shipped one).
@@ -382,11 +386,11 @@ Restating the non-goals so they stay decided rather than relitigated:
 |---|---|
 | Accounts, social feeds, sharing | Constraint 1. The product is a private log. |
 | Ads, analytics, crash telemetry | The 0% network row in the battery analysis is a feature. |
-| An AI coach or auto-programming | Neither faster logging nor clearer progression; adds a network dependency to a basement-gym app. |
+| Auto-programming, and AI during a workout | The workout stays traditional. Analysis by Claude exists since November 2026, after Finish and only on request, with no network in the logging path (`AI_TRAINER_PLAN.md`). |
 | Live in-workout HR polling | §2.3. |
 | Skia-backed charts | Explicitly rejected: `IMPLEMENTATION_PLAN.md` §6.3. `react-native-svg` + `d3-scale` is sufficient. |
 | Streaks, badges, gamification | Optimises for opening the app, not for training. |
-| Nutrition, cardio, body measurements beyond weight | A different product. |
+| Nutrition, cardio | A different product. Body measurements and blood reports moved into scope in November 2026. |
 
 ---
 

@@ -31,6 +31,26 @@ export function formatWeight(kg: number, unit: Unit, withUnit = true): string {
   return withUnit ? `${v} ${unit}` : v;
 }
 
+/**
+ * Body lengths follow the weight setting: centimetres with kilograms, inches
+ * with pounds. Stored in centimetres either way.
+ */
+export type LengthUnit = 'cm' | 'in';
+
+const CM_PER_IN = 2.54;
+
+export function lengthUnitFor(unit: Unit): LengthUnit {
+  return unit === 'kg' ? 'cm' : 'in';
+}
+
+export function toDisplayLength(cm: number, unit: Unit): number {
+  return unit === 'kg' ? cm : cm / CM_PER_IN;
+}
+
+export function fromDisplayLength(value: number, unit: Unit): number {
+  return unit === 'kg' ? value : value * CM_PER_IN;
+}
+
 /** 6850 -> "6,850" */
 export function formatVolume(kg: number, unit: Unit, withUnit = true): string {
   const v = Math.round(toDisplayWeight(kg, unit));
