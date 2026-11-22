@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { AppState, Platform, View } from 'react-native';
+import { AppState, Platform, View, useColorScheme } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import {
-  useFonts,
-  Urbanist_400Regular,
-  Urbanist_500Medium,
-  Urbanist_600SemiBold,
-  Urbanist_700Bold,
-} from '@expo-google-fonts/urbanist';
+  Geist_400Regular,
+  Geist_500Medium,
+  Geist_600SemiBold,
+  Geist_700Bold,
+} from '@expo-google-fonts/geist';
+import {
+  GeistMono_400Regular,
+  GeistMono_500Medium,
+  GeistMono_600SemiBold,
+  GeistMono_700Bold,
+} from '@expo-google-fonts/geist-mono';
 import { checkpoint, initDatabase } from '@/db/client';
 import { seedAll } from '@/db/seed';
 import { useSettings } from '@/store/settings';
@@ -25,20 +31,27 @@ import { palette } from '@/ui/tokens';
 import { hideNavigationBar } from '@/ui/system-bars';
 import { useSyncEngine } from '@/features/sync/engine';
 
-// Hold the native splash — the Forte wordmark on the dark ground — until the
-// database has migrated and Urbanist has loaded, so the first painted frame is
-// the finished UI rather than a flash of unstyled text.
+// Hold the native splash — the mountain-range mark on the theme's ground —
+// until the database has migrated and Geist has loaded, so the first painted
+// frame is the finished UI rather than a flash of unstyled text.
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const loadSettings = useSettings((s) => s.load);
 
+  // The splash follows the OS appearance, so the backstop below does too.
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+
   const [fontsReady] = useFonts({
-    Urbanist_400Regular,
-    Urbanist_500Medium,
-    Urbanist_600SemiBold,
-    Urbanist_700Bold,
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+    Geist_700Bold,
+    GeistMono_400Regular,
+    GeistMono_500Medium,
+    GeistMono_600SemiBold,
+    GeistMono_700Bold,
   });
 
   useEffect(() => {
@@ -66,10 +79,10 @@ export default function RootLayout() {
 
   // The native splash is still on screen at this point, so this view is only
   // ever a colour-matched backstop during the handover.
-  if (!booted) return <View style={{ flex: 1, backgroundColor: palette.dark.bgBase }} />;
+  if (!booted) return <View style={{ flex: 1, backgroundColor: palette[scheme].bgBase }} />;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: palette.dark.bgBase }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: palette[scheme].bgBase }}>
       <SafeAreaProvider>
         <ThemeProvider fontsReady={fontsReady}>
           <Chrome />

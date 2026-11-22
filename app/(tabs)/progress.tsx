@@ -290,9 +290,9 @@ function NotEnoughYet({ name, have, need }: { name: string; have: number; need: 
               height: 8,
               borderRadius: radius.pill,
               marginRight: space.s,
-              backgroundColor: i < have ? c.focus : 'transparent',
+              backgroundColor: i < have ? c.now : 'transparent',
               borderWidth: 1,
-              borderColor: i < have ? c.focus : c.lineStrong,
+              borderColor: i < have ? c.now : c.lineStrong,
             }}
           />
         ))}

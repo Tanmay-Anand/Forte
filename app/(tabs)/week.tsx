@@ -100,7 +100,7 @@ function DayRow({
                 height: 6,
                 borderRadius: radius.pill,
                 // focus marks "now"; accent fills are reserved for actions.
-                backgroundColor: c.focus,
+                backgroundColor: c.now,
                 marginRight: space.xs,
               }}
             />

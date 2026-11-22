@@ -117,7 +117,7 @@ export function NumberWell({
           accessibilityLabel={`${accessibilityLabel}, ${trimNumber(value, decimals)} ${unit}. Tap to type a value.`}
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: '100%' }}
         >
-          <Text variant="displayL" numberOfLines={1} adjustsFontSizeToFit>
+          <Text variant="displayL" mono numberOfLines={1} adjustsFontSizeToFit>
             {trimNumber(value, decimals)}
           </Text>
         </Pressable>

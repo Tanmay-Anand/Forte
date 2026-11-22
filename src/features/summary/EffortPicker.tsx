@@ -27,7 +27,7 @@ export function EffortPicker({
       style={{
         flexDirection: 'row',
         backgroundColor: c.bgSunken,
-        borderRadius: radius.pill,
+        borderRadius: radius.chip,
         padding: space.xs,
       }}
     >
@@ -45,11 +45,11 @@ export function EffortPicker({
               flex: 1,
               minHeight: 44,
               paddingHorizontal: 2,
-              borderRadius: radius.pill,
+              borderRadius: radius.chip - 2,
               alignItems: 'center',
               justifyContent: 'center',
               borderWidth: 1,
-              borderColor: active ? c.textSecondary : 'transparent',
+              borderColor: active ? c.textPrimary : 'transparent',
               backgroundColor: active ? c.bgElevated : 'transparent',
             }}
           >

@@ -44,7 +44,7 @@ export function ResumeBar() {
           width: 7,
           height: 7,
           borderRadius: radius.pill,
-          backgroundColor: resting ? c.rest : c.focus,
+          backgroundColor: resting ? c.rest : c.now,
           marginRight: space.s,
         }}
       />

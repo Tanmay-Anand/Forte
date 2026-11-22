@@ -419,7 +419,7 @@ export default function ActiveWorkoutScreen() {
                 width: `${exercises.length ? (doneCount / exercises.length) * 100 : 0}%`,
                 height: '100%',
                 borderRadius: radius.pill,
-                backgroundColor: c.focus,
+                backgroundColor: c.now,
               }}
             />
           </View>

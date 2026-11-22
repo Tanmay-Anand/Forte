@@ -63,7 +63,7 @@ const DEFAULTS: Persisted = {
   unit: 'kg',
   // Dark is the product default, not a system mirror. Gym lighting, evening
   // training, lower glare (DESIGN.md 3.2). "System" is available as an opt-in.
-  theme: 'dark',
+  theme: 'system',
   keepAwake: true,
   lockScreenControls: true,
   reducedMotion: false,

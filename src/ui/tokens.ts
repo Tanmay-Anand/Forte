@@ -1,66 +1,75 @@
 /**
- * Design tokens — DESIGN.md section 3.
+ * Design tokens — DESIGN.md section 3, DESIGN_SYSTEM_FORTE.md section 2.
  * The single source of truth for colour, type, spacing and motion.
  * Nothing in the app may hard-code a colour or a font size.
+ *
+ * The Logbook direction (Nov 2026): a training notebook. Type, rules and
+ * tables do the work; fills are rare and shadows absent. Light by default,
+ * with a dark theme that keeps every role and re-tunes the values.
  */
 
 export type ThemeName = 'dark' | 'light';
 
 /**
- * Near-monochrome by design. Colour is a scarce resource here:
- *   accent   a light fill for the single primary action (dark ink on top)
- *   focus    one restrained teal, for data and "now" indicators only
- *   rest     one restrained blue, and only while a rest timer runs
- * Everything else is neutral. No large saturated fields anywhere.
+ * Colour is scarce and always means something:
+ *   accent    ink fill for the single primary action (and the set flash)
+ *   now       lake blue from the logo: live data, today, the latest point
+ *   rest      blue, only while a rest timer runs, and only as a strip or
+ *             clock (it sits close to `now` in hue, so it never appears as a
+ *             bare dot or marker); restSoft is the strip behind it
+ *   positive / negative   beside a change, and for destructive actions
+ * Everything else is neutral.
  *
- *   lineFloating  border of floating surfaces (pill nav, resume/update bars).
- *                 In light, bgElevated is white like the cards beneath it, so
- *                 this border (lineStrong, ~1.5:1 on white) is what lifts it —
- *                 depth by line, never by shadow. In dark the tone step does
- *                 that work and the border stays a hairline.
+ *   lineFloating  border of floating surfaces (tab bar, resume/update bars,
+ *                 sheets). In light, bgElevated is white like bgRaised, so
+ *                 this line is what separates them — depth by line, never
+ *                 by shadow.
  *   scrim         behind modal sheets, both themes.
  *
- * Contrast floors are enforced by tests/contrast.test.mjs.
+ * Keep each palette a flat `key: '#hex'` object with the same keys in both:
+ * tests/contrast.test.mjs reads this file with a regex and enforces floors.
  */
 export const palette = {
   dark: {
-    bgBase: '#0A0A0B',
-    bgRaised: '#141517',
-    bgSunken: '#101113',
-    bgElevated: '#1B1D20',
-    hairline: '#1F2124',
-    lineStrong: '#2C3034',
-    lineFloating: '#1F2124',
-    textPrimary: '#F3F4F6',
-    textSecondary: '#9AA0A6',
-    textTertiary: '#80868E',
-    accent: '#F3F4F6',
-    accentInk: '#0A0A0B',
-    focus: '#5FD3BC',
+    bgBase: '#111213',
+    bgRaised: '#17181A',
+    bgSunken: '#1B1C1F',
+    bgElevated: '#1C1D20',
+    hairline: '#24262A',
+    lineStrong: '#393C41',
+    lineFloating: '#2C2E33',
+    textPrimary: '#ECECEA',
+    textSecondary: '#A4A7AC',
+    textTertiary: '#868A90',
+    accent: '#ECECEA',
+    accentInk: '#111213',
+    now: '#6CC5D8',
     positive: '#72CBA4',
-    negative: '#DD8B80',
+    negative: '#F08094',
     rest: '#8FB4E8',
-    restInk: '#0A0A0B',
+    restInk: '#111213',
+    restSoft: '#16202D',
     scrim: '#000000B8',
   },
   light: {
-    bgBase: '#FAFAFA',
+    bgBase: '#FCFCFB',
     bgRaised: '#FFFFFF',
-    bgSunken: '#F2F3F5',
+    bgSunken: '#F2F2EF',
     bgElevated: '#FFFFFF',
-    hairline: '#E7E8EB',
-    lineStrong: '#D2D5D9',
-    lineFloating: '#D2D5D9',
-    textPrimary: '#111214',
-    textSecondary: '#5B6068',
-    textTertiary: '#686E76',
-    accent: '#16181B',
+    hairline: '#E8E8E5',
+    lineStrong: '#D3D3CF',
+    lineFloating: '#D3D3CF',
+    textPrimary: '#141414',
+    textSecondary: '#585B60',
+    textTertiary: '#6B6E73',
+    accent: '#141414',
     accentInk: '#FFFFFF',
-    focus: '#0B7F6F',
+    now: '#10708C',
     positive: '#1C7A55',
-    negative: '#B4463A',
+    negative: '#B3263E',
     rest: '#2A63BE',
     restInk: '#FFFFFF',
+    restSoft: '#EEF3FB',
     scrim: '#000000B8',
   },
 } as const;
@@ -70,50 +79,70 @@ export type Colors = Record<keyof (typeof palette)['dark'], string>;
 
 /**
  * Colours that live outside the running app: the launcher icon's ground and
- * the brand mark's own tones. Read by tools/bake-brand.mjs; app.json repeats
- * iconGround as the adaptive-icon background.
+ * the body map's five shades (pale to deep, from the logo's tones). Read by
+ * tools/bake-brand.mjs and tools/bake-body.mjs; app.json repeats iconGround
+ * as the adaptive-icon background.
  */
-export const brand = { iconGround: '#E9F5F8' } as const;
+export const brand = {
+  iconGround: '#E9F5F8',
+  bodyScale: {
+    light: ['#D3EAF0', '#A9D5E1', '#6FB2C6', '#3A8FA8', '#10708C'],
+    dark: ['#163640', '#1D5262', '#2A7489', '#4A9DB2', '#6CC5D8'],
+  },
+} as const;
 
-/** Urbanist, with a system fallback until the font finishes loading. */
+/**
+ * Geist for text, Geist Mono for numbers. Geist's digits are proportional
+ * (0.38–0.69 em); Geist Mono's are all exactly 0.6 em, so anything that ticks
+ * or lines up in a column (sets, weights, clocks) is set in mono.
+ */
 export const fonts = {
-  regular: 'Urbanist_400Regular',
-  medium: 'Urbanist_500Medium',
-  semibold: 'Urbanist_600SemiBold',
-  bold: 'Urbanist_700Bold',
+  regular: 'Geist_400Regular',
+  medium: 'Geist_500Medium',
+  semibold: 'Geist_600SemiBold',
+  bold: 'Geist_700Bold',
+} as const;
+
+export const monoFonts = {
+  regular: 'GeistMono_400Regular',
+  medium: 'GeistMono_500Medium',
+  semibold: 'GeistMono_600SemiBold',
+  bold: 'GeistMono_700Bold',
 } as const;
 
 export type FontWeightName = keyof typeof fonts;
 
-/** Type ramp. Numeric styles use tabular figures so digits do not jitter. */
+/**
+ * Type ramp. Few sizes, one weight for emphasis (600), sentence case
+ * throughout — labels are no longer uppercased. `mono` entries use Geist Mono.
+ */
 export const type = {
-  displayL: { fontSize: 44, lineHeight: 48, letterSpacing: -1.2, weight: 'bold' },
-  displayM: { fontSize: 30, lineHeight: 36, letterSpacing: -0.7, weight: 'bold' },
-  titleL: { fontSize: 23, lineHeight: 29, letterSpacing: -0.4, weight: 'semibold' },
-  titleM: { fontSize: 18, lineHeight: 24, letterSpacing: -0.2, weight: 'semibold' },
-  body: { fontSize: 16, lineHeight: 22, letterSpacing: -0.1, weight: 'regular' },
-  bodyStrong: { fontSize: 16, lineHeight: 22, letterSpacing: -0.1, weight: 'semibold' },
-  label: { fontSize: 12, lineHeight: 16, letterSpacing: 0.7, weight: 'medium' },
-  num: { fontSize: 15, lineHeight: 20, letterSpacing: -0.1, weight: 'medium' },
-  caption: { fontSize: 13, lineHeight: 18, letterSpacing: -0.1, weight: 'regular' },
+  displayL: { fontSize: 32, lineHeight: 38, letterSpacing: -1.1, weight: 'semibold', mono: false },
+  displayM: { fontSize: 26, lineHeight: 32, letterSpacing: -0.8, weight: 'semibold', mono: false },
+  titleL: { fontSize: 22, lineHeight: 28, letterSpacing: -0.6, weight: 'semibold', mono: false },
+  titleM: { fontSize: 17, lineHeight: 22, letterSpacing: -0.3, weight: 'semibold', mono: false },
+  body: { fontSize: 15, lineHeight: 21, letterSpacing: -0.1, weight: 'regular', mono: false },
+  bodyStrong: { fontSize: 15, lineHeight: 21, letterSpacing: -0.1, weight: 'semibold', mono: false },
+  label: { fontSize: 12, lineHeight: 16, letterSpacing: 0, weight: 'medium', mono: false },
+  num: { fontSize: 14, lineHeight: 20, letterSpacing: 0, weight: 'medium', mono: true },
+  caption: { fontSize: 13, lineHeight: 18, letterSpacing: 0, weight: 'regular', mono: false },
 } as const;
 
 export type TypeName = keyof typeof type;
 
-/** Extra tracking for headline actions (START WORKOUT, COMPLETE SET) — Button's `shout`. */
-export const tracking = { shout: 0.4 } as const;
+/** Extra tracking for headline actions — Button's `shout`. Kept small in Geist. */
+export const tracking = { shout: 0.2 } as const;
 
 /**
- * Widest digit advance in each Urbanist weight, as a fraction of the font
- * size, measured from the font files. Urbanist has no tabular figures (no
- * `tnum`), so TabularDigits sizes every digit cell to this to stop a ticking
- * clock from changing width. Re-measure if the typeface changes.
+ * Digit advance in Geist Mono, as a fraction of the font size: 0.6 em for
+ * every digit in every weight (measured from the font files). TabularDigits
+ * sizes each cell to this, so a ticking clock never changes width.
  */
 export const TABULAR_DIGIT_EM: Record<FontWeightName, number> = {
-  regular: 0.5955,
-  medium: 0.598,
-  semibold: 0.601,
-  bold: 0.6045,
+  regular: 0.6,
+  medium: 0.6,
+  semibold: 0.6,
+  bold: 0.6,
 };
 
 /** 4pt base grid. */
@@ -127,27 +156,24 @@ export const space = {
   xxxl: 48,
 } as const;
 
-/** Softer, larger radii than the original spec — the minimal reference language. */
-export const radius = { input: 14, card: 20, pill: 999, none: 0 } as const;
+/**
+ * Small, quiet radii: rules and type carry the layout, so shapes don't need
+ * to be soft to feel friendly. Sheets use `card + 8` on their top corners.
+ */
+export const radius = { input: 10, card: 12, button: 12, chip: 8, pill: 999, none: 0 } as const;
 
 export const gutter = { mobile: 20, tablet: 32, desktop: 40 } as const;
 
 /** Minimum touch target, DESIGN.md section 9. */
 export const HIT = 48;
-export const PRIMARY_ACTION_HEIGHT = 60;
-export const WORKOUT_ACTION_HEIGHT = 68;
+export const PRIMARY_ACTION_HEIGHT = 56;
+export const WORKOUT_ACTION_HEIGHT = 60;
 
-/** Floating pill navigation, DESIGN.md section 4. */
-export const NAV = {
-  height: 64,
-  button: 52,
-  inset: 18,
-  /**
-   * Fallback bottom space for tab screens, used only until PillNav has been
-   * measured (src/ui/nav-overlay.ts). It omits the bars and the safe-area inset.
-   */
-  clearance: 64 + 18 + 16,
-} as const;
+/** The labelled tab bar, DESIGN.md section 4: fixed, outside the scroll area. */
+export const TAB_BAR = { height: 64 } as const;
+
+/** @deprecated The floating pill nav; removed with PillNav when the tab bar lands. */
+export const NAV = { height: 64, button: 52, inset: 18, clearance: 64 + 18 + 16 } as const;
 
 /** Motion durations in ms. Every timed animation reads one of these. */
 export const duration = {
@@ -162,10 +188,11 @@ export const duration = {
 } as const;
 
 /**
- * Spring physics for motion that has no fixed duration. The nav disc is just
- * shy of critically damped: it arrives quickly and settles without a bounce,
- * which would read as playful rather than precise.
+ * Spring physics for motion that has no fixed duration. Just shy of
+ * critically damped: it arrives quickly and settles without a bounce.
  */
 export const spring = {
+  tab: { damping: 18, stiffness: 220, mass: 0.9 },
+  /** @deprecated PillNav's disc; removed with PillNav. */
   nav: { damping: 18, stiffness: 220, mass: 0.9 },
 } as const;

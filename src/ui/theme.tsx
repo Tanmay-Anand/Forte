@@ -11,8 +11,8 @@ type ThemeValue = {
 };
 
 const ThemeContext = createContext<ThemeValue>({
-  name: 'dark',
-  c: palette.dark,
+  name: 'light',
+  c: palette.light,
   reducedMotion: false,
   fontsReady: false,
 });
@@ -29,10 +29,10 @@ export function ThemeProvider({
   const system = useColorScheme();
 
   const value = useMemo<ThemeValue>(() => {
-    // Dark is the product default (DESIGN.md 3.2). "System" is an opt-in that
-    // follows the OS; every other value wins outright.
+    // Light-first (DESIGN.md 3.2): "System", the default, follows the OS and
+    // falls back to light when the OS doesn't say. Light and Dark win outright.
     const name: ThemeName =
-      preference === 'system' ? (system === 'light' ? 'light' : 'dark') : preference;
+      preference === 'system' ? (system === 'dark' ? 'dark' : 'light') : preference;
     return { name, c: palette[name], reducedMotion, fontsReady };
   }, [preference, system, reducedMotion, fontsReady]);
 

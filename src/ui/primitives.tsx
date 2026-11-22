@@ -89,7 +89,7 @@ export function Spacer({ h = space.l }: { h?: number }) {
   return <View style={{ height: h }} />;
 }
 
-/** Uppercase section label with an optional right-hand value. */
+/** Sentence-case section label with an optional right-hand value. */
 export function SectionLabel({
   children,
   right,
@@ -136,19 +136,29 @@ export function Card({
   muted?: boolean;
 }) {
   const { c } = useTheme();
-  const base: ViewStyle = {
-    backgroundColor: muted && !dashed ? c.bgSunken : dashed ? 'transparent' : c.bgRaised,
-    borderRadius: radius.card,
-    borderWidth: dashed ? 1 : 0,
-    borderStyle: dashed ? 'dashed' : 'solid',
-    borderColor: c.lineStrong,
-    padding: space.l,
-  };
+  // Logbook: lines, not boxes. A plain Card is a ruled section (a hairline
+  // underneath, no fill); `muted` is a sunken panel for quoted text such as a
+  // brief or a saved reply; `dashed` marks an empty slot.
+  const boxed = muted || dashed;
+  const base: ViewStyle = boxed
+    ? {
+        backgroundColor: muted && !dashed ? c.bgSunken : 'transparent',
+        borderRadius: radius.card,
+        borderWidth: dashed ? 1 : 0,
+        borderStyle: dashed ? 'dashed' : 'solid',
+        borderColor: c.lineStrong,
+        padding: space.l,
+      }
+    : {
+        borderBottomWidth: 1,
+        borderColor: c.hairline,
+        paddingVertical: space.l,
+      };
   if (!onPress) return <View style={[base, style]}>{children}</View>;
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [base, { opacity: pressed ? 0.75 : 1 }, style]}
+      style={({ pressed }) => [base, pressed ? { backgroundColor: c.bgSunken } : null, style]}
     >
       {children}
     </Pressable>
@@ -269,24 +279,23 @@ export function Chip({
   const { c } = useTheme();
   // Selected is a state, not an action, so it does not get the accent fill —
   // that is reserved for the thing to do (DESIGN_SYSTEM_FORTE.md 6). It is
-  // marked by a raised fill, a strong border and brighter text. The border is
-  // the colour-independent cue; inactive chips carry a transparent one so
-  // selecting never shifts the row by a pixel. Weight stays the same: bolder
-  // text would widen the chip and could reflow a wrapping row.
+  // marked by a sunken fill, a strong border and ink text; the border is the
+  // colour-independent cue. Weight stays the same: bolder text would widen
+  // the chip and could reflow a wrapping row.
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       style={{
-        paddingHorizontal: space.l,
-        height: 38,
+        paddingHorizontal: space.m,
+        height: 36,
         justifyContent: 'center',
-        borderRadius: radius.pill,
+        borderRadius: radius.chip,
         marginRight: space.s,
         borderWidth: 1,
-        borderColor: active ? c.textSecondary : 'transparent',
-        backgroundColor: active ? c.bgElevated : c.bgRaised,
+        borderColor: active ? c.textPrimary : c.hairline,
+        backgroundColor: active ? c.bgSunken : 'transparent',
       }}
     >
       <Text variant="caption" color={active ? 'textPrimary' : 'textSecondary'}>
@@ -339,10 +348,10 @@ export function ControlChip({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: space.m,
-        borderRadius: radius.pill,
+        borderRadius: radius.chip,
         borderWidth: 1,
         borderColor: tone === 'accent' ? c.lineStrong : c.hairline,
-        backgroundColor: pressed ? c.bgElevated : c.bgRaised,
+        backgroundColor: pressed ? c.bgSunken : 'transparent',
         opacity: disabled ? 0.35 : 1,
       })}
     >
@@ -362,7 +371,12 @@ export function ControlChip({
   );
 }
 
-/** Segmented control for the Progress metric switch. */
+/**
+ * Underline tabs: Log's Sessions | Lifts | Muscles, a chart's metric, a
+ * setting's options. The selected option is ink with a 2 dp ink underline
+ * (the colour-independent cue); the others are secondary text. Options sit
+ * left-aligned at their natural width, like a notebook's section tabs.
+ */
 export function Segmented<T extends string>({
   options,
   value,
@@ -375,34 +389,33 @@ export function Segmented<T extends string>({
   const { c } = useTheme();
   return (
     <View
+      accessibilityRole="tablist"
       style={{
         flexDirection: 'row',
-        backgroundColor: c.bgSunken,
-        borderRadius: radius.pill,
-        padding: space.xs,
+        flexWrap: 'wrap',
+        columnGap: space.xl,
+        borderBottomWidth: 1,
+        borderColor: c.hairline,
       }}
     >
       {options.map((o) => {
         const active = o.value === value;
-        // Same selected treatment as Chip: raised fill + strong border, no accent.
         return (
           <Pressable
             key={o.value}
             onPress={() => onChange(o.value)}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
+            hitSlop={{ top: 6, bottom: 0, left: 8, right: 8 }}
             style={{
-              flex: 1,
-              height: 40,
-              borderRadius: radius.pill,
-              alignItems: 'center',
+              minHeight: 44,
               justifyContent: 'center',
-              borderWidth: 1,
-              borderColor: active ? c.textSecondary : 'transparent',
-              backgroundColor: active ? c.bgElevated : 'transparent',
+              borderBottomWidth: 2,
+              marginBottom: -1,
+              borderColor: active ? c.textPrimary : 'transparent',
             }}
           >
-            <Text variant="caption" color={active ? 'textPrimary' : 'textSecondary'}>
+            <Text variant={active ? 'bodyStrong' : 'body'} color={active ? 'textPrimary' : 'textSecondary'}>
               {o.label}
             </Text>
           </Pressable>
