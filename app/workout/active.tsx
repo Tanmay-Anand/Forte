@@ -20,7 +20,6 @@ import { fromDisplayWeight, toDisplayWeight, formatWeight, type Unit } from '@/l
 import { formatDuration, formatShortDate } from '@/lib/time';
 
 import {
-  addExerciseToSession,
   completeSession,
   deleteSet,
   discardSession,
@@ -29,6 +28,7 @@ import {
   getPreviousPerformance,
   getSessionExercises,
   getSets,
+  insertExercisesIntoSession,
   logDrop,
   logSet,
   pauseRest,
@@ -49,6 +49,8 @@ import { NumericKeypad } from '@/features/workout/NumericKeypad';
 import { RestPanel, WorkoutClock } from '@/features/workout/RestPanel';
 import { PreviousLine, SetTable } from '@/features/workout/SetTable';
 import { ExercisePicker } from '@/features/routine/ExercisePicker';
+import { placementSlots } from '@/features/workout/placement';
+import { getExercise } from '@/db/queries/routine';
 import { ensureNotificationPermission } from '@/features/workout/workout-notification';
 import { formatTarget, nextTarget } from '@/features/analysis';
 
@@ -81,6 +83,10 @@ export default function ActiveWorkoutScreen() {
   const [keypad, setKeypad] = useState<Keypad>(null);
   const [editingSet, setEditingSet] = useState<SetRow | null>(null);
   const [addingExercise, setAddingExercise] = useState(false);
+  // Exercises picked while the picker is open. They're placed when it closes,
+  // after asking where they go (Next, Second to last, Last).
+  const [pendingAdds, setPendingAdds] = useState<string[]>([]);
+  const [placing, setPlacing] = useState(false);
   const [replacing, setReplacing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
@@ -303,7 +309,7 @@ export default function ActiveWorkoutScreen() {
       hint: 'Swaps it for today only — your weekly routine is unchanged',
       onPress: () => setReplacing(true),
     },
-    { label: 'Add exercise', hint: 'Appends it to this session', onPress: () => setAddingExercise(true) },
+    { label: 'Add exercise', hint: 'Then choose where it goes', onPress: () => setAddingExercise(true) },
     {
       label: current?.skipped ? 'Unskip exercise' : 'Skip exercise',
       onPress: () => current && setExerciseSkipped(current.id, !current.skipped),
@@ -311,6 +317,39 @@ export default function ActiveWorkoutScreen() {
     { label: 'End workout', hint: 'Finish here and save what you logged', onPress: finish },
     { label: 'Discard workout', destructive: true, onPress: discard },
   ];
+
+  // ------------------------------------------------- adding mid-workout
+
+  const slots = placementSlots(
+    exercises.map((e) => e.name),
+    current ? index : -1,
+  );
+
+  const finishAdding = () => {
+    setAddingExercise(false);
+    if (pendingAdds.length === 0) return;
+    // One place to put them (the current exercise is the last, or the
+    // workout is empty): nothing to ask.
+    const only = slots.length === 1 ? slots[0] : undefined;
+    if (only) {
+      insertExercisesIntoSession(session.id, pendingAdds, only.index);
+      setPendingAdds([]);
+      return;
+    }
+    setPlacing(true);
+  };
+
+  const placingIds = pendingAdds;
+  const firstId = placingIds[0];
+  const placingTitle =
+    placingIds.length === 1 && firstId
+      ? `Where should ${getExercise(firstId)?.name ?? 'it'} go?`
+      : `Where should these ${placingIds.length} exercises go?`;
+  const placementActions: SheetAction[] = slots.map((slot) => ({
+    label: slot.label,
+    hint: slot.hint,
+    onPress: () => insertExercisesIntoSession(session.id, placingIds, slot.index),
+  }));
 
   // ---------------------------------------------------- exercise completion
 
@@ -601,8 +640,19 @@ export default function ActiveWorkoutScreen() {
       <ExercisePicker
         visible={addingExercise}
         title="Add to this workout"
-        onClose={() => setAddingExercise(false)}
-        onAdd={(exerciseId) => addExerciseToSession(session.id, exerciseId)}
+        onClose={finishAdding}
+        onAdd={(exerciseId) => setPendingAdds((ids) => [...ids, exerciseId])}
+      />
+
+      {/* Cancel or a tap outside adds nothing; the picked exercises are dropped. */}
+      <ActionSheet
+        visible={placing}
+        title={placingTitle}
+        actions={placementActions}
+        onClose={() => {
+          setPlacing(false);
+          setPendingAdds([]);
+        }}
       />
 
       <ActionSheet

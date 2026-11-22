@@ -155,15 +155,52 @@ export function setCurrentIndex(sessionId: string, index: number): void {
 }
 
 export function addExerciseToSession(sessionId: string, exerciseId: string): void {
-  const max = sqlite.getFirstSync<{ m: number | null }>(
-    `SELECT MAX(position) AS m FROM session_exercises WHERE session_id = ?;`,
+  insertExercisesIntoSession(sessionId, [exerciseId], Number.MAX_SAFE_INTEGER);
+}
+
+/**
+ * Adds exercises mid-workout at a chosen place, in the order given.
+ * `atIndex` is an index into the session's exercises as shown (ordered by
+ * position): they go before the exercise now at that index, or at the end
+ * when it is past the last one. Later exercises shift down, and
+ * `current_index` moves with them when the insert lands at or before it, so
+ * the exercise on screen stays the same one.
+ */
+export function insertExercisesIntoSession(
+  sessionId: string,
+  exerciseIds: readonly string[],
+  atIndex: number,
+): void {
+  if (exerciseIds.length === 0) return;
+  const rows = sqlite.getAllSync<{ position: number }>(
+    `SELECT position FROM session_exercises WHERE session_id = ? ORDER BY position;`,
     [sessionId],
   );
-  sqlite.runSync(
-    `INSERT INTO session_exercises (id, session_id, exercise_id, position, skipped, ad_hoc)
-     VALUES (?, ?, ?, ?, 0, 1);`,
-    [newId('sx_'), sessionId, exerciseId, (max?.m ?? -1) + 1],
-  );
+  const at = Math.max(0, Math.min(atIndex, rows.length));
+  const target = rows[at];
+  const pivot = target ? target.position : (rows[rows.length - 1]?.position ?? -1) + 1;
+  const n = exerciseIds.length;
+  const session = getSession(sessionId);
+
+  sqlite.withTransactionSync(() => {
+    sqlite.runSync(
+      `UPDATE session_exercises SET position = position + ? WHERE session_id = ? AND position >= ?;`,
+      [n, sessionId, pivot],
+    );
+    exerciseIds.forEach((exerciseId, k) => {
+      sqlite.runSync(
+        `INSERT INTO session_exercises (id, session_id, exercise_id, position, skipped, ad_hoc)
+         VALUES (?, ?, ?, ?, 0, 1);`,
+        [newId('sx_'), sessionId, exerciseId, pivot + k],
+      );
+    });
+    if (session && rows.length > 0 && at <= session.current_index) {
+      sqlite.runSync(`UPDATE sessions SET current_index = current_index + ? WHERE id = ?;`, [
+        n,
+        sessionId,
+      ]);
+    }
+  });
   bumpRevision();
 }
 
