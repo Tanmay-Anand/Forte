@@ -88,7 +88,7 @@ export function InsightsView({ onOpenExercise }: { onOpenExercise: (exerciseId: 
         PC with Forte Companion.
       </Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.s }}>
-        <ControlChip label="Ask AI about the last 8 weeks" icon="share" onPress={ask} />
+        <ControlChip label="Ask about the last 8 weeks" icon="share" onPress={ask} />
         <ControlChip
           label="What's shared"
           icon="eye"

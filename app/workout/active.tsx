@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Alert, useWindowDimensions } from 'react-native';
+import { View, ScrollView, Pressable, Alert, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
@@ -12,7 +12,7 @@ import { ControlChip, Divider, IconButton, useGutter } from '@/ui/primitives';
 import { UndoStrip, useUndo } from '@/ui/UndoStrip';
 import { ActionSheet, type SheetAction } from '@/ui/ActionSheet';
 import { useTheme } from '@/ui/theme';
-import { radius, space, WORKOUT_ACTION_HEIGHT } from '@/ui/tokens';
+import { space, WORKOUT_ACTION_HEIGHT } from '@/ui/tokens';
 
 import { useQuery } from '@/lib/db-hooks';
 import { useSettings } from '@/store/settings';
@@ -68,7 +68,7 @@ const KEEP_AWAKE_TAG = 'forte-workout';
  */
 export default function ActiveWorkoutScreen() {
   const router = useRouter();
-  const { c } = useTheme();
+  const { c, reducedMotion } = useTheme();
   const gutter = useGutter();
   // At large OS font sizes even the stepper-column wells cannot hold weight and
   // reps side by side, so they stack (DESIGN.md 9).
@@ -153,6 +153,32 @@ export default function ActiveWorkoutScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [exercises, sets.length],
   );
+
+  // Every exercise's logged sets, for the done and upcoming rows of the list.
+  const exerciseKey = exercises.map((e) => e.id).join(',');
+  const allSets = useQuery(
+    () => Object.fromEntries(exercises.map((e) => [e.id, getSets(e.id).filter((s) => !s.skipped)])),
+    [exerciseKey],
+  );
+  // What was done last time on the exercises still to come: "Last 60 × 8 · 8".
+  const upcomingLast = useQuery(
+    () =>
+      Object.fromEntries(
+        exercises.slice(index + 1).map((e) => {
+          const prev = session ? getPreviousPerformance(e.exercise_id, session.id) : null;
+          return [e.exercise_id, prev ? setsLine(prev.sets.filter((s) => !s.skipped), unit) : ''];
+        }),
+      ),
+    [exerciseKey, index, session?.id, unit],
+  );
+
+  // Bring the current exercise to the top when it changes, so the list never
+  // hides the thing being logged.
+  const scrollRef = useRef<ScrollView>(null);
+  const [currentY, setCurrentY] = useState(0);
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: Math.max(0, currentY - space.s), animated: !reducedMotion });
+  }, [index, currentY, reducedMotion]);
 
   if (!session) {
     return (
@@ -257,10 +283,13 @@ export default function ActiveWorkoutScreen() {
     setCurrentIndex(session.id, Math.min(index + 1, exercises.length - 1));
   };
 
-  const goBack = () => {
-    if (index === 0) return;
+  /** Tap any exercise in the list to work on it; nothing logged is lost. */
+  const jumpTo = (i: number) => {
+    if (i === index) return;
     setJustCompleted(false);
-    setCurrentIndex(session.id, index - 1);
+    setEditingSet(null);
+    setDropping(false);
+    setCurrentIndex(session.id, i);
   };
 
   const finish = () => {
@@ -395,39 +424,47 @@ export default function ActiveWorkoutScreen() {
         </View>
 
         {/*
-          A labelled bar rather than a row of dots. Dots make you count them to
-          learn anything; a filled proportion is read at a glance, which is the
-          whole point of a progress indicator mid-set.
+          A labelled bar rather than a row of dots: a filled proportion is read
+          at a glance, which is the whole point of a progress indicator mid-set.
         */}
-        <View style={{ marginTop: space.s }}>
+        <View style={{ marginTop: space.xs }}>
           <Text variant="caption" color="textTertiary">
             {doneCount} of {exercises.length} exercises
           </Text>
           <View
             accessibilityRole="progressbar"
             accessibilityValue={{ min: 0, max: exercises.length, now: doneCount }}
-            style={{
-              height: 3,
-              borderRadius: radius.pill,
-              backgroundColor: c.lineStrong,
-              marginTop: space.s,
-              overflow: 'hidden',
-            }}
+            style={{ height: 2, backgroundColor: c.hairline, marginTop: space.s, overflow: 'hidden' }}
           >
             <View
               style={{
                 width: `${exercises.length ? (doneCount / exercises.length) * 100 : 0}%`,
                 height: '100%',
-                borderRadius: radius.pill,
-                backgroundColor: c.now,
+                backgroundColor: c.textPrimary,
               }}
             />
           </View>
         </View>
       </View>
 
+      {/*
+        Rest is a strip under the header: it is the state the whole screen is
+        in, and here it never pushes the set being rested for out of view.
+      */}
+      {resting && rest && !dropping ? (
+        <RestPanel
+          state={rest}
+          gutter={gutter}
+          onPause={() => pauseRest(session.id)}
+          onResume={() => resumeRest(session.id)}
+          onReset={() => resetRest(session.id)}
+          onSkip={endRest}
+        />
+      ) : null}
+
       {/* --------------------------------------------------------- body */}
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ paddingHorizontal: gutter, paddingBottom: space.xl }}
         keyboardShouldPersistTaps="handled"
       >
@@ -438,164 +475,157 @@ export default function ActiveWorkoutScreen() {
               Add one to start logging.
             </Text>
             <View style={{ marginTop: space.xl }}>
-              <Button
-                label="+ Add Exercise"
-                variant="secondary"
-                onPress={() => setAddingExercise(true)}
-              />
+              <Button label="Add exercise" variant="secondary" onPress={() => setAddingExercise(true)} />
             </View>
           </View>
         ) : (
           <>
-            <View style={{ paddingTop: space.l }}>
-              <Text variant="titleL">{current.name}</Text>
+            {/* The whole workout is one list: done above, now, then what is next. */}
+            {exercises.slice(0, index).map((e, i) => (
+              <ExerciseRow
+                key={e.id}
+                position={i + 1}
+                name={e.name}
+                detail={e.skipped ? 'Skipped' : setsLine(allSets[e.id] ?? [], unit) || 'No sets'}
+                done={!e.skipped && (allSets[e.id]?.length ?? 0) > 0}
+                onPress={() => jumpTo(i)}
+              />
+            ))}
+
+            <View
+              onLayout={(ev) => setCurrentY(ev.nativeEvent.layout.y)}
+              style={{ paddingTop: space.l, paddingBottom: space.l, borderBottomWidth: 1, borderColor: c.hairline }}
+            >
+              <Text variant="label" color="now">
+                Now · {index + 1} of {exercises.length}
+              </Text>
+              <Text variant="titleL" style={{ marginTop: space.xs }}>
+                {current.name}
+              </Text>
               <Text variant="caption" color="textTertiary" style={{ marginTop: 2 }}>
                 {current.equipment}
                 {current.skipped ? ' · skipped' : ''}
               </Text>
-            </View>
 
-            <View style={{ marginTop: space.l }}>
-              {previous ? (
-                <PreviousLine
-                  sets={previous.sets}
-                  drops={previous.drops}
-                  unit={unit}
-                  when={formatShortDate(previous.startedAt)}
-                  target={targetLabel(previous.sets, current.weight_step, unit)}
-                />
-              ) : (
-                <Text variant="caption" color="textTertiary" style={{ marginBottom: space.l }}>
-                  First time logging this exercise.
-                </Text>
-              )}
-            </View>
-
-            <Divider />
-
-            <View style={{ marginTop: space.m }}>
-              <SetTable
-                sets={sets}
-                drops={drops}
-                unit={unit}
-                flashId={flashId}
-                onEdit={beginEdit}
-                onRemove={removeSet}
-              />
-            </View>
-
-            <UndoStrip pending={undo.pending} onDismiss={undo.dismiss} />
-
-            {/* -------------------------------------------- active row */}
-            <View style={{ marginTop: space.l }}>
-              {/*
-                While resting, the clock comes first — rest, then the next set.
-                It is the thing being watched, and placed after the inputs it
-                fell below the fold on a 360 dp phone and at large text sizes.
-              */}
-              {resting && rest && !dropping ? (
-                <View style={{ marginBottom: space.l }}>
-                  <RestPanel
-                    state={rest}
-                    onPause={() => pauseRest(session.id)}
-                    onResume={() => resumeRest(session.id)}
-                    onReset={() => resetRest(session.id)}
-                    onSkip={endRest}
+              <View style={{ marginTop: space.l }}>
+                {previous ? (
+                  <PreviousLine
+                    sets={previous.sets}
+                    drops={previous.drops}
+                    unit={unit}
+                    when={formatShortDate(previous.startedAt)}
+                    target={targetLabel(previous.sets, current.weight_step, unit)}
                   />
-                </View>
-              ) : null}
-              <Text variant="label" color="textSecondary">
-                {editingSet
-                  ? editingSet.drop_index > 0
-                    ? `Editing drop ${editingSet.drop_index} of set ${editingSet.set_number}`
-                    : `Editing set ${editingSet.set_number}`
-                  : dropping && lastSet
-                    ? `Drop ${lastDrops.length + 1} · set ${lastSet.set_number}`
-                    : `Set ${sets.length + 1}`}
-              </Text>
-              <View
-                style={{
-                  flexDirection: stackWells ? 'column' : 'row',
-                  gap: space.m,
-                  marginTop: space.s,
-                }}
-              >
-                <NumberWell
-                  value={weight}
-                  step={current.weight_step}
-                  decimals={2}
-                  unit={unit}
-                  onChange={setWeight}
-                  onPressValue={() => setKeypad({ field: 'weight' })}
-                  accessibilityLabel="Weight"
-                  style={stackWells ? undefined : { flex: 1 }}
-                />
-                <NumberWell
-                  value={reps}
-                  step={1}
-                  min={1}
-                  max={200}
-                  decimals={0}
-                  unit="reps"
-                  onChange={(n) => setReps(Math.round(n))}
-                  onPressValue={() => setKeypad({ field: 'reps' })}
-                  accessibilityLabel="Reps"
-                  style={stackWells ? undefined : { flex: 1 }}
-                />
-              </View>
-
-              {/*
-                Real bordered controls, not tinted captions. On the last
-                exercise the forward control says what it actually does —
-                labelling it "Next exercise" when it ends the session was a
-                trap. "+ Add exercise" is surfaced here rather than buried in
-                the ⋯ menu, because deciding to add calf raises happens at
-                exactly this moment.
-              */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  marginTop: space.l,
-                  gap: space.s,
-                }}
-              >
-                {editingSet ? (
-                  <ControlChip label="Cancel edit" onPress={() => setEditingSet(null)} />
-                ) : dropping ? (
-                  <ControlChip label="Cancel drop" onPress={cancelDrop} />
                 ) : (
-                  <>
-                    {index > 0 ? (
-                      <ControlChip label="Previous" icon="chevron-left" onPress={goBack} />
-                    ) : null}
-                    <ControlChip label="Skip set" onPress={skipThisSet} />
-                    {canDrop ? (
-                      <ControlChip
-                        label={lastDrops.length ? 'Another drop' : 'Drop set'}
-                        icon="corner-right-down"
-                        onPress={startDrop}
-                      />
-                    ) : null}
-                    <ControlChip
-                      label="Add exercise"
-                      icon="plus"
-                      onPress={() => setAddingExercise(true)}
-                    />
-                    {sets.length > 0 ? (
-                      <ControlChip
-                        label={isLastExercise ? 'Finish workout' : 'Next exercise'}
-                        icon={isLastExercise ? 'flag' : 'chevron-right'}
-                        iconSide="right"
-                        tone="accent"
-                        onPress={nextExercise}
-                      />
-                    ) : null}
-                  </>
+                  <Text variant="caption" color="textTertiary" style={{ marginBottom: space.l }}>
+                    First time logging this exercise.
+                  </Text>
                 )}
               </View>
+
+              <Divider />
+
+              <View style={{ marginTop: space.m }}>
+                <SetTable
+                  sets={sets}
+                  drops={drops}
+                  unit={unit}
+                  flashId={flashId}
+                  onEdit={beginEdit}
+                  onRemove={removeSet}
+                />
+              </View>
+
+              <UndoStrip pending={undo.pending} onDismiss={undo.dismiss} />
+
+              {/* -------------------------------------- the set being entered */}
+              <View style={{ marginTop: space.l }}>
+                <Text variant="label" color="textSecondary">
+                  {editingSet
+                    ? editingSet.drop_index > 0
+                      ? `Editing drop ${editingSet.drop_index} of set ${editingSet.set_number}`
+                      : `Editing set ${editingSet.set_number}`
+                    : dropping && lastSet
+                      ? `Drop ${lastDrops.length + 1} · set ${lastSet.set_number}`
+                      : `Set ${sets.length + 1}`}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: stackWells ? 'column' : 'row',
+                    gap: space.m,
+                    marginTop: space.s,
+                  }}
+                >
+                  <NumberWell
+                    value={weight}
+                    step={current.weight_step}
+                    decimals={2}
+                    unit={unit}
+                    onChange={setWeight}
+                    onPressValue={() => setKeypad({ field: 'weight' })}
+                    accessibilityLabel="Weight"
+                    style={stackWells ? undefined : { flex: 1 }}
+                  />
+                  <NumberWell
+                    value={reps}
+                    step={1}
+                    min={1}
+                    max={200}
+                    decimals={0}
+                    unit="reps"
+                    onChange={(n) => setReps(Math.round(n))}
+                    onPressValue={() => setKeypad({ field: 'reps' })}
+                    accessibilityLabel="Reps"
+                    style={stackWells ? undefined : { flex: 1 }}
+                  />
+                </View>
+
+                {/*
+                  Words, not boxes: the one filled control on this screen is
+                  the primary action below. On the last exercise the forward
+                  action says what it does ("Finish workout"), and Add exercise
+                  sits here because deciding to add calf raises happens now.
+                */}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: space.m, columnGap: space.xl }}>
+                  {editingSet ? (
+                    <TextAction label="Cancel edit" onPress={() => setEditingSet(null)} />
+                  ) : dropping ? (
+                    <TextAction label="Cancel drop" onPress={cancelDrop} />
+                  ) : (
+                    <>
+                      <TextAction label="Skip set" onPress={skipThisSet} />
+                      {canDrop ? (
+                        <TextAction label={lastDrops.length ? 'Another drop' : 'Drop set'} onPress={startDrop} />
+                      ) : null}
+                      <TextAction label="Add exercise" onPress={() => setAddingExercise(true)} />
+                      {sets.length > 0 ? (
+                        <TextAction
+                          label={isLastExercise ? 'Finish workout' : 'Next exercise'}
+                          strong
+                          onPress={nextExercise}
+                        />
+                      ) : null}
+                    </>
+                  )}
+                </View>
+              </View>
             </View>
 
+            {exercises.slice(index + 1).map((e, k) => {
+              const i = index + 1 + k;
+              const logged = allSets[e.id] ?? [];
+              const last = upcomingLast[e.exercise_id];
+              return (
+                <ExerciseRow
+                  key={e.id}
+                  position={i + 1}
+                  name={e.name}
+                  detail={e.skipped ? 'Skipped' : logged.length ? setsLine(logged, unit) : last ? `Last ${last}` : e.equipment}
+                  done={!e.skipped && logged.length > 0}
+                  onPress={() => jumpTo(i)}
+                />
+              );
+            })}
           </>
         )}
       </ScrollView>
@@ -604,20 +634,18 @@ export default function ActiveWorkoutScreen() {
       {current ? (
         <View style={{ paddingHorizontal: gutter, paddingTop: space.s }}>
           {dropping && !editingSet ? (
-            <Button label="Complete Drop" onPress={completeDrop} height={WORKOUT_ACTION_HEIGHT} shout />
+            <Button label="Complete drop" onPress={completeDrop} height={WORKOUT_ACTION_HEIGHT} />
           ) : resting && !editingSet ? (
             <Button
-              label={`Start Set ${sets.length + 1}`}
+              label={`Start set ${sets.length + 1}`}
               onPress={endRest}
               height={WORKOUT_ACTION_HEIGHT}
-              shout
             />
           ) : (
             <Button
-              label={editingSet ? 'Save Set' : 'Complete Set'}
+              label={editingSet ? 'Save set' : 'Complete set'}
               onPress={completeSet}
               height={WORKOUT_ACTION_HEIGHT}
-              shout
             />
           )}
         </View>
@@ -793,12 +821,94 @@ function ExerciseComplete({
       </View>
 
       <Button
-        label={isLast ? 'Finish Workout' : 'Next Exercise'}
+        label={isLast ? 'Finish workout' : 'Next exercise'}
         onPress={onNext}
         height={WORKOUT_ACTION_HEIGHT}
-        shout
       />
       <View style={{ height: space.l }} />
     </SafeAreaView>
+  );
+}
+
+/** "60 × 8 · 8 · 7", or "60 × 8 · 65 × 6" when the weight changed. */
+function setsLine(sets: { weight_kg: number; reps: number }[], unit: Unit): string {
+  if (!sets.length) return '';
+  const first = sets[0]!.weight_kg;
+  if (sets.every((s) => s.weight_kg === first)) {
+    return `${formatWeight(first, unit, false)} × ${sets.map((s) => s.reps).join(' · ')}`;
+  }
+  return sets.map((s) => `${formatWeight(s.weight_kg, unit, false)} × ${s.reps}`).join(' · ');
+}
+
+/** A done or upcoming exercise in the workout list. Tap to work on it. */
+function ExerciseRow({
+  position,
+  name,
+  detail,
+  done,
+  onPress,
+}: {
+  position: number;
+  name: string;
+  detail: string;
+  done: boolean;
+  onPress: () => void;
+}) {
+  const { c } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${name}, ${done ? 'done' : 'to do'}. ${detail}`}
+      accessibilityHint="Opens this exercise"
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        columnGap: space.m,
+        minHeight: 56,
+        paddingVertical: space.s,
+        borderBottomWidth: 1,
+        borderColor: c.hairline,
+        backgroundColor: pressed ? c.bgSunken : 'transparent',
+      })}
+    >
+      <View style={{ width: 20, alignItems: 'center' }}>
+        {done ? (
+          <Icon name="check" size={16} color="positive" />
+        ) : (
+          <Text variant="num" color="textTertiary">
+            {position}
+          </Text>
+        )}
+      </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text variant="body" color={done ? 'textSecondary' : 'textPrimary'} numberOfLines={1}>
+          {name}
+        </Text>
+        <Text variant="num" color="textTertiary" numberOfLines={1}>
+          {detail}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
+/** A control set as words: Skip set, Drop set, Next exercise. */
+function TextAction({ label, onPress, strong }: { label: string; onPress: () => void; strong?: boolean }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
+      style={({ pressed }) => ({ minHeight: 44, justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}
+    >
+      <Text
+        variant="bodyStrong"
+        color={strong ? 'textPrimary' : 'textSecondary'}
+        style={strong ? { textDecorationLine: 'underline' } : undefined}
+      >
+        {label}
+      </Text>
+    </Pressable>
   );
 }

@@ -8,12 +8,14 @@ import type { BodyView, Muscle } from '@/features/analysis';
 import { BODY_CROP, type BodyOutlines } from '@/data/body/types';
 
 /**
- * Front and back of the body, side by side, each trained muscle tinted teal
- * by how much it was trained (levels 0–5, see shadeLevels).
+ * Front and back of the body, side by side, each trained muscle tinted in the
+ * logo blue by how much it was trained (levels 0–5, see shadeLevels).
+ * Untrained muscles are drawn as faint outlines, so the figure still reads as
+ * a map of what was left out; the selected muscle gets an ink outline.
  *
  * Built for negligible battery use: tools/bake-body.mjs has already made a
- * grey photo of the body and a teal-blended copy for each theme, so drawing
- * is plain transparency. The teal copy is drawn once per level, clipped to
+ * grey photo of the body and a blue-blended copy for each theme, so drawing
+ * is plain transparency. The blue copy is drawn once per level, clipped to
  * that level's muscles: at most six image draws a figure, and only when the
  * levels change (memo). No animation, no filters, no WebView.
  *
@@ -54,7 +56,7 @@ function outlinesFor(sex: Sex): BodyOutlines {
   return sex === 'female' ? require('@/data/body/female').FEMALE : require('@/data/body/male').MALE;
 }
 
-/** Opacity of the teal per level; the same steps as the companion. */
+/** Opacity of the blue per level; the same steps as the companion. */
 const OPACITY = [0, 0.16, 0.32, 0.5, 0.7, 0.92];
 
 type Props = {
@@ -66,9 +68,11 @@ type Props = {
   onSelect?: (muscle: Muscle) => void;
   /** Spoken summary for screen readers. */
   accessibilityLabel: string;
+  /** Largest width of each figure, in dp. Summary uses a small one. */
+  maxWidth?: number;
 };
 
-export const BodyFigures = memo(function BodyFigures({ levels, sex, selected, onSelect, accessibilityLabel }: Props) {
+export const BodyFigures = memo(function BodyFigures({ levels, sex, selected, onSelect, accessibilityLabel, maxWidth = 220 }: Props) {
   const body: Sex = sex === 'female' ? 'female' : 'male';
   return (
     <View
@@ -79,7 +83,7 @@ export const BodyFigures = memo(function BodyFigures({ levels, sex, selected, on
     >
       {(['front', 'back'] as const).map((view) => (
         <View key={view} style={{ flex: 1, alignItems: 'center' }}>
-          <Figure view={view} sex={body} levels={levels} selected={selected ?? null} onSelect={onSelect} />
+          <Figure view={view} sex={body} levels={levels} selected={selected ?? null} onSelect={onSelect} maxWidth={maxWidth} />
           <Text variant="caption" color="textTertiary" style={{ marginTop: space.xs }}>
             {view === 'front' ? 'Front' : 'Back'}
           </Text>
@@ -95,12 +99,14 @@ function Figure({
   levels,
   selected,
   onSelect,
+  maxWidth,
 }: {
   view: BodyView;
   sex: Sex;
   levels: Partial<Record<Muscle, number>>;
   selected: Muscle | null;
   onSelect?: (muscle: Muscle) => void;
+  maxWidth: number;
 }) {
   const { name: theme, c } = useTheme();
   const muscles = outlinesFor(sex)[view];
@@ -109,10 +115,11 @@ function Figure({
 
   // Muscles grouped by level, so each level is one clipped draw.
   const byLevel = useMemo(() => {
+    // groups[0] holds the untrained muscles, drawn as outlines below.
     const groups: string[][] = [[], [], [], [], [], []];
     for (const m of muscles) {
       const level = Math.max(0, Math.min(5, Math.round(levels[m.muscle] ?? 0)));
-      if (level > 0) groups[level]!.push(m.d);
+      groups[level]!.push(m.d);
     }
     return groups;
   }, [muscles, levels]);
@@ -120,10 +127,10 @@ function Figure({
   const outline = selected ? muscles.find((m) => m.muscle === selected) : undefined;
 
   return (
-    <Svg viewBox={`${x} ${y} ${w} ${h}`} width="100%" style={{ aspectRatio: w / h, maxWidth: 220 }}>
+    <Svg viewBox={`${x} ${y} ${w} ${h}`} width="100%" style={{ aspectRatio: w / h, maxWidth }}>
       <Defs>
         {byLevel.map((paths, level) =>
-          paths.length ? (
+          level > 0 && paths.length ? (
             <ClipPath key={level} id={`level${level}`}>
               {paths.map((d, i) => (
                 <Path key={i} d={d} />
@@ -133,8 +140,11 @@ function Figure({
         )}
       </Defs>
       <Image href={images.base} x={x} y={y} width={w} height={h} preserveAspectRatio="none" />
+      {byLevel[0]!.map((d, i) => (
+        <Path key={`o${i}`} d={d} fill="none" stroke={c.lineStrong} strokeWidth={2} strokeOpacity={0.7} />
+      ))}
       {byLevel.map((paths, level) =>
-        paths.length ? (
+        level > 0 && paths.length ? (
           <Image
             key={level}
             href={images[theme]}

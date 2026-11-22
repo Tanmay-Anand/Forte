@@ -16,7 +16,7 @@ export function FlagChip({ label }: { label: string }) {
       style={{
         borderWidth: 1,
         borderColor: c.textSecondary,
-        borderRadius: radius.pill,
+        borderRadius: radius.chip,
         paddingHorizontal: space.s,
         paddingVertical: 2,
       }}

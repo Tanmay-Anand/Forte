@@ -254,7 +254,7 @@ function ClaudeSection({
         </View>
       ) : (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.s, marginTop: reply ? space.m : 0 }}>
-          <ControlChip label="Ask AI about this session" icon="share" onPress={ask} />
+          <ControlChip label="Ask about this session" icon="share" onPress={ask} />
           {!reply ? (
             <ControlChip label="Paste the AI's reply" icon="clipboard" onPress={() => setPasting(true)} />
           ) : null}

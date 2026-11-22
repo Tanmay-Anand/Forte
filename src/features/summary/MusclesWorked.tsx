@@ -14,7 +14,7 @@ import { trimNumber } from '@/lib/format';
  * session's most-trained muscle, with the sets per muscle underneath.
  * Drawn once when the summary opens.
  */
-export function MusclesWorked({ session }: { session: SessionEntry }) {
+export function MusclesWorked({ session, compact }: { session: SessionEntry; compact?: boolean }) {
   const sex = useQuery(() => getProfile().sex, []);
   const worked = useMemo(() => {
     const sets = sessionMuscles(session);
@@ -30,7 +30,12 @@ export function MusclesWorked({ session }: { session: SessionEntry }) {
   return (
     <View style={{ marginTop: space.l }}>
       <SectionLabel right="Sets">Muscles worked</SectionLabel>
-      <BodyFigures levels={worked.levels} sex={sex} accessibilityLabel={`Muscles worked: ${line} sets.`} />
+      <BodyFigures
+        levels={worked.levels}
+        sex={sex}
+        maxWidth={compact ? 132 : 220}
+        accessibilityLabel={`Muscles worked: ${line} sets.`}
+      />
       <Text variant="caption" color="textSecondary" style={{ marginTop: space.m }}>
         {line}
       </Text>

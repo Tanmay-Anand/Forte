@@ -87,7 +87,7 @@ export default function LabsScreen() {
             such as Claude, ChatGPT or Gemini, with a short training summary. Not medical advice. Report files are never included.
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.s }}>
-            <ControlChip label="Ask AI about my results" icon="share" onPress={() => setChoosing(true)} />
+            <ControlChip label="Ask about my results" icon="share" onPress={() => setChoosing(true)} />
           </View>
         </>
       ) : null}
