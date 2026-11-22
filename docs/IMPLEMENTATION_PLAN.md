@@ -1,6 +1,6 @@
 # Forte — Implementation Plan
 
-**Personal Offline Workout Tracker**
+**Personal health and training app, offline-first**
 Version 1.0 · Tech stack evaluation and build sequence
 
 > Companion document: `DESIGN.md` (UI, interaction, states). This document covers stack selection, architecture, data model, and delivery phases.
@@ -491,7 +491,7 @@ This phase is the product. Do not start Phase 3 until it feels fast.
 | Timer drift or reset on background | Timestamp-derived design (§5), tested before UI exists |
 | Data loss on crash | Write every set immediately; session state on the row; recovery test in Phase 2 |
 | Data loss on device loss | JSON export in Phase 4, and treat it as non-optional; keep the SQLite file in a synced folder if you like |
-| Scope creep (1RM, streaks, plate calculator, supersets) | The non-goals list in `DESIGN.md` §1 is the contract. Anything new must pass "faster logging or clearer progression" |
+| Scope creep (streaks, plate calculator, supersets) | The non-goals list in `DESIGN.md` §1 is the contract. Anything new must pass "faster logging or clearer progression" |
 | Logging feels slow | Measure it: tap-to-logged-state must be under 100 ms. Optimistic UI, DB write off the interaction path |
 | Migration mistakes corrupt history | Drizzle versioned migrations, forward-only; export before every schema change |
 | iOS distribution friction (Option A) | Decide early: free profile with 7-day refresh, or $99/yr. Android has no equivalent friction |

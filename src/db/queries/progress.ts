@@ -30,9 +30,9 @@ export function getProgressSeries(exerciseId: string): ProgressPoint[] {
             sn.started_at,
             MAX(s.weight_kg)                              AS top_weight,
             SUM(s.weight_kg * s.reps)                     AS volume,
-            SUM(s.reps)                                   AS total_reps,
+            SUM(CASE WHEN s.drop_index = 0 THEN s.reps END) AS total_reps,
             AVG(s.rest_before_s)                          AS avg_rest,
-            COUNT(s.id)                                   AS set_count,
+            COUNT(CASE WHEN s.drop_index = 0 THEN 1 END)  AS set_count,
             0                                             AS top_weight_reps
        FROM sets s
        JOIN session_exercises se ON se.id = s.session_exercise_id
@@ -50,7 +50,8 @@ export function getProgressSeries(exerciseId: string): ProgressPoint[] {
       `SELECT MAX(s.reps) AS reps
          FROM sets s
          JOIN session_exercises se ON se.id = s.session_exercise_id
-        WHERE se.session_id = ? AND se.exercise_id = ? AND s.weight_kg = ? AND s.skipped = 0;`,
+        WHERE se.session_id = ? AND se.exercise_id = ? AND s.weight_kg = ? AND s.skipped = 0
+          AND s.drop_index = 0;`,
       [row.session_id, exerciseId, row.top_weight],
     );
     return { ...row, top_weight_reps: best?.reps ?? 0 };
@@ -78,7 +79,7 @@ export function getProgressSummary(exerciseId: string): ProgressSummary | null {
     avg_rest: number | null;
   }>(
     `SELECT MAX(s.weight_kg) AS best_weight,
-            MAX(s.reps) AS best_reps,
+            MAX(CASE WHEN s.drop_index = 0 THEN s.reps END) AS best_reps,
             SUM(s.weight_kg * s.reps) AS total_volume,
             COUNT(DISTINCT sn.id) AS session_count,
             AVG(s.rest_before_s) AS avg_rest

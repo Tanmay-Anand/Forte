@@ -29,11 +29,22 @@ export function hideNavigationBar(): void {
   void NavigationBar.setVisibilityAsync('hidden').catch(() => {});
 }
 
-/** A modal is about to open: show the bar. Resolves once it has been asked to show. */
+/**
+ * Longest a modal waits for the bar call. On the emulator the native call
+ * occasionally never settled (seen after returning from another app's
+ * screen), and every sheet after it — keypad, menus — then never opened. A
+ * sheet that opens late beats one that never opens.
+ */
+const BAR_CALL_TIMEOUT_MS = 400;
+
+/** A modal is about to open: show the bar. Resolves once it has been asked to show, or after the timeout. */
 export async function revealNavigationBarForModal(): Promise<void> {
   openModals += 1;
   if (!isAndroid) return;
-  await NavigationBar.setVisibilityAsync('visible').catch(() => {});
+  await Promise.race([
+    NavigationBar.setVisibilityAsync('visible').catch(() => {}),
+    new Promise<void>((resolve) => setTimeout(resolve, BAR_CALL_TIMEOUT_MS)),
+  ]);
 }
 
 /** A modal closed: hide the bar again once no modal is open. */

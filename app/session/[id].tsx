@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Pressable, Alert } from 'react-native';
+import { View, Pressable, Alert, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
-import { Text } from '@/ui/Text';
+import { Text, useTextStyle } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
-import { Divider, IconButton, Screen, Spacer } from '@/ui/primitives';
+import { Button } from '@/ui/Button';
+import { Card, ControlChip, Divider, IconButton, Screen, SectionLabel, Spacer } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
-import { space } from '@/ui/tokens';
+import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import {
   deleteSession,
@@ -14,6 +15,13 @@ import {
   getSessionSummary,
   type HistoryExercise,
 } from '@/db/queries/history';
+import { setSessionEffort } from '@/db/queries/session';
+import { loadHistory } from '@/db/queries/analysis';
+import { deleteSessionReply, getSessionReply, saveSessionReply } from '@/db/queries/ai';
+import { sessionBrief, sessionRecords } from '@/features/analysis';
+import { EffortPicker } from '@/features/summary/EffortPicker';
+import { RecordsList } from '@/features/summary/SessionReview';
+import { currentBriefOptions, shareTrainingBrief } from '@/features/claude/share';
 import { formatVolume, formatWeight } from '@/lib/format';
 import { formatClock, formatDuration, formatLongDate, formatMinutes } from '@/lib/time';
 import { useSettings } from '@/store/settings';
@@ -31,6 +39,9 @@ export default function SessionDetailScreen() {
 
   const summary = useQuery(() => (id ? getSessionSummary(id) : null), [id]);
   const detail = useQuery(() => (id ? getSessionDetail(id) : []), [id]);
+  const history = useQuery(() => loadHistory(), []);
+  const reply = useQuery(() => (id ? getSessionReply(id) : null), [id]);
+  const records = id ? sessionRecords(history, id, unit) : [];
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const firstId = detail[0]?.id ?? null;
@@ -102,7 +113,16 @@ export default function SessionDetailScreen() {
       </Text>
 
       <Spacer h={space.l} />
+      <SectionLabel>Effort</SectionLabel>
+      <EffortPicker value={summary.effort} onChange={(v) => id && setSessionEffort(id, v)} />
+
+      <Spacer h={space.l} />
       <Divider />
+      {records.length ? (
+        <View style={{ marginTop: space.l }}>
+          <RecordsList records={records} />
+        </View>
+      ) : null}
 
       {summary.note ? (
         <View
@@ -131,7 +151,116 @@ export default function SessionDetailScreen() {
           onToggle={() => setExpanded(isOpen(ex.id) ? '' : ex.id)}
         />
       ))}
+
+      {id ? <ClaudeSection sessionId={id} reply={reply} /> : null}
     </Screen>
+  );
+}
+
+/**
+ * Claude's view of this session, if the person asked for one and pasted the
+ * reply back. Labelled as Claude's and kept apart from the recorded numbers.
+ */
+function ClaudeSection({
+  sessionId,
+  reply,
+}: {
+  sessionId: string;
+  reply: { content: string; created_at: number } | null;
+}) {
+  const { c } = useTheme();
+  const inputType = useTextStyle('body');
+  const [pasting, setPasting] = useState(false);
+  const [draft, setDraft] = useState('');
+
+  const ask = () => void shareTrainingBrief(sessionBrief(loadHistory(), sessionId, currentBriefOptions()));
+
+  return (
+    <View style={{ marginTop: space.xl }}>
+      <SectionLabel>AI analysis</SectionLabel>
+      {reply && !pasting ? (
+        <Card>
+          <Text variant="label" color="textTertiary">
+            From AI, pasted by you
+          </Text>
+          <Text variant="body" style={{ marginTop: space.s }} selectable>
+            {reply.content}
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.s, marginTop: space.m }}>
+            <ControlChip
+              label="Replace"
+              onPress={() => {
+                setDraft(reply.content);
+                setPasting(true);
+              }}
+            />
+            <ControlChip
+              label="Delete"
+              onPress={() =>
+                Alert.alert('Delete this reply?', 'Only the saved text is removed. The session stays.', [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Delete', style: 'destructive', onPress: () => deleteSessionReply(sessionId) },
+                ])
+              }
+            />
+          </View>
+        </Card>
+      ) : null}
+
+      {pasting ? (
+        <View>
+          <TextInput
+            value={draft}
+            onChangeText={setDraft}
+            autoFocus
+            multiline
+            placeholder="Paste the AI's reply here"
+            placeholderTextColor={c.textTertiary}
+            style={{
+              ...inputType,
+              minHeight: 140,
+              color: c.textPrimary,
+              borderWidth: 1,
+              borderColor: c.lineStrong,
+              borderRadius: radius.input,
+              padding: space.m,
+              textAlignVertical: 'top',
+            }}
+          />
+          <View style={{ flexDirection: 'row', gap: space.m, marginTop: space.m }}>
+            <Button
+              label="Cancel"
+              variant="ghost"
+              height={48}
+              style={{ flex: 1 }}
+              onPress={() => {
+                setPasting(false);
+                setDraft('');
+              }}
+            />
+            <Button
+              label="Save"
+              variant="secondary"
+              height={48}
+              style={{ flex: 1 }}
+              disabled={!draft.trim()}
+              onPress={() => {
+                saveSessionReply(sessionId, draft);
+                setPasting(false);
+                setDraft('');
+              }}
+            />
+          </View>
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.s, marginTop: reply ? space.m : 0 }}>
+          <ControlChip label="Ask AI about this session" icon="share" onPress={ask} />
+          {!reply ? (
+            <ControlChip label="Paste the AI's reply" icon="clipboard" onPress={() => setPasting(true)} />
+          ) : null}
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -194,6 +323,19 @@ function ExerciseBlock({
                   </Text>
                 )}
               </View>
+              {set.drops.map((d) => (
+                <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 2 }}>
+                  <View style={{ width: 28 }}>
+                    <Icon name="corner-down-right" size={14} color="textTertiary" />
+                  </View>
+                  <Text variant="num" color="textSecondary">
+                    {formatWeight(d.weight_kg, unit)} × {d.reps}
+                  </Text>
+                  <Text variant="caption" color="textTertiary" style={{ marginLeft: space.s }}>
+                    drop
+                  </Text>
+                </View>
+              ))}
             </View>
           ))}
 

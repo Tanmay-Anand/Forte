@@ -17,6 +17,7 @@ import {
   StatGrid,
 } from '@/ui/primitives';
 import { LineChart, MIN_POINTS_FOR_TREND } from '@/ui/LineChart';
+import { InsightsView } from '@/features/insights/InsightsView';
 import { useTheme } from '@/ui/theme';
 import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
@@ -49,6 +50,7 @@ export default function ProgressScreen() {
   const [metric, setMetric] = useState<ProgressMetric>('weight');
   const [picking, setPicking] = useState(false);
   const [exerciseId, setExerciseId] = useState<string | null>(null);
+  const [view, setView] = useState<'lifts' | 'insights'>('lifts');
 
   const tracked = useQuery(() => getTrackedExercises(), []);
   const selectedId = exerciseId ?? tracked[0]?.id ?? null;
@@ -94,11 +96,40 @@ export default function ProgressScreen() {
 
   const gain = summary ? summary.latestWeight - summary.firstWeight : 0;
 
-  return (
-    <Screen navClearance>
+  const header = (
+    <>
       <Spacer h={space.l} />
       <Text variant="titleM">Progress</Text>
       <Spacer h={space.m} />
+      <Segmented
+        options={[
+          { value: 'lifts', label: 'Lifts' },
+          { value: 'insights', label: 'Insights' },
+        ]}
+        value={view}
+        onChange={setView}
+      />
+      <Spacer h={space.l} />
+    </>
+  );
+
+  if (view === 'insights') {
+    return (
+      <Screen navClearance>
+        {header}
+        <InsightsView
+          onOpenExercise={(id) => {
+            setExerciseId(id);
+            setView('lifts');
+          }}
+        />
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen navClearance>
+      {header}
 
       <Pressable
         onPress={() => setPicking(true)}

@@ -151,6 +151,15 @@ function Chrome() {
         <Stack.Screen name="day/[day]" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="session/[id]" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="settings" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="body/[kind]" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="body/measurements" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="body/about" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="labs/index" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="labs/new" options={{ animation: slide('slide_from_bottom') }} />
+        <Stack.Screen name="labs/[id]" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="labs/marker/[id]" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="labs/read/[id]" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="claude/brief" options={{ animation: slide('slide_from_right') }} />
       </Stack>
     </>
   );

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forte Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="app">
+  <nav class="side" id="side" aria-label="Sections"></nav>
+  <main>
+    <div class="top">
+      <h2 id="crumb">Home</h2>
+      <span class="grow"></span>
+      <button class="pill" id="reload" title="Read the newest backup again"><i class="ti ti-refresh"></i><span id="source">Loading…</span></button>
+      <button class="pill icon" id="themeBtn" aria-label="Switch between dark and light"><i class="ti ti-sun"></i></button>
+      <span class="ava" aria-hidden="true"><i class="ti ti-user"></i></span>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

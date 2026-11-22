@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Pressable } from 'react-native';
-import Svg, { Circle, Line, Path } from 'react-native-svg';
+import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 import { Text } from './Text';
 import { useTheme } from './theme';
 import { space } from './tokens';
@@ -49,11 +49,18 @@ export function LineChart({
   height = 220,
   formatValue,
   onSelect,
+  band,
 }: {
   points: ChartPoint[];
   height?: number;
   formatValue: (v: number) => string;
   onSelect?: (index: number) => void;
+  /**
+   * A shaded range behind the line — a lab's reference range. Either edge may
+   * be open ("below 100"). Both edges are kept inside the axis so the band is
+   * always visible next to the values it frames.
+   */
+  band?: { low: number | null; high: number | null };
 }) {
   const { c } = useTheme();
   const [width, setWidth] = useState(0);
@@ -64,7 +71,8 @@ export function LineChart({
     if (points.length === 0 || width === 0) return null;
 
     const values = points.map((p) => p.y);
-    const { lo, hi, step } = niceAxis(Math.min(...values), Math.max(...values));
+    const edges = [band?.low, band?.high].filter((v): v is number => v != null && Number.isFinite(v));
+    const { lo, hi, step } = niceAxis(Math.min(...values, ...edges), Math.max(...values, ...edges));
 
     const plotW = Math.max(1, width - padding.left - padding.right);
     const plotH = Math.max(1, height - padding.top - padding.bottom);
@@ -91,14 +99,30 @@ export function LineChart({
             Math.round((k * (points.length - 1)) / (maxTicks - 1)),
           );
 
-    return { coords, path, lines, xFor, tickIdx };
-  }, [points, width, height]);
+    const bandRect = band
+      ? {
+          top: yFor(band.high ?? hi),
+          bottom: yFor(band.low ?? lo),
+        }
+      : null;
+
+    return { coords, path, lines, xFor, tickIdx, bandRect };
+  }, [points, width, height, band]);
 
   return (
     <View onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       {geometry ? (
         <>
           <Svg width={width} height={height}>
+            {geometry.bandRect ? (
+              <Rect
+                x={padding.left}
+                y={geometry.bandRect.top}
+                width={Math.max(0, width - padding.left - padding.right)}
+                height={Math.max(0, geometry.bandRect.bottom - geometry.bandRect.top)}
+                fill={c.bgRaised}
+              />
+            ) : null}
             {geometry.lines.map((g, i) => (
               <Line
                 key={i}

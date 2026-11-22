@@ -1,6 +1,6 @@
 # Forte — Design Document
 
-**Personal Offline Workout Tracker**
+**Personal health and training app, offline-first**
 Version 1.0 · Design specification (UI, interaction, information hierarchy, states)
 
 > **Scope of this document:** UI and interaction design only. No backend, no API design, no data-sync design. See `IMPLEMENTATION_PLAN.md` for tech stack and build sequence.
@@ -9,7 +9,7 @@ Version 1.0 · Design specification (UI, interaction, information hierarchy, sta
 
 ## 1. Product statement
 
-Forte is a personal training notebook upgraded with a stopwatch and progress visualization.
+Forte is a personal training notebook upgraded with a stopwatch and progress visualization, with the body and health records that give the training context. (Scope widened in November 2026: see `AI_TRAINER_PLAN.md` §0.1.)
 
 Three sentences the whole product must communicate:
 
@@ -19,7 +19,9 @@ It is used by exactly one person, offline, standing in a gym, often mid-set, oft
 
 ### Non-goals (hard constraints)
 
-No accounts, social feed, friends, followers, likes, challenges, calories, nutrition, supplements, body measurements, wearables, AI coaching, workout recommendations, public profiles, payments, or subscriptions. If a feature request cannot be justified by "it makes logging a set faster" or "it makes progression clearer," it does not ship.
+No accounts, social feed, friends, followers, likes, challenges, calories, nutrition, supplements, wearables, auto-programming, AI during a workout, public profiles, payments, or subscriptions. A training feature must make logging a set faster or progression clearer. A health feature must be stored on the device, stay out of the Active Workout screen, and keep recorded facts visibly apart from interpretation.
+
+Body measurements, blood reports and Claude's analysis were non-goals until November 2026; they are in scope now, on those terms.
 
 ---
 
@@ -166,13 +168,13 @@ A **floating pill** of four circular buttons, detached from the screen edge, rat
                     active: filled light disc, dark icon
 ```
 
-Four tabs in a fixed order — **Today · Week · Progress · History** — as 52dp circles inside a 64dp capsule. The selected tab is a filled `accent` disc with `accent/ink` iconography; the rest are bare icons in `text/secondary`.
+Five tabs in a fixed order — **Today · Week · Progress · History · Profile** — as 52dp circles inside a 64dp capsule. Profile was appended last in November 2026 so the four original positions kept their place; Settings moved from Today's header into Profile. The selected tab is a filled `accent` disc with `accent/ink` iconography; the rest are bare icons in `text/secondary`.
 
 **The disc travels.** Switching tabs slides the active disc to its new position on a near-critically-damped spring (~220 stiffness, 18 damping) rather than cutting. The movement is the only thing on screen that expresses the spatial relationship between tabs, so it earns its place; the damping is deliberately just shy of a bounce, which would read as playful rather than precise.
 
 Each button holds two stacked copies of its icon — one `text/secondary`, one `accent/ink` — crossfaded by the disc's proximity. Both the slide and the crossfade are driven from a single animated value, so they cannot drift apart, and both run on the native driver. This also avoids the obvious failure of the naive version: flipping the icon to dark ink on tap leaves it dark-on-dark for the ~250 ms before the disc arrives. Under the reduced-motion setting the disc jumps instantly and the crossfade is skipped.
 
-**On icon-only navigation.** Dropping labels costs a beat of recognition, and this app is used distracted. Three things pay that back: the set is fixed at four, the order never changes, and position becomes the affordance within a session or two. Every button carries an accessibility label, so screen-reader users lose nothing. Content scrolls *under* the capsule, and every tab screen reserves `NAV.clearance` at the bottom so nothing is ever trapped beneath it.
+**On icon-only navigation.** Dropping labels costs a beat of recognition, and this app is used distracted. Three things pay that back: the set is fixed at five, the order never changes, and position becomes the affordance within a session or two. Every button carries an accessibility label, so screen-reader users lose nothing. Content scrolls *under* the capsule, and every tab screen reserves `NAV.clearance` at the bottom so nothing is ever trapped beneath it.
 
 **Progress is a labelled bar, not a row of dots.** The Active Workout header reads
 `3 of 4 exercises` above a 3 pt bar filled to that proportion. Dots have to be counted before they
@@ -839,6 +841,66 @@ The first exercise is expanded by default; the rest are collapsed. Rest values a
 `⋯` offers *Edit session*, *Duplicate as today's workout*, *Delete session* (the only other confirmation dialog in the app).
 
 **Empty state:** *"No workouts logged yet. Your completed sessions will appear here."* + `Start today's workout`.
+
+---
+
+### 5.8 Analysis additions (November 2026)
+
+Everything here sits after Finish or on a screen opened on purpose. The Active Workout screen is
+unchanged.
+
+**Finish summary (5.5) gains three things, all calculated on the phone:**
+
+- **How hard was it?** Five labelled steps, optional, below the stat grid. Tap again to clear.
+- **Records**, at most one per exercise: heaviest weight, most reps at a weight, best estimated
+  strength, or most volume. A first session sets none.
+- **Compared with** shows every exercise that appeared last time: the headline change (weight, or
+  total reps at an unchanged weight) with a signed delta, and reps at the top weight and average
+  rest as a caption. Unchanged lifts get a neutral dash.
+
+Below Done, a secondary **Analyse with Claude** opens a sheet: *Ask Claude on this phone* (share
+menu), *Send backup for Forte Companion* (Google Drive), *Show what's shared*.
+
+**Progress → Insights** sits behind a `Lifts / Insights` switch. Last-7-days volume against the
+four-week average, then up to five cards from fixed rules (`src/features/analysis/findings.ts`):
+plateau, more reps at the same weight, weight going up, longer rests, lifting less, heavy or light
+week. Breadth first: one card per exercise before any second card. Each card states its numbers
+and its period; tapping it opens that lift. Nothing is said about a trend from fewer than three
+sessions.
+
+**Session detail (5.7)** gains the effort picker, the records, and a Claude section: *Ask Claude
+about this session*, *Paste Claude's reply*, and the saved reply in a card headed "From Claude,
+pasted by you".
+
+### 5.9 Profile
+
+The fifth tab. Header: **Profile** and the Settings gear.
+
+- **Weight** hero: `displayL` latest value, change since the last weigh-in at least four weeks
+  earlier, a chart from two readings, the target and distance to it, **Log weight** (keypad).
+- **Body:** weight history, height, body fat, measurements (nine tape sites). Each opens a history
+  screen: latest value, chart, **Add**, and every entry with delete. Entries are never edited in
+  place.
+- **Health:** Blood reports (5.10).
+- **About you:** date of birth (age is derived), optional sex, target weight.
+- **Delete all health data**, last, in `negative`.
+
+Lengths follow the weight unit: centimetres with kg, inches with lb. Stored in cm.
+
+### 5.10 Blood reports
+
+- **List:** **Add report**, then reports (type, date, lab, value count, how many outside range),
+  then every marker with its latest value, then **Ask Claude about my results** with a fresh
+  confirmation each time.
+- **New report:** sample date, type chips, optional lab, optional PDF or image, copied into private
+  storage.
+- **Report:** the file (opened with the phone's own viewer through the share sheet), the recorded
+  values with the lab's range and an outlined "Above range" / "Below range" chip, **Add value**,
+  **Delete report**.
+- **Marker:** latest value, a chart with the latest range shaded behind the line (only when units
+  match), and every result linking back to its report.
+
+Flags are arithmetic on the lab's printed range. Nothing in these screens is interpretation.
 
 ---
 

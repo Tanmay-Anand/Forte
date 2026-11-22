@@ -57,9 +57,31 @@ module.exports = {
       rules: { 'no-restricted-imports': 'off' },
     },
     {
-      // Node-side code: config plugins, the entry shim, and the plain-Node tests.
-      files: ['plugins/**/*.js', 'index.js', '.eslintrc.js', 'babel.config.js', 'tests/**/*.mjs'],
+      // Node-side code: config plugins, the entry shim, the plain-Node tests and
+      // the PC companion's helper, and build tools.
+      files: [
+        'plugins/**/*.js',
+        'index.js',
+        '.eslintrc.js',
+        'babel.config.js',
+        'tests/**/*.mjs',
+        'companion/**/*.mjs',
+        'tools/**/*.mjs',
+      ],
       env: { node: true },
+    },
+    {
+      // The tests, the companion and tools/ import src/features/analysis as TypeScript,
+      // through Node's type stripping. The import plugin parses those .ts files
+      // with the JavaScript parser and reports every export as missing; the
+      // tests themselves prove the imports resolve.
+      files: ['tests/**/*.mjs', 'companion/**/*.mjs', 'tools/**/*.mjs'],
+      rules: { 'import/named': 'off', 'import/namespace': 'off' },
+    },
+    {
+      // The companion's page runs in a browser.
+      files: ['companion/web/**/*.js'],
+      env: { browser: true },
     },
   ],
 };

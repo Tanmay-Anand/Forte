@@ -16,7 +16,7 @@ import { radius, space, WORKOUT_ACTION_HEIGHT } from '@/ui/tokens';
 
 import { useQuery } from '@/lib/db-hooks';
 import { useSettings } from '@/store/settings';
-import { fromDisplayWeight, toDisplayWeight, formatWeight } from '@/lib/format';
+import { fromDisplayWeight, toDisplayWeight, formatWeight, type Unit } from '@/lib/format';
 import { formatDuration, formatShortDate } from '@/lib/time';
 
 import {
@@ -25,9 +25,11 @@ import {
   deleteSet,
   discardSession,
   getActiveSession,
+  getDrops,
   getPreviousPerformance,
   getSessionExercises,
   getSets,
+  logDrop,
   logSet,
   pauseRest,
   prefillFor,
@@ -48,6 +50,7 @@ import { RestPanel, WorkoutClock } from '@/features/workout/RestPanel';
 import { PreviousLine, SetTable } from '@/features/workout/SetTable';
 import { ExercisePicker } from '@/features/routine/ExercisePicker';
 import { ensureNotificationPermission } from '@/features/workout/workout-notification';
+import { formatTarget, nextTarget } from '@/features/analysis';
 
 type Keypad = { field: 'weight' | 'reps' } | null;
 
@@ -82,6 +85,9 @@ export default function ActiveWorkoutScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
   const [flashId, setFlashId] = useState<string | null>(null);
+  // Logging a drop: the wells hold the lighter weight, and the primary button
+  // logs it onto the last set instead of starting a new one.
+  const [dropping, setDropping] = useState(false);
 
   const session = useQuery(() => getActiveSession(), []);
   const exercises = useQuery(() => (session ? getSessionExercises(session.id) : []), [session?.id]);
@@ -90,6 +96,7 @@ export default function ActiveWorkoutScreen() {
   const current = exercises[index];
 
   const sets = useQuery(() => (current ? getSets(current.id) : []), [current?.id]);
+  const drops = useQuery(() => (current ? getDrops(current.id) : []), [current?.id]);
   const previous = useQuery(
     () => (current && session ? getPreviousPerformance(current.exercise_id, session.id) : null),
     [current?.exercise_id, session?.id],
@@ -117,16 +124,21 @@ export default function ActiveWorkoutScreen() {
   }, [lockScreenControls]);
 
   // Pre-fill the wells so repeating a set costs zero taps (DESIGN.md 5.4.1).
-  useEffect(() => {
+  const refill = () => {
     if (!session || !current) return;
     const fill = prefillFor(session.id, current.id, current.exercise_id);
     setWeight(Number(toDisplayWeight(fill.weightKg, unit).toFixed(2)));
     setReps(fill.reps);
+  };
+  useEffect(() => {
+    refill();
+    setDropping(false);
     // Keyed on ids, not objects: useQuery hands back fresh objects on every
     // revision, and re-filling on each one would wipe what the user just typed.
-    // sets.length is the trigger to re-fill for the next set.
+    // sets.length is the trigger to re-fill for the next set; drops.length
+    // puts the next set's values back after a drop is logged.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.id, current?.id, sets.length, unit]);
+  }, [session?.id, current?.id, sets.length, drops.length, unit]);
 
   const doneCount = useMemo(
     () => exercises.filter((e) => getSets(e.id).length > 0).length,
@@ -160,6 +172,38 @@ export default function ActiveWorkoutScreen() {
       return;
     }
     setFlashId(logSet(session.id, current.id, fromDisplayWeight(weight, unit), reps));
+  };
+
+  const lastSet = sets[sets.length - 1];
+  const canDrop = Boolean(lastSet && !lastSet.skipped && !editingSet);
+  const lastDrops = lastSet ? drops.filter((d) => d.set_number === lastSet.set_number) : [];
+
+  /**
+   * Start a drop: the same set carried straight on at a lower weight
+   * (40 kg × 5, then 25 kg × 8). The wells start about a quarter lighter than
+   * the last part of the set, rounded down to the exercise's weight step,
+   * with the same reps; adjust them, then Complete Drop.
+   */
+  const startDrop = () => {
+    if (!current || !lastSet) return;
+    const from = lastDrops[lastDrops.length - 1] ?? lastSet;
+    const shown = toDisplayWeight(from.weight_kg, unit);
+    const step = current.weight_step > 0 ? current.weight_step : 1;
+    setWeight(Math.max(0, Number((Math.floor((shown * 0.75) / step) * step).toFixed(2))));
+    setReps(from.reps);
+    setDropping(true);
+  };
+
+  const completeDrop = () => {
+    if (!current) return;
+    const id = logDrop(session.id, current.id, fromDisplayWeight(weight, unit), reps);
+    if (id) setFlashId(id);
+    // drops.length changes, which refills the wells for the next set.
+  };
+
+  const cancelDrop = () => {
+    setDropping(false);
+    refill();
   };
 
   /** START SET and SKIP differ only in what the UI does next. */
@@ -235,9 +279,21 @@ export default function ActiveWorkoutScreen() {
   };
 
   const removeSet = (set: SetRow) => {
+    if (set.drop_index > 0) {
+      deleteSet(set.id);
+      undo.offer(`Drop removed from set ${set.set_number}`, () => {
+        const id = current && logDrop(session.id, current.id, set.weight_kg, set.reps, set.set_number);
+        if (id) setFlashId(id);
+      });
+      return;
+    }
+    // A set goes with its drops, and comes back with them.
+    const itsDrops = drops.filter((d) => d.set_number === set.set_number);
     deleteSet(set.id);
     undo.offer(`Set ${set.set_number} removed`, () => {
-      if (current) setFlashId(logSet(session.id, current.id, set.weight_kg, set.reps));
+      if (!current) return;
+      setFlashId(logSet(session.id, current.id, set.weight_kg, set.reps));
+      for (const d of itsDrops) logDrop(session.id, current.id, d.weight_kg, d.reps);
     });
   };
 
@@ -364,8 +420,10 @@ export default function ActiveWorkoutScreen() {
               {previous ? (
                 <PreviousLine
                   sets={previous.sets}
+                  drops={previous.drops}
                   unit={unit}
                   when={formatShortDate(previous.startedAt)}
+                  target={targetLabel(previous.sets, current.weight_step, unit)}
                 />
               ) : (
                 <Text variant="caption" color="textTertiary" style={{ marginBottom: space.l }}>
@@ -379,6 +437,7 @@ export default function ActiveWorkoutScreen() {
             <View style={{ marginTop: space.m }}>
               <SetTable
                 sets={sets}
+                drops={drops}
                 unit={unit}
                 flashId={flashId}
                 onEdit={beginEdit}
@@ -395,7 +454,7 @@ export default function ActiveWorkoutScreen() {
                 It is the thing being watched, and placed after the inputs it
                 fell below the fold on a 360 dp phone and at large text sizes.
               */}
-              {resting && rest ? (
+              {resting && rest && !dropping ? (
                 <View style={{ marginBottom: space.l }}>
                   <RestPanel
                     state={rest}
@@ -407,7 +466,13 @@ export default function ActiveWorkoutScreen() {
                 </View>
               ) : null}
               <Text variant="label" color="textSecondary">
-                {editingSet ? `Editing set ${editingSet.set_number}` : `Set ${sets.length + 1}`}
+                {editingSet
+                  ? editingSet.drop_index > 0
+                    ? `Editing drop ${editingSet.drop_index} of set ${editingSet.set_number}`
+                    : `Editing set ${editingSet.set_number}`
+                  : dropping && lastSet
+                    ? `Drop ${lastDrops.length + 1} · set ${lastSet.set_number}`
+                    : `Set ${sets.length + 1}`}
               </Text>
               <View
                 style={{
@@ -458,12 +523,21 @@ export default function ActiveWorkoutScreen() {
               >
                 {editingSet ? (
                   <ControlChip label="Cancel edit" onPress={() => setEditingSet(null)} />
+                ) : dropping ? (
+                  <ControlChip label="Cancel drop" onPress={cancelDrop} />
                 ) : (
                   <>
                     {index > 0 ? (
                       <ControlChip label="Previous" icon="chevron-left" onPress={goBack} />
                     ) : null}
                     <ControlChip label="Skip set" onPress={skipThisSet} />
+                    {canDrop ? (
+                      <ControlChip
+                        label={lastDrops.length ? 'Another drop' : 'Drop set'}
+                        icon="corner-right-down"
+                        onPress={startDrop}
+                      />
+                    ) : null}
                     <ControlChip
                       label="Add exercise"
                       icon="plus"
@@ -490,7 +564,9 @@ export default function ActiveWorkoutScreen() {
       {/* ------------------------------------------- primary action bar */}
       {current ? (
         <View style={{ paddingHorizontal: gutter, paddingTop: space.s }}>
-          {resting && !editingSet ? (
+          {dropping && !editingSet ? (
+            <Button label="Complete Drop" onPress={completeDrop} height={WORKOUT_ACTION_HEIGHT} shout />
+          ) : resting && !editingSet ? (
             <Button
               label={`Start Set ${sets.length + 1}`}
               onPress={endRest}
@@ -549,6 +625,7 @@ export default function ActiveWorkoutScreen() {
   );
 
   function beginEdit(set: SetRow) {
+    setDropping(false);
     setEditingSet(set);
     setWeight(Number(toDisplayWeight(set.weight_kg, unit).toFixed(2)));
     setReps(set.reps);
@@ -560,6 +637,23 @@ export default function ActiveWorkoutScreen() {
  * A confirmation glance, not a checkpoint: it auto-advances after four
  * seconds, and offers a way back because a user often wants one more set.
  */
+/**
+ * "Target 65 kg × 8" from last time's sets (src/features/analysis/targets.ts).
+ * Shown beside "Last time" only; the wells still pre-fill from last time.
+ */
+function targetLabel(
+  sets: { weight_kg: number; reps: number; skipped: number }[],
+  weightStep: number,
+  unit: Unit,
+): string | undefined {
+  const t = nextTarget(
+    sets.filter((s) => !s.skipped).map((s) => ({ weightKg: s.weight_kg, reps: s.reps })),
+    weightStep,
+    unit,
+  );
+  return t ? `Target ${formatTarget(t, unit)}` : undefined;
+}
+
 function ExerciseComplete({
   name,
   sets,

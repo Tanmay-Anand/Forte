@@ -63,6 +63,8 @@ export const sessions = sqliteTable(
     restAccumulatedS: integer('rest_accumulated_s').notNull().default(0),
     /** rest measured but not yet attached to a set; written to the next set logged */
     pendingRestS: integer('pending_rest_s'),
+    /** 1–5 rating of the whole session, given after Finish. null = not rated. */
+    effort: integer('effort'),
   },
   (t) => ({ startedIdx: index('idx_sessions_started').on(t.startedAt) }),
 );
@@ -95,6 +97,8 @@ export const sets = sqliteTable(
     restBeforeS: integer('rest_before_s'),
     /** Logged but not performed. Excluded from volume and progression. */
     skipped: integer('skipped').notNull().default(0),
+    /** 0 for the set itself; 1, 2… for drops done straight after it (same set_number). */
+    dropIndex: integer('drop_index').notNull().default(0),
   },
   (t) => ({ sexIdx: index('idx_sets_sex').on(t.sessionExerciseId, t.setNumber) }),
 );
@@ -103,6 +107,101 @@ export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
 });
+
+/** Exactly one row. Age is derived from date_of_birth, never stored. */
+export const profile = sqliteTable('profile', {
+  id: integer('id').primaryKey(),
+  /** 'YYYY-MM-DD' */
+  dateOfBirth: text('date_of_birth'),
+  /** 'male' | 'female' | null — used only as context for lab reference ranges. */
+  sex: text('sex'),
+  targetWeightKg: real('target_weight_kg'),
+  updatedAt: integer('updated_at').notNull(),
+});
+
+/** Append-only. Weight in kg, lengths in cm, body fat in percent. */
+export const bodyMeasurements = sqliteTable(
+  'body_measurements',
+  {
+    id: text('id').primaryKey(),
+    /** 'weight' | 'height' | 'body_fat' | 'waist' | … — src/features/profile/kinds.ts */
+    kind: text('kind').notNull(),
+    value: real('value').notNull(),
+    measuredAt: integer('measured_at').notNull(),
+    note: text('note'),
+  },
+  (t) => ({ kindIdx: index('idx_bm_kind').on(t.kind, t.measuredAt) }),
+);
+
+/** Analyses kept with their session — today, Claude replies pasted back by the person. */
+export const aiAnalyses = sqliteTable('ai_analyses', {
+  id: text('id').primaryKey(),
+  /** 'session' | 'weekly' | 'health' */
+  kind: text('kind').notNull(),
+  sessionId: text('session_id'),
+  periodStart: integer('period_start'),
+  periodEnd: integer('period_end'),
+  /** 'pending' | 'ok' | 'failed' | 'refused' */
+  status: text('status').notNull(),
+  /** 'pasted', or an API provider id on the optional API route. */
+  provider: text('provider'),
+  model: text('model'),
+  promptVersion: integer('prompt_version').notNull(),
+  inputHash: text('input_hash'),
+  categories: text('categories'),
+  content: text('content'),
+  inputTokens: integer('input_tokens'),
+  outputTokens: integer('output_tokens'),
+  errorCode: text('error_code'),
+  attempts: integer('attempts').notNull().default(0),
+  createdAt: integer('created_at').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+});
+
+export const labMarkers = sqliteTable('lab_markers', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  category: text('category').notNull(),
+  defaultUnit: text('default_unit'),
+  isCustom: integer('is_custom').notNull().default(0),
+});
+
+/** A dated report, with its file (if any) in documentDirectory/reports/. */
+export const labReports = sqliteTable(
+  'lab_reports',
+  {
+    id: text('id').primaryKey(),
+    takenAt: integer('taken_at').notNull(),
+    labName: text('lab_name'),
+    category: text('category').notNull(),
+    fileName: text('file_name'),
+    /** Relative to documentDirectory. */
+    filePath: text('file_path'),
+    mimeType: text('mime_type'),
+    note: text('note'),
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => ({ takenIdx: index('idx_lab_reports_taken').on(t.takenAt) }),
+);
+
+/** One recorded value, always traceable to its report. */
+export const labResults = sqliteTable(
+  'lab_results',
+  {
+    id: text('id').primaryKey(),
+    reportId: text('report_id').notNull(),
+    markerId: text('marker_id').notNull(),
+    value: real('value'),
+    /** For non-numeric results such as "Negative". */
+    valueText: text('value_text'),
+    unit: text('unit'),
+    refLow: real('ref_low'),
+    refHigh: real('ref_high'),
+    /** 'manual' — values are typed in, or read by Claude and confirmed one by one. */
+    source: text('source').notNull().default('manual'),
+  },
+  (t) => ({ markerIdx: index('idx_lab_results_marker').on(t.markerId, t.reportId) }),
+);
 
 export type Exercise = typeof exercises.$inferSelect;
 export type RoutineDay = typeof routineDays.$inferSelect;

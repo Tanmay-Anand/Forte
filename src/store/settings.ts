@@ -12,6 +12,18 @@ type SettingsState = {
   /** Ongoing notification with the rest stopwatch and set controls, shown on the lock screen. */
   lockScreenControls: boolean;
   reducedMotion: boolean;
+  /** Claude analysis: whether session notes go into the brief. */
+  claudeIncludeNotes: boolean;
+  /** Claude analysis: whether age, height and bodyweight go into the brief. */
+  claudeIncludeBody: boolean;
+  /** Version of the sharing explanation last accepted; 0 = never. */
+  claudeConsent: number;
+  /** Write a backup to autoBackupDir after every finished workout. */
+  autoBackup: boolean;
+  /** Storage Access Framework folder URI, chosen once. */
+  autoBackupDir: string | null;
+  lastAutoBackupAt: number | null;
+  lastAutoBackupError: string | null;
   loaded: boolean;
   load: () => void;
   set: <K extends keyof Persisted>(key: K, value: Persisted[K]) => void;
@@ -19,7 +31,18 @@ type SettingsState = {
 
 type Persisted = Pick<
   SettingsState,
-  'unit' | 'theme' | 'keepAwake' | 'lockScreenControls' | 'reducedMotion'
+  | 'unit'
+  | 'theme'
+  | 'keepAwake'
+  | 'lockScreenControls'
+  | 'reducedMotion'
+  | 'claudeIncludeNotes'
+  | 'claudeIncludeBody'
+  | 'claudeConsent'
+  | 'autoBackup'
+  | 'autoBackupDir'
+  | 'lastAutoBackupAt'
+  | 'lastAutoBackupError'
 >;
 
 const DEFAULTS: Persisted = {
@@ -30,6 +53,13 @@ const DEFAULTS: Persisted = {
   keepAwake: true,
   lockScreenControls: true,
   reducedMotion: false,
+  claudeIncludeNotes: true,
+  claudeIncludeBody: false,
+  claudeConsent: 0,
+  autoBackup: false,
+  autoBackupDir: null,
+  lastAutoBackupAt: null,
+  lastAutoBackupError: null,
 };
 
 function readAll(): Partial<Persisted> {
