@@ -1,6 +1,6 @@
 # Forte Companion
 
-A local app for your PC that reads your newest Forte backup, shows your training, body and blood
+A local app for your PC that receives your Forte backups over Wi-Fi, shows your training, body and blood
 results, and lets you talk to an AI about them: **Claude, ChatGPT, Gemini, or a model running on this
 PC**. No API keys and no extra bills: each AI uses its own app's login.
 
@@ -24,19 +24,37 @@ You need Node.js 22.18 or newer. With no setup it reads the invented sample in `
 | **Body** | A realistic front and back body, each muscle shaded by sets over 4, 8 or 12 weeks; the most and least trained muscles, sets per muscle per week, weight and measurements. Muscles come from exercise names (`src/features/analysis/muscles.ts`). The female body is used when your profile says female |
 | **Health** | Blood results with each lab's range and history |
 | **Ask AI** | Choose what the AI sees, then ask anything, with follow-ups |
-| **Setup** | Which AI to use and its model (Claude, offline), and where backups come from |
+| **Setup** | Which AI to use and its model (Claude, offline), pairing your phone, and where backups come from |
 
 Dark by default, like the app; the sun button switches to light.
 
 ## Getting your data here
 
-1. **Phone → Google Drive.** After a workout: *Analyse with AI* → *Send backup for Forte Companion*
-   → Drive → a folder called `Forte`. Or turn on Settings → *Automatic backup* on the phone and let a
-   sync app (Autosync for Google Drive, FolderSync) copy that folder to Drive.
-2. **Drive → PC.** Install Google Drive for desktop and sign in. The folder appears as
-   `G:\My Drive\Forte`.
-3. Copy `config.example.json` to `config.json` (ignored by git) and set `backupFolder`.
-4. In the companion, the button at the top right always loads the newest `forte-backup…` file.
+**Pair once, then nothing to do.** Your phone sends its backup to this PC over your home Wi-Fi
+after every workout.
+
+1. Start the companion and open **Setup**. The **Phone** card shows a QR code.
+2. The first time, Windows asks whether Node.js may use the network. Allow **private networks**
+   only (your home Wi-Fi), not public ones.
+3. Point your phone's camera at the QR code and tap the link. Forte opens on *Pair with PC*: check
+   the name, then tap **Pair**. The first backup arrives within seconds.
+   No link from the camera? In Forte: Settings → *PC companion* → **Pair with PC**, and paste the
+   pairing link from under the QR code (send it to your phone any way you like).
+4. From then on, each finished workout arrives a few seconds later, and the page picks it up on its
+   own. If the PC is off or you're away, the phone keeps the backup and sends it the next time both
+   are on the same Wi-Fi.
+
+**If the PC's address changes** (a new router, say), the Phone card says so. Tap **Pair again** and
+scan the code once more. A fixed address for this PC in your router's settings (a "DHCP
+reservation") stops this from happening.
+
+**Lost the phone, or someone else saw the code?** **Make a new key** on the Phone card. The old
+pairing stops working at once.
+
+**Google Drive instead (optional).** Backups saved by hand still work: *Analyse with AI* → *Send
+backup for Forte Companion* on an unpaired phone, into a Drive folder; Google Drive for desktop
+shows it as `G:\My Drive\Forte`. Copy `config.example.json` to `config.json` (ignored by git)
+and set `backupFolder`. The companion reads both places and uses whichever backup is newest.
 
 ## The AIs
 
@@ -73,6 +91,21 @@ companion and the phone app draw.
 
 ## Safety
 
-The helper listens on this PC only (127.0.0.1) and refuses requests from any other page or address.
-It reads backup files from the one folder you set and never writes to it. The backup file is not
-encrypted: anyone who can open your Google Drive or this PC's files can read it.
+The page and everything that reads your data listen on this PC only (127.0.0.1) and refuse requests
+from any other page or address.
+
+Wi-Fi sync is a separate listener on port 4175 (`sync.mjs`) that does one thing: accept a backup
+from the paired phone.
+- Every message is encrypted and signed with AES-256-GCM under a 256-bit key that only the phone and
+  `companion/pairing.json` hold. Anything not sealed with that key is refused before it's read.
+- Replies are sealed too, so nothing else on the network can tell the phone "received".
+- The phone only sends to home-network addresses (10.x, 172.16–31.x, 192.168.x), never over the
+  internet.
+- After 20 failed attempts in a minute the listener refuses everything for a minute.
+
+Received backups are saved, unencrypted, in `companion/received/` (the newest 12; ignored by git).
+Anyone who can open this PC's files can read them, as with any backup. `pairing.json` holds the key:
+don't share it or commit it.
+
+For testing with an Android emulator: `FORTE_SYNC_HOST=127.0.0.1` and `FORTE_SYNC_ADVERTISE=10.0.2.2`
+keep the listener off the network and put the emulator's address for this PC in the QR code.

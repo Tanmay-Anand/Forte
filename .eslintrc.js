@@ -27,7 +27,7 @@ const designSystem = [
 
 module.exports = {
   extends: 'expo',
-  ignorePatterns: ['/dist/*', '/.expo/*', '/android/*', '/ios/*', 'expo-env.d.ts'],
+  ignorePatterns: ['/dist/*', '/.expo/*', '/android/*', '/ios/*', 'expo-env.d.ts', '/vendor/qrcode/*'],
   rules: {
     'no-restricted-syntax': ['error', ...designSystem],
     'no-restricted-imports': [

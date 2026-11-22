@@ -189,3 +189,11 @@ button.link:hover{color:var(--ink)}
 @media (max-width:1000px){.bodygrid{grid-template-columns:minmax(0,1fr)}}
 
 a.pill{text-decoration:none}
+/* Wi-Fi pairing (Setup → Phone). The QR stays black on white in both themes: phone cameras read it best that way. */
+.pairing{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:12px}
+.pairing .qr{width:188px;max-width:100%;flex:none;border-radius:12px;overflow:hidden;background:#fff}
+.pairing .qr svg{display:block;width:100%;height:auto}
+.pairing .steps{flex:1;min-width:200px}
+.warn{font-size:13px;color:var(--neg)}
+.linkbox{width:100%;margin-top:6px;background:var(--soft);border:1px solid var(--line-strong);border-radius:12px;padding:8px 10px;font-family:ui-monospace,Consolas,monospace;font-size:12px;resize:none;word-break:break-all}
+.card p > .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--focus);margin-right:4px;vertical-align:middle}

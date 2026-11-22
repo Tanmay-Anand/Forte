@@ -9,8 +9,9 @@ import { useSettings } from '@/store/settings';
  *
  * Forte never contacts Claude. It writes a brief and opens Android's share
  * sheet; the person picks the Claude app, and the subscription they already
- * have answers it. The other route is the PC companion, which reads a backup
- * from Google Drive (sendBackupForCompanion).
+ * have answers it. The other route is the PC companion, which gets backups
+ * over Wi-Fi once paired (src/features/sync), or by hand from a folder such as
+ * Google Drive (sendBackupForCompanion).
  *
  * Bump CONSENT_VERSION whenever what a brief can contain changes, so the
  * explanation is shown again.

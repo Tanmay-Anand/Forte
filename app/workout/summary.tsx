@@ -58,6 +58,9 @@ export default function SummaryScreen() {
   const [claudeMenu, setClaudeMenu] = useState(false);
   const [backup, setBackup] = useState<BackupResult | null>(null);
   const backupDir = useSettings((s) => s.autoBackupDir);
+  const pc = useSettings((s) => s.pcSync);
+  const pcSentAt = useSettings((s) => s.pcLastSentAt);
+  const pcError = useSettings((s) => s.pcLastError);
 
   // Automatic backup: once, when the finished workout is first shown. Off the
   // interaction path — the summary never waits for it.
@@ -181,6 +184,15 @@ export default function SummaryScreen() {
             : 'Automatic backup failed. Check the folder in Settings.'}
         </Text>
       ) : null}
+      {pc ? (
+        <Text variant="caption" color="textTertiary" align="center" style={{ marginTop: space.s }}>
+          {pcSentAt && summary.ended_at && pcSentAt >= summary.ended_at
+            ? `Sent to ${pc.name}`
+            : pcError
+              ? `Not sent to ${pc.name} yet. Forte tries again when it's on the same Wi-Fi.`
+              : `Sending to ${pc.name}…`}
+        </Text>
+      ) : null}
 
       <Spacer h={space.l} />
       {writingNote ? (
@@ -230,14 +242,20 @@ export default function SummaryScreen() {
               if (id) void shareTrainingBrief(sessionBrief(loadHistory(), id, currentBriefOptions()));
             },
           },
-          {
-            label: 'Send backup for Forte Companion',
-            hint: 'Save it to Google Drive, then review on your PC.',
-            onPress: () => {
-              saveNote();
-              void sendBackupForCompanion();
-            },
-          },
+          // A paired PC already has this workout (see the line under Done), so
+          // the by-hand route only shows when there's no pairing.
+          ...(pc
+            ? []
+            : [
+                {
+                  label: 'Send backup for Forte Companion',
+                  hint: 'Save it where the companion reads it, such as Google Drive. Or pair your PC in Settings, and it goes by itself.',
+                  onPress: () => {
+                    saveNote();
+                    void sendBackupForCompanion();
+                  },
+                },
+              ]),
           {
             label: "Show what's shared",
             onPress: () => {

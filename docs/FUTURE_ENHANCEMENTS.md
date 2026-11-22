@@ -93,6 +93,11 @@ data loss a non-event, and it adds zero dependencies to the critical path.
 
 ### 1.3 Real Google Drive integration (`appDataFolder`) · T2
 
+**v1.2.0 note:** getting backups to the PC no longer needs Drive. Wi-Fi sync (`src/features/sync`,
+`companion/sync.mjs`) sends each backup straight to the paired companion, encrypted, with no
+account and no cloud. What Drive would still add is an off-site copy that survives losing both the
+phone and the PC.
+
 Only worth it if you want the backup to be restorable on a device where the SAF folder is not
 already synced.
 

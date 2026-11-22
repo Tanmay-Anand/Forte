@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { sqlite } from '@/db/client';
 import type { Unit } from '@/lib/format';
+import type { Pairing } from '@/features/sync/link';
 
 export type ThemePreference = 'system' | 'dark' | 'light';
 
@@ -24,6 +25,14 @@ type SettingsState = {
   autoBackupDir: string | null;
   lastAutoBackupAt: number | null;
   lastAutoBackupError: string | null;
+  /** Wi-Fi sync: the PC this phone sends to (src/features/sync). Never leaves the phone in a backup. */
+  pcSync: Pairing | null;
+  /** Data changed since the PC last confirmed a backup. */
+  pcPending: boolean;
+  pcLastSentAt: number | null;
+  /** Address that answered last; tried first next time. */
+  pcLastHost: string | null;
+  pcLastError: string | null;
   loaded: boolean;
   load: () => void;
   set: <K extends keyof Persisted>(key: K, value: Persisted[K]) => void;
@@ -43,6 +52,11 @@ type Persisted = Pick<
   | 'autoBackupDir'
   | 'lastAutoBackupAt'
   | 'lastAutoBackupError'
+  | 'pcSync'
+  | 'pcPending'
+  | 'pcLastSentAt'
+  | 'pcLastHost'
+  | 'pcLastError'
 >;
 
 const DEFAULTS: Persisted = {
@@ -60,6 +74,11 @@ const DEFAULTS: Persisted = {
   autoBackupDir: null,
   lastAutoBackupAt: null,
   lastAutoBackupError: null,
+  pcSync: null,
+  pcPending: false,
+  pcLastSentAt: null,
+  pcLastHost: null,
+  pcLastError: null,
 };
 
 function readAll(): Partial<Persisted> {

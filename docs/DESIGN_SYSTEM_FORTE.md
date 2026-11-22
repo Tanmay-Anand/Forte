@@ -1,8 +1,9 @@
 # Forte — Design System
 
 The working reference for building Forte's UI: every token, every component, and the rules that
-connect them. It describes **what the code does today** (after the post-v1.1.0 design-system pass),
-checked against `src/ui/` and the feature components.
+connect them. It describes **what the code does today** (v1.2.0: the post-v1.1.0 design-system pass, plus drop
+sets, the body figure and Wi-Fi sync to the PC companion), checked against `src/ui/` and the
+feature components.
 
 Companion documents: [`DESIGN.md`](DESIGN.md) explains *why* (product intent, screens,
 interaction). This file explains *how* (the system you build with). Where they disagree,
@@ -25,12 +26,12 @@ free hand. Every rule below follows from that.
 | Principle | System consequence |
 |---|---|
 | **The brightest thing is the thing to do** | The `accent` fill appears on exactly four things: the primary `Button`, the pill nav's selected disc, the keypad's **Done** (the sheet's own primary action), and the half-second set flash. Selection elsewhere uses a border, not accent |
-| **Colour means state, never decoration** | `rest` blue appears only while a rest timer runs. `focus` teal marks live or "now" data. `positive`/`negative` appear only next to a delta |
+| **Colour means state, never decoration** | `rest` blue appears only while a rest timer runs. `focus` teal marks live or "now" data, and how much each muscle was trained on the body figure (one hue, five strengths). `positive`/`negative` appear only next to a delta |
 | **Numbers are the content** | Large numerals and a dedicated `num` style. Anything that ticks uses fixed-width digits (`TabularDigits`), so clocks never shuffle sideways |
 | **Depth by tone and line, not shadow** | Four background tones plus three line tones. No drop shadows anywhere |
 | **Every target is thumb-sized** | 48 dp minimum, a 60 dp primary action, a 68 dp in-workout action |
 | **Feedback is visual only** | No haptics. The set-completion flash *is* the confirmation, so it is never subtle |
-| **Quiet voice** | Typographic, no emoji, no illustrations, no celebration beyond one flash |
+| **Quiet voice** | Typographic, no emoji, no illustrations, no celebration beyond one flash. The body figure is data drawn on anatomy, not decoration |
 
 ---
 
@@ -301,7 +302,9 @@ const { c, name, reducedMotion, fontsReady } = useTheme(); // or useColors() for
 | **`NumberWell`** | `features/workout/NumberWell.tsx` | 106 high (two 48 dp steppers + 8 dp gap + border), `bgSunken`, radius 14, `lineStrong` border. `displayL` value on the left (auto-shrink kept as a backstop); a 49 dp column on the right, behind a hairline, holds Feather `plus` over `minus`; `label` unit below. Sized by the caller (`style`) | Two inputs: steppers (hold to repeat, accelerating) and tap-for-keypad. The column costs 48 dp where flanking steppers cost 112, so "102.5" (95.5 dp) renders at full size in the ~103 dp value area at 360 dp. Wells sit side by side, and stack when OS font scale ≥ 1.5. Drag-to-scrub was removed: the scroll view stole it once the screen could scroll |
 | **`NumericKeypad`** | `features/workout/NumericKeypad.tsx` | Bottom sheet over `scrim`, top radius 28; `displayL` read-out; 3 × 4 grid of 64 pt keys in `titleL`; Cancel / **Done** 56 pt, radius 14. Done is accent-filled | Digits where the thumb is. The first key press replaces the value. The sheet is its own context, so Done is its one accent action |
 | **`SetTable`** / `LoggedRow` | `features/workout/SetTable.tsx` | `num` rows, `label` headers in `textTertiary`, a `positive` tick per logged set, optional inline `rest mm:ss`. The set and reps columns (44 and 72 dp) scale with the OS font size, capped at 1.5×. Flash per §2.7: accent fill plus a crossfaded `accentInk` copy, mounted only on the flashing row and hidden from screen readers | Recessive by design: logged rows stay quiet so the eye stays on the active row. The flash is the commit confirmation, and it's legible (inverted ink) even on a skipped row |
-| **`PreviousLine`** | same | `label` + `caption`, both `textSecondary` | The number you're trying to beat, read at arm's length, so it must be plainly legible. Still a step below today's primary-tone values |
+| **Drop row** | same | A `LoggedRow` directly under its set. The set-number cell holds Feather `corner-down-right` at 16 in `textTertiary` (`accentInk` while flashing) instead of a number; no rest cell. Tap edits, hold removes. Spoken as "Drop 1 of set 2, 25 kilograms, 8 reps" | Reads as part of the set above, not a new set. An icon, not a "↳" glyph: the glyph rendered tiny and off-baseline in Urbanist |
+| **`PreviousLine`** | same | `label` + `caption`, both `textSecondary`. Drops join their set with " ↘ ": `40 × 5 ↘ 25 × 8` | The number you're trying to beat, read at arm's length, so it must be plainly legible. Still a step below today's primary-tone values |
+| **Drop-set controls** | `app/workout/active.tsx` | After a completed set: a **Drop set** `ControlChip` (Feather `corner-right-down`), **Another drop** once one exists. In drop mode the wells pre-fill about 25% lighter (rounded to the exercise's weight step, same reps), the label reads "Drop *k* · set *n*", a **Cancel drop** chip appears, the rest panel hides, and the primary button reads **COMPLETE DROP** | One extra tap per drop and no new screen. Drops have no rest of their own: completing one restarts the rest clock from the last drop |
 | **`RestPanel`** | `features/workout/RestPanel.tsx` | `bgRaised` bar, radius 20, **3 px `rest` left edge**, `REST` / `REST · PAUSED` label, `displayM` `TabularDigits` clock at 60% opacity when paused, three 44 pt round controls on `bgSunken` | A compact bar, not a takeover. While resting it sits **above** the next set's inputs (rest, then set *n*), so it stays on screen at 360 dp and at large text sizes. Counts up, because there's no target to count down to |
 | **`RestClock`** / **`WorkoutClock`** | same | `TabularDigits`; isolated 1 s re-render, derived from timestamps; spoken labels ("Rest 1 minute 42 seconds, paused") with live region off | The battery and correctness pattern for live values |
 | **`ResumeBar`** | `features/workout/ResumeBar.tsx` | 46 high pill, `bgElevated` + `lineFloating`, 7 pt status dot (`rest` while resting, else `focus`), name (truncates, with `space.s` before the clocks) + both clocks | The minimised workout is never lost |
@@ -311,7 +314,13 @@ const { c, name, reducedMotion, fontsReady } = useTheme(); // or useColors() for
 | **Insight card** | `features/insights/InsightsView.tsx` | `Card`: `label` kind + `caption` span, `bodyStrong` exercise, `body` text in `textSecondary`. Tap opens the lift | At most five. Every card names its numbers and period. No icons, no colour coding |
 | **`FlagChip`** | `features/labs/FlagChip.tsx` | Outlined pill, 1 px `textSecondary`, `caption` "Above range" / "Below range" | Neutral, not red: it states where a value sits against the lab's range. The words carry the meaning |
 | **`AddResultSheet`** | `features/labs/AddResultSheet.tsx` | Full-screen `SystemModal`: marker search (or create), then value, unit and the lab's range | Ranges are optional and open-ended, as printed |
-| **Claude reply** | `app/session/[id].tsx` | `Card` headed "From Claude, pasted by you" in `label`, text `selectable` | Kept visually apart from recorded numbers, and always labelled as Claude's |
+| **AI reply** | `app/session/[id].tsx` | `Card` headed "From AI, pasted by you" in `label`, text `selectable` | Kept visually apart from recorded numbers, and always labelled as the AI's |
+| **`BodyFigures`** | `features/body/BodyFigures.tsx` | Front and back side by side, from MuscleMap photos (MIT). Per figure: a grey base image, then at most five copies of a teal-glow image (one per theme), each clipped to the outlines of the muscles at that level and drawn at opacity .16 / .32 / .5 / .7 / .92. Levels come from `shadeLevels` (1–5 by share of the busiest muscle; 0 untrained). With `onSelect`, near-invisible tap paths sit on top and the selected muscle gets a 5-unit `textPrimary` outline. One `accessibilityLabel` lists the muscles in words | Static and memoised: drawn once when the screen opens, no animation, so it costs no battery afterwards. Images are baked offline (`tools/bake-body.mjs`); the phone only stacks them. Shading is one hue at five strengths, so it reads in both themes and never relies on a colour scale |
+| **`MusclesWorked`** | `features/summary/MusclesWorked.tsx` | `SectionLabel` "Muscles worked" / "Sets", `BodyFigures`, a `caption` line "Chest 1 · Front delts 0.5 …" in `textSecondary`, and "Helper muscles count half a set." in `textTertiary` | The numbers under the picture make it exact; the picture makes it quick |
+| **Muscles map** | `features/insights/InsightsView.tsx` | `BodyFigures` over four weeks with tap to select; "Most:" and "Least:" captions (least sorts never-trained first); the selection shows sets a week, last trained, and the top three exercises | Answers "what have I been skipping" without a chart |
+| **Pair with PC** | `app/pair.tsx` | Pushed screen. A `Card` naming the PC (`label` "PC", `titleM` name, `num` addresses), a `body` sentence saying exactly what will be sent, a `caption` caution, then **Pair** (primary) and Cancel (ghost). Opened without a link, it explains the QR and offers a paste field. After pairing: "Paired" or "Paired, not sent yet" with the reason and what to check | A link that decides where your data goes is never applied silently (§6). Same screen for a camera scan, a paste, or a link from anywhere else |
+| **PC companion rows** | `app/settings.tsx` | Unpaired: a `caption` explaining it + a **Pair with PC** row. Paired: the PC name in `body` with one status `caption` below ("Up to date · sent 22 Nov, 14:53", "Waiting to send…", or "Not sent: …" in `negative`), then Send now, Pair again or change PC, Unpair (confirmed) | One line of status, always visible, instead of toasts. Errors say what to check |
+| **Sync status line** | `app/workout/summary.tsx` | Under Done, centred `caption` in `textTertiary`: "Sending to MSI…", "Sent to MSI", or "Not sent to MSI yet. Forte tries again…" | Confirms the hands-off flow worked without asking for attention. Never `negative` here: a pending send isn't a failure at this point |
 | **`ExercisePicker`** | `features/routine/ExercisePicker.tsx` | Sheet with a `body` search input, muscle-group chips, recents, multi-add; rows end in a Feather `plus`. Text actions (Done · n added, + Create) in `bodyStrong` `textPrimary` | Stays open for adding several exercises |
 
 ### 5.1 Surfaces outside the app UI
@@ -322,6 +331,9 @@ const { c, name, reducedMotion, fontsReady } = useTheme(); // or useColors() for
 | **Splash** | White **Forte.** wordmark on `#0A0A0B`, dark in both OS modes, held until fonts and database are ready |
 | **App icon** | Bordered dark square, off-centre white disc, wordmark low-left; adaptive foreground inset to 62% on `#1C1C1C` |
 | **Android nav bar** | Hidden; `overlay-swipe` reveals it over the app without moving the layout |
+| **Forte Companion** (`companion/web/`) | A local PC page in the same palette (CSS variables copied from `tokens.ts`, dark by default, light on a toggle) and Tabler icons. Not linted by the app's design rules. **Setup → Phone** card: last backup received (`focus` dot), a `warn` line in `--neg` when the PC's address changed, and the pairing QR |
+| **Pairing QR** | Black on white in both themes, 188 px, inside a radius-12 white tile. A deliberate exception to theming: phone cameras read dark-on-light most reliably. Steps beside it, the raw link and addresses folded under a `details`. Shown open until the first backup arrives, then behind **Pair again** |
+| **Pairing link** | `forte://pair?v=1&id=…&k=…&h=…&p=…&n=…` (`src/features/sync/link.ts`). Only home-network IPv4 addresses are accepted |
 
 ---
 
@@ -351,6 +363,15 @@ dialogs are unaffected by the hidden navigation bar and stay as they are.
 - Logging a set: the row flash, plus the rest panel appearing.
 - Pausing: the label text and 60% digits, never colour alone.
 - Navigating, scrolling and filtering: silent.
+
+**Links that move data.** A deep link or pasted code that would send data somewhere (pairing a
+PC) always lands on a confirmation screen that names the destination and says what will be sent.
+Nothing is applied from the link alone.
+
+**Background work.** Work the person didn't start by hand (sending to the PC, automatic backup)
+reports through one status line where they'd look for it: under Done on the summary, and under
+the feature's name in Settings. `textTertiary` when fine or pending, `negative` only for a
+failure that needs them, and the text says what to check. No toasts, no modals, no badges.
 
 **Empty states.** Context, guidance, one action. Never an illustration. The progress chart says
 how many more sessions it needs rather than drawing a line through two points.
@@ -430,3 +451,5 @@ Resolved in the design-system pass and removed from this table:
 | 5 | Figures | "Numbers don't jitter" | True for clocks (`TabularDigits`). Number wells, set tables and history use Urbanist's proportional figures, by decision (§2.2) | Nothing unless a static column visibly misaligns. If one does, a tabular typeface for numerals is the real fix |
 | 6 | Motion tokens | Every token has a reader | Nothing reads `duration.fast`, `base` or `slow` | Use them in the next animation, or remove them |
 | 7 | Transition timing | Transitions on `duration.*` | Android's native stack ignores durations, so screen transitions stay platform-timed | Accepted |
+| 9 | Glyph in text | §2.8: no Unicode glyphs as icons | `PreviousLine` joins drops with " ↘ " inside a `caption` string. It's a separator in prose, not a control, and looked right on the Android 16 emulator, but Urbanist may not carry it on every phone | If it renders as a box or emoji on a real phone, write "then drop" instead |
+| 10 | Companion colours | Every colour from tokens | The companion's CSS copies the palette by hand, and the QR tile is literal black and white (deliberately, §5.1). Nothing checks the copy against `tokens.ts` | Generate the companion's CSS variables from `tokens.ts` the next time the palette changes |

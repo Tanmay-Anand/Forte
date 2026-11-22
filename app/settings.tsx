@@ -16,12 +16,14 @@ import { useQuery } from '@/lib/db-hooks';
 import { describeTrainingShare } from '@/features/claude/share';
 import { autoBackupSupported, chooseBackupFolder, folderLabel, runAutoBackup } from '@/lib/auto-backup';
 import { formatClock, formatShortDate } from '@/lib/time';
+import { sendToPc, unpair } from '@/features/sync/engine';
 import { ensureNotificationPermission } from '@/features/workout/workout-notification';
 import type { Unit } from '@/lib/format';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const s = useSettings();
+  const { c } = useTheme();
   const [busy, setBusy] = useState(false);
   const replies = useQuery(() => countReplies(), []);
 
@@ -138,7 +140,7 @@ export default function SettingsScreen() {
       <SectionLabel>AI analysis</SectionLabel>
       <Text variant="caption" color="textTertiary" style={{ maxWidth: 460 }}>
         Forte never contacts an AI itself. "Ask AI" opens the share menu with a text summary, and you
-        pick the app — Claude, ChatGPT, Gemini; or save a backup to Google Drive for Forte Companion on your PC. A
+        pick the app: Claude, ChatGPT or Gemini. Forte Companion on your PC (below) can review it too. A
         summary includes {describeTrainingShare()}.
       </Text>
       <Toggle
@@ -166,13 +168,65 @@ export default function SettingsScreen() {
         />
       ) : null}
 
+      <Spacer h={space.xl} />
+      <SectionLabel>PC companion</SectionLabel>
+      {s.pcSync ? (
+        <>
+          <View style={{ paddingVertical: space.m, borderBottomWidth: 1, borderColor: c.hairline }}>
+            <Text variant="body">{s.pcSync.name}</Text>
+            <Text
+              variant="caption"
+              color={s.pcLastError ? 'negative' : 'textTertiary'}
+              style={{ marginTop: space.xs, maxWidth: 460 }}
+            >
+              {s.pcLastError
+                ? `Not sent: ${s.pcLastError}`
+                : s.pcPending
+                  ? 'Waiting to send. Sends when the PC is on the same Wi-Fi.'
+                  : s.pcLastSentAt
+                    ? `Up to date · sent ${formatShortDate(s.pcLastSentAt)}, ${formatClock(s.pcLastSentAt)}`
+                    : 'Nothing sent yet.'}
+            </Text>
+          </View>
+          <Action
+            label="Send now"
+            onPress={() =>
+              void run('Send', async () => {
+                const r = await sendToPc();
+                if (r && !r.ok) throw new Error(r.error);
+              })
+            }
+            disabled={busy}
+          />
+          <Action label="Pair again or change PC" onPress={() => router.push('/pair')} disabled={busy} />
+          <Action
+            label="Unpair"
+            onPress={() =>
+              Alert.alert('Unpair this PC?', 'Forte stops sending backups to it. Backups already on the PC stay there.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Unpair', style: 'destructive', onPress: unpair },
+              ])
+            }
+            disabled={busy}
+          />
+        </>
+      ) : (
+        <>
+          <Text variant="caption" color="textTertiary" style={{ maxWidth: 460 }}>
+            Sends your backup to Forte Companion on your PC after every workout, over your home Wi-Fi.
+            Encrypted, no internet, no account, nothing to tap.
+          </Text>
+          <Action label="Pair with PC" onPress={() => router.push('/pair')} />
+        </>
+      )}
+
       {autoBackupSupported ? (
         <>
           <Spacer h={space.xl} />
           <SectionLabel>Automatic backup</SectionLabel>
           <Toggle
             label="Back up after every workout"
-            help="Saves a backup file to a folder you choose, each time you finish a workout. Keeps the newest 12. Point a sync app at the folder to copy it to Google Drive for Forte Companion on your PC. The file is not encrypted."
+            help="Saves a backup file to a folder on this phone each time you finish a workout. Keeps the newest 12. A safety copy if the phone's data is ever lost; the PC companion doesn't need it. The file is not encrypted."
             value={s.autoBackup}
             onChange={(v) => {
               if (v && !s.autoBackupDir) {
@@ -214,9 +268,9 @@ export default function SettingsScreen() {
       <Spacer h={space.l} />
       <SectionLabel>Your data</SectionLabel>
       <Text variant="caption" color="textTertiary" style={{ marginBottom: space.m }}>
-        Everything lives on this device only. Nothing leaves it unless you export a backup or share
-        something yourself. Export regularly — a backup is the only thing standing between you and a
-        lost phone.
+        Everything lives on this device. Nothing leaves it unless you export a backup, share something
+        yourself, or pair your PC above. Keep a copy somewhere — a backup is the only thing standing
+        between you and a lost phone.
       </Text>
 
       <Action label="Export backup (JSON)" onPress={() => void run('Export', exportJson)} disabled={busy} />
