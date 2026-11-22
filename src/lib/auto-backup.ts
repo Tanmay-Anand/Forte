@@ -9,8 +9,8 @@ import { useSettings } from '@/store/settings';
  * background task, no network: one small file write when a workout finishes,
  * which is when the data changed and the app is already open.
  *
- * The folder can be one a sync app mirrors to Google Drive, which is how the
- * PC companion gets the backups without anyone tapping Share.
+ * A safety copy on the phone. The PC companion gets its backups over Wi-Fi
+ * (src/features/sync), though a folder a sync app mirrors still works too.
  *
  * Keeps the newest KEEP automatic files and deletes older ones, so a bad
  * backup can never be the only one left. Files made by hand are never touched.

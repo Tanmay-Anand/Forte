@@ -11,10 +11,13 @@
  * never disagree. The phone's sharing settings (notes, body data) travel in
  * the backup and are respected here.
  *
- * Node built-ins only. Listens on 127.0.0.1 and answers only its own page.
+ * Node built-ins only. The page listens on 127.0.0.1 and answers only itself.
+ * Wi-Fi sync (sync.mjs) is a separate listener that only accepts sealed
+ * backups from the paired phone.
  */
 import http from 'node:http';
 import { readFile, readdir, stat } from 'node:fs/promises';
+import os from 'node:os';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,12 +41,18 @@ import {
 import { formatVolume, formatWeight, trimNumber } from '../src/lib/format.ts';
 import { formatDuration, formatMinutes, formatShortDate } from '../src/lib/time.ts';
 import { ask, availability } from './providers.mjs';
+import { lanAddresses, loadPairing, pairLink, qrSvg, RECEIVED_PREFIX, startSyncServer } from './sync.mjs';
+import { isPrivateIPv4, SYNC_PORT } from '../src/features/sync/link.ts';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 4174;
 const ORIGINS = new Set([`http://127.0.0.1:${PORT}`, `http://localhost:${PORT}`]);
 const MAX_BODY = 256 * 1024;
 const WINDOW_MS = 56 * 86_400_000;
+const PAIRING_FILE = path.join(ROOT, 'pairing.json');
+const RECEIVED_DIR = path.join(ROOT, 'received');
+const SYNC_HOST = process.env.FORTE_SYNC_HOST ?? '0.0.0.0';
+const SYNC_LISTEN_PORT = Number(process.env.FORTE_SYNC_PORT) || SYNC_PORT;
 
 const STATIC = {
   '/': ['web/index.html', 'text/html; charset=utf-8'],
@@ -59,7 +68,7 @@ for (const body of ['male-front', 'male-back', 'female-front', 'female-back']) {
 
 // ------------------------------------------------------------------ backup
 
-/** config.json overrides; FORTE_BACKUP_DIR wins over both. Default: the bundled sample. */
+/** config.json, or FORTE_BACKUP_DIR, names an extra folder (Google Drive); null when neither is set. */
 function backupFolder() {
   if (process.env.FORTE_BACKUP_DIR) return process.env.FORTE_BACKUP_DIR;
   const file = path.join(ROOT, 'config.json');
@@ -67,25 +76,44 @@ function backupFolder() {
     const folder = JSON.parse(readFileSync(file, 'utf8')).backupFolder;
     if (folder) return folder;
   }
-  return path.join(ROOT, 'sample');
+  return null;
 }
 
-/** Newest forte-backup*.json by modified time — hand exports and automatic ones alike. */
-async function newestBackup() {
-  const folder = backupFolder();
+/** forte-backup*.json files in a folder, each with the time its data is from. Null if the folder is missing. */
+async function backupsIn(folder) {
   let names;
   try {
     names = await readdir(folder);
   } catch {
-    return { folder, file: null, error: 'Folder not found. Set backupFolder in companion/config.json.' };
+    return null;
   }
-  let best = null;
+  const out = [];
   for (const name of names.filter((n) => /^forte-backup.*\.json$/i.test(n))) {
-    const s = await stat(path.join(folder, name));
-    if (!best || s.mtimeMs > best.mtimeMs) best = { name, mtimeMs: s.mtimeMs };
+    // Wi-Fi backups are named by the phone's export time; others go by modified time.
+    const exported = name.startsWith(RECEIVED_PREFIX) ? Number(name.slice(RECEIVED_PREFIX.length, -5)) : NaN;
+    const at = Number.isFinite(exported) ? exported : (await stat(path.join(folder, name))).mtimeMs;
+    out.push({ folder, name, at });
   }
-  if (!best) return { folder, file: null, error: 'No forte-backup file in this folder yet.' };
-  return { folder, file: best.name };
+  return out;
+}
+
+/**
+ * The newest backup across Wi-Fi sync's folder and the configured one, by the
+ * time its data is from. The bundled sample only when neither has a file.
+ */
+async function newestBackup() {
+  const extra = backupFolder();
+  const received = (await backupsIn(RECEIVED_DIR)) ?? [];
+  const configured = extra ? await backupsIn(extra) : [];
+  const all = [...received, ...(configured ?? [])].sort((x, y) => y.at - x.at);
+  if (all.length) return { folder: all[0].folder, file: all[0].name };
+  if (extra && configured === null) {
+    return { folder: extra, file: null, error: 'Folder not found. Check backupFolder in companion/config.json.' };
+  }
+  const sample = path.join(ROOT, 'sample');
+  const samples = (await backupsIn(sample)) ?? [];
+  if (samples.length) return { folder: sample, file: samples[0].name, sample: true };
+  return { folder: RECEIVED_DIR, file: null, error: 'No backup yet. Pair your phone on the Setup page.' };
 }
 
 async function loadBundle() {
@@ -207,6 +235,7 @@ function analysis(found, bundle) {
   return {
     file: found.file,
     folder: found.folder,
+    sample: Boolean(found.sample),
     exportedAt: bundle.exportedAt,
     unit,
     sharing: { notes: options.includeNotes, body: Boolean(options.body) },
@@ -335,6 +364,13 @@ const server = http.createServer(async (req, res) => {
       if (!bundle) return json(res, 404, found);
       return json(res, 200, analysis(found, bundle));
     }
+    if (req.method === 'GET' && url.pathname === '/api/sync') {
+      return json(res, 200, syncStatus());
+    }
+    if (req.method === 'POST' && url.pathname === '/api/sync/new-key') {
+      loadPairing(PAIRING_FILE, { fresh: true });
+      return json(res, 200, syncStatus());
+    }
     if (req.method === 'GET' && url.pathname === '/api/providers') {
       return json(res, 200, { providers: await availability() });
     }
@@ -369,7 +405,38 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+/**
+ * What the Setup page shows: the pairing QR, the last backup received, and
+ * whether the phone can still reach this PC at the address it was given.
+ */
+function syncStatus() {
+  const pairing = loadPairing(PAIRING_FILE);
+  // FORTE_SYNC_ADVERTISE overrides the addresses in the QR (an emulator reaches the PC at 10.0.2.2).
+  const hosts = process.env.FORTE_SYNC_ADVERTISE
+    ? process.env.FORTE_SYNC_ADVERTISE.split(',')
+    : SYNC_HOST === '0.0.0.0'
+      ? lanAddresses()
+      : [SYNC_HOST];
+  const link = hosts.length ? pairLink(pairing, hosts, SYNC_LISTEN_PORT) : null;
+  const last = pairing.lastReceived;
+  return {
+    name: os.hostname(),
+    hosts,
+    port: SYNC_LISTEN_PORT,
+    link,
+    qr: link ? qrSvg(link) : null,
+    lastReceived: last ? { at: last.at, exportedAt: last.exportedAt, sessions: last.sessions } : null,
+    // The phone only knows the addresses in the QR it scanned. If the one it
+    // last reached is no longer this PC's, it needs to scan again.
+    // Only home-network addresses count: a loopback or tunnel address says nothing about the Wi-Fi.
+    addressChanged: Boolean(last?.to && isPrivateIPv4(last.to) && !hosts.includes(last.to)),
+  };
+}
+
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`Forte Companion on http://127.0.0.1:${PORT}`);
-  console.log(`Reading backups from ${backupFolder()}`);
+  const extra = backupFolder();
+  if (extra) console.log(`Also reading backups from ${extra}`);
 });
+
+startSyncServer({ pairingFile: PAIRING_FILE, receivedDir: RECEIVED_DIR, host: SYNC_HOST, port: SYNC_LISTEN_PORT });

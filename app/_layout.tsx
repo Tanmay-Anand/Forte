@@ -23,6 +23,7 @@ import {
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { palette } from '@/ui/tokens';
 import { hideNavigationBar } from '@/ui/system-bars';
+import { useSyncEngine } from '@/features/sync/engine';
 
 // Hold the native splash — the Forte wordmark on the dark ground — until the
 // database has migrated and Urbanist has loaded, so the first painted frame is
@@ -127,6 +128,7 @@ function Chrome() {
     reducedMotion ? ('fade' as const) : motion;
   useImmersiveNavigationBar();
   useWorkoutNotification();
+  useSyncEngine();
   return (
     <>
       <StatusBar style={name === 'dark' ? 'light' : 'dark'} />
@@ -160,6 +162,7 @@ function Chrome() {
         <Stack.Screen name="labs/marker/[id]" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="labs/read/[id]" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="claude/brief" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="pair" options={{ animation: slide('slide_from_right') }} />
       </Stack>
     </>
   );

@@ -52,7 +52,8 @@ function collect(): Bundle {
     sessions: all('sessions'),
     sessionExercises: all('session_exercises'),
     sets: all('sets'),
-    settings: all('settings'),
+    // pc* settings are this phone's Wi-Fi pairing, key included: never part of a backup.
+    settings: sqlite.getAllSync(`SELECT * FROM settings WHERE key NOT LIKE 'pc%';`),
     profile: all('profile'),
     bodyMeasurements: all('body_measurements'),
     aiAnalyses: all('ai_analyses'),
@@ -76,6 +77,11 @@ function timestampSlug(): string {
 /** The backup as text — what exportJson shares and the automatic backup writes. */
 export function backupJson(): string {
   return JSON.stringify(collect(), null, 2);
+}
+
+/** The backup as data, for Wi-Fi sync (src/features/sync/engine.ts). */
+export function collectBackup(): Bundle {
+  return collect();
 }
 
 /** Full JSON backup. Everything needed to rebuild the database. */

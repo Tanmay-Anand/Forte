@@ -41,6 +41,8 @@ const store = {
 let data = null; // /api/analysis
 let dataError = null;
 let providers = null; // /api/providers
+let sync = null; // /api/sync: pairing QR and the last backup received over Wi-Fi
+let showPairing = false;
 // The conversation lives for the life of the page, across sections.
 const chat = { messages: [], busy: false, brief: null, healthIds: new Set(), healthOk: false };
 
@@ -78,6 +80,17 @@ async function loadData() {
     $('#source').textContent = 'Offline';
   }
 }
+
+async function loadSync() {
+  try {
+    sync = await (await fetch('/api/sync')).json();
+  } catch {
+    sync = null;
+  }
+}
+
+const when = (t) =>
+  new Date(t).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 async function loadProviders() {
   try {
@@ -154,6 +167,7 @@ function home(host) {
     <div>
       <div class="card">
         <h1>Welcome back</h1>
+        ${data.sample ? '<p class="note">Showing the invented sample. Pair your phone on the <a href="#/setup">Setup</a> page to see your own training.</p>' : ''}
         ${l ? `<div class="lastrow"><span class="dot"></span>
           <div style="flex:1;min-width:200px"><b>${esc(l.name)} · ${esc(l.date)}</b>
             <div class="faint" style="font-size:13px">${esc(l.duration)} · ${l.sets} sets · ${esc(l.volume)}${l.effort ? ` · ${esc(l.effort)}` : ''}</div>
@@ -466,14 +480,11 @@ function setup(host) {
       ${current ? `<p class="note">${esc(current.privacy)}</p>` : ''}
     </div>
     <div class="stack">
-      <div class="card"><h2>Backups</h2>
+      ${phoneCard()}
+      <div class="card"><h2>Reading</h2>
         <p class="muted" style="margin-top:6px">${data ? `<b>${esc(data.file)}</b> in <code>${esc(data.folder)}</code>` : esc(dataError ?? '')}</p>
-        <ol class="steps" style="margin-top:12px">
-          <li>Phone: Analyse with AI → Send backup → Drive → <code>Forte</code>, or Settings → Automatic backup with a sync app.</li>
-          <li>PC: Google Drive for desktop shows it as <code>G:\\My Drive\\Forte</code>.</li>
-          <li>Set <code>backupFolder</code> in <code>companion\\config.json</code>.</li>
-        </ol></div>
-      <div class="card"><h2>Privacy</h2><p class="muted" style="margin-top:6px">This page runs only on this PC. The backup file isn't encrypted.</p></div>
+        <p class="note">Wi-Fi backups and, if <code>backupFolder</code> is set in <code>companion\\config.json</code>, files in that folder too. The newest wins.</p></div>
+      <div class="card"><h2>Privacy</h2><p class="muted" style="margin-top:6px">This page runs only on this PC. Backups travel encrypted over your Wi-Fi and are saved unencrypted in <code>companion\\received</code>.</p></div>
     </div>
   </div>`;
 
@@ -489,11 +500,61 @@ function setup(host) {
     store.set(`model.${current.id}`, e.target.value);
     render();
   });
+  $('#showPair')?.addEventListener('click', () => {
+    showPairing = !showPairing;
+    render();
+  });
+  $('#newKey')?.addEventListener('click', async () => {
+    const b = $('#newKey');
+    if (b.dataset.armed !== '1') {
+      b.dataset.armed = '1';
+      b.innerHTML = '<i class="ti ti-alert-triangle"></i>Click again to confirm';
+      return;
+    }
+    sync = await (await fetch('/api/sync/new-key', { method: 'POST' })).json();
+    showPairing = true;
+    render();
+    toast('New key made. Scan the code on your phone.');
+  });
   $('#refreshAi').addEventListener('click', async () => {
     await loadProviders();
     render();
   });
   return 'Setup';
+}
+
+/** Wi-Fi sync: the last backup received, and the pairing QR when asked for (or before the first). */
+function phoneCard() {
+  if (!sync) return '<div class="card"><h2>Phone</h2><p class="muted" style="margin-top:6px">Checking…</p></div>';
+  const last = sync.lastReceived;
+  const open = showPairing || !last;
+  const status = last
+    ? `<p style="margin-top:6px"><span class="dot"></span> Last backup <b>${esc(when(last.at))}</b>${last.sessions != null ? ` · ${last.sessions} workouts` : ''}</p>`
+    : '<p class="muted" style="margin-top:6px">Not paired yet. Your phone sends its backup here over Wi-Fi after every workout.</p>';
+  const moved = sync.addressChanged
+    ? '<p class="warn" style="margin-top:10px"><i class="ti ti-alert-triangle"></i> This PC\'s address changed since the phone last reached it. Scan the code again on the phone.</p>'
+    : '';
+  const pair = !open
+    ? ''
+    : sync.qr
+      ? `<div class="pairing">
+          <div class="qr">${sync.qr}</div>
+          <ol class="steps">
+            <li>Open the <b>camera</b> on your phone and point it at this code. Tap the link to open Forte, then <b>Pair</b>.</li>
+            <li>No link? In Forte: Settings → PC companion → <b>Pair with PC</b>, and paste the link below.</li>
+            <li>When Windows asks, allow Node.js on <b>private networks</b> only.</li>
+          </ol>
+        </div>
+        <details style="margin-top:10px"><summary class="faint">Pairing link and addresses</summary>
+          <p class="note">${sync.hosts.map((h) => `<code>${esc(h)}:${sync.port}</code>`).join(' ')}</p>
+          <textarea class="linkbox" readonly rows="3">${esc(sync.link)}</textarea></details>
+        <p class="note">The code holds the key to your backups. Show it only to your own phone.</p>`
+      : '<p class="warn" style="margin-top:10px">No home-network address found. Connect this PC to your Wi-Fi or router.</p>';
+  return `<div class="card"><div class="headrow"><h2>Phone</h2>
+      ${last ? `<button class="btn ghost sm" id="showPair"><i class="ti ti-qrcode"></i>${open ? 'Hide code' : 'Pair again'}</button>` : ''}</div>
+    ${status}${moved}${pair}
+    ${open && last ? '<button class="btn ghost sm" id="newKey" style="margin-top:12px"><i class="ti ti-key"></i>Make a new key</button><p class="note">A new key stops the paired phone until it scans again. Use it if the code was seen by someone else.</p>' : ''}
+  </div>`;
 }
 
 // ------------------------------------------------------------------ router
@@ -534,6 +595,23 @@ $('#reload').addEventListener('click', async () => {
 window.addEventListener('hashchange', render);
 // Draw as soon as the numbers are in; checking which AI tools are installed
 // takes a moment, so it fills in afterwards.
-await loadData();
+await Promise.all([loadData(), loadSync()]);
 render();
 loadProviders().then(render);
+
+// A new backup from the phone shows up on its own: a cheap local check every
+// 10 seconds while this tab is visible.
+setInterval(async () => {
+  if (document.hidden) return;
+  const before = sync?.lastReceived?.at ?? null;
+  const changedHosts = JSON.stringify(sync?.hosts ?? []);
+  await loadSync();
+  const after = sync?.lastReceived?.at ?? null;
+  if (after !== before) {
+    await loadData();
+    render();
+    toast('New backup from your phone.');
+  } else if (render.last === 'setup' && JSON.stringify(sync?.hosts ?? []) !== changedHosts) {
+    render();
+  }
+}, 10_000);

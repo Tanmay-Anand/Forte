@@ -185,8 +185,8 @@ export default function ProfileScreen() {
       <Spacer h={space.xl} />
       <Divider />
       <Text variant="caption" color="textTertiary" style={{ marginTop: space.l, maxWidth: 460 }}>
-        Stored on this phone only. Nothing here leaves it unless you export a backup or share it with
-        an AI app yourself.
+        Stored on this phone. Nothing here leaves it unless you export a backup, share it with an AI
+        app yourself, or pair your PC in Settings.
       </Text>
       <NavRow label="Delete all health data" tone="negative" onPress={deleteAll} />
 

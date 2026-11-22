@@ -2,7 +2,7 @@
   "expo": {
     "name": "Forte",
     "slug": "forte",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "default",
     "scheme": "forte",
     "userInterfaceStyle": "automatic",
@@ -13,7 +13,7 @@
     ],
     "android": {
       "package": "com.forte.tracker",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1C1C1C"
@@ -53,6 +53,7 @@
         {
           "android": {
             "enableProguardInReleaseBuilds": true,
+            "usesCleartextTraffic": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "useLegacyPackaging": true
           }

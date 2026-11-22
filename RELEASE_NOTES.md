@@ -5,9 +5,12 @@ A personal, offline-first health and training app for Android.
 
 ---
 
-## Unreleased
+## v1.2.0
 
-Rename this heading to the version number when tagging (`docs/RELEASING.md`).
+**This is a new APK, not an over-the-air update.** Wi-Fi sync adds one native module
+(`expo-crypto`, for random numbers) and allows plain connections to your own PC on the home
+network. Install it from GitHub Releases through Obtainium; over-the-air updates then continue as
+before. Everything up to drop sets also reached v1.1.0 over the air.
 
 Forte is now a personal health and training app. The workout screen is unchanged: everything new
 happens after Finish, or on screens you open on purpose. Plan and decisions:
@@ -64,10 +67,21 @@ happens after Finish, or on screens you open on purpose. Plan and decisions:
   session. Settings → AI analysis chooses whether notes and body data are included, and
   *Show what's shared* shows the exact text. Blood results are shared only from Blood reports, only
   the markers you tick, after a confirmation.
-- **Automatic backup** (Settings): after every workout, a backup file goes to a folder you choose
-  once. The newest 12 are kept. Point a sync app at the folder to get it to Google Drive.
-- **Forte Companion** (`companion/`): a local app for your PC that reads your newest backup from
-  Google Drive. Home, Training, Body, Health and Ask AI pages, in Forte's dark theme, and a chat with
+- **Wi-Fi sync to your PC** (Settings → PC companion). Pair once by pointing the phone's camera at
+  the QR code on Forte Companion's Setup page. After that, every finished workout reaches the PC by
+  itself: no Google Drive, no sync app, nothing to tap.
+  - **Private:** the backup is encrypted (AES-256-GCM) with a key only your phone and PC have, and
+    goes only to an address on your home network, never through the internet.
+  - **Reliable:** if the PC is off or you're away, Forte keeps the backup waiting and sends it the
+    next time both are on the same Wi-Fi. It never sends during a workout. The PC confirms each
+    backup with a sealed reply, so nothing else on the network can fake "received".
+  - **Visible:** the summary says "Sent to <PC>", Settings shows when it last went, and the
+    companion shows the new backup within ten seconds.
+  - Making a new key on the PC stops the old pairing at once. Unpair any time in Settings.
+- **Automatic backup** (Settings): after every workout, a backup file goes to a folder on the phone
+  you choose once. The newest 12 are kept. A safety copy; the companion no longer needs it.
+- **Forte Companion** (`companion/`): a local app for your PC that receives your backups over
+  Wi-Fi (or reads them from a Google Drive folder). Home, Training, Body, Health and Ask AI pages, in Forte's dark theme, and a chat with
   Claude, ChatGPT, Gemini or an offline model — each through its own login, no API keys. For
   Claude you choose Sonnet 5.5 (the default), Opus 5.5 or Haiku 5.5 in Setup. The Body page shades
   a realistic front and back body by how much each muscle was trained (body diagrams and photos
@@ -81,7 +95,7 @@ happens after Finish, or on screens you open on purpose. Plan and decisions:
 - **Backup format 2.** Backups now include effort ratings, your profile and measurements, saved
   AI replies and blood-report records. Report files are not included. Older backups still
   import, and leave health data untouched.
-- Privacy wording: data leaves the phone only when you export it or share it yourself.
+- Privacy wording: data leaves the phone only when you export it, share it yourself, or pair a PC.
 
 **Fixed**
 
