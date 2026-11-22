@@ -172,8 +172,6 @@ export const WORKOUT_ACTION_HEIGHT = 60;
 /** The labelled tab bar, DESIGN.md section 4: fixed, outside the scroll area. */
 export const TAB_BAR = { height: 64 } as const;
 
-/** @deprecated The floating pill nav; removed with PillNav when the tab bar lands. */
-export const NAV = { height: 64, button: 52, inset: 18, clearance: 64 + 18 + 16 } as const;
 
 /** Motion durations in ms. Every timed animation reads one of these. */
 export const duration = {
@@ -193,6 +191,4 @@ export const duration = {
  */
 export const spring = {
   tab: { damping: 18, stiffness: 220, mass: 0.9 },
-  /** @deprecated PillNav's disc; removed with PillNav. */
-  nav: { damping: 18, stiffness: 220, mass: 0.9 },
 } as const;

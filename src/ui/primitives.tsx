@@ -11,8 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from './Text';
 import { Icon, type IconName } from './Icon';
 import { useTheme } from './theme';
-import { gutter, radius, space, HIT, NAV } from './tokens';
-import { useNavOverlay } from './nav-overlay';
+import { gutter, radius, space, HIT } from './tokens';
 
 /** Responsive gutter — DESIGN.md 8. Interaction model never changes, only density. */
 export function useGutter(): number {
@@ -35,21 +34,15 @@ export function Screen({
   style,
   contentStyle,
   edges = ['top'],
-  /** Screens inside the tab stack must clear the floating pill nav. */
-  navClearance = false,
 }: {
   children: React.ReactNode;
   scroll?: boolean;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
   edges?: ('top' | 'bottom')[];
-  navClearance?: boolean;
 }) {
   const { c } = useTheme();
   const g = useGutter();
-  // The measured overlay grows when ResumeBar or UpdateBar appears, so the last
-  // row of a list is never hidden behind them.
-  const overlay = useNavOverlay((s) => s.height);
   const body = (
     <View style={[{ paddingHorizontal: g, maxWidth: 1100, width: '100%', alignSelf: 'center' }, contentStyle]}>
       {children}
@@ -61,7 +54,9 @@ export function Screen({
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
-            paddingBottom: navClearance ? (overlay || NAV.clearance) + space.xl : space.xxxl,
+            // The tab bar sits below the screen rather than over it, so the
+            // last row only needs ordinary breathing room.
+            paddingBottom: space.xxxl,
           }}
           showsVerticalScrollIndicator={false}
         >

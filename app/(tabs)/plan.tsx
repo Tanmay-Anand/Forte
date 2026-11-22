@@ -12,11 +12,11 @@ import { getWeek, type RoutineDaySummary } from '@/db/queries/routine';
 import { dayShort, todayDayOfWeek } from '@/lib/time';
 
 /**
- * Week — DESIGN.md 5.2.
+ * Plan (the weekly split) — DESIGN.md 5.2.
  * A schedule, not a calendar: seven fixed rows, no dates, no month grid. This
  * is the recurring template, not a diary.
  */
-export default function WeekScreen() {
+export default function PlanScreen() {
   const router = useRouter();
   const week = useQuery(() => getWeek(), []);
   const today = todayDayOfWeek();
@@ -29,9 +29,9 @@ export default function WeekScreen() {
   const columns = breakpoint === 'mobile' ? 1 : 2;
 
   return (
-    <Screen navClearance>
+    <Screen>
       <Spacer h={space.l} />
-      <Text variant="titleM">Week</Text>
+      <Text variant="displayM">Plan</Text>
       <Text variant="caption" color="textSecondary" style={{ marginTop: space.xs }}>
         Your training split
       </Text>

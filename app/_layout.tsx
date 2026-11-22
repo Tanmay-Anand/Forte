@@ -165,6 +165,7 @@ function Chrome() {
         <Stack.Screen name="workout/summary" options={{ gestureEnabled: false }} />
         <Stack.Screen name="day/[day]" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="session/[id]" options={{ animation: slide('slide_from_right') }} />
+        <Stack.Screen name="lift/[id]" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="settings" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="body/[kind]" options={{ animation: slide('slide_from_right') }} />
         <Stack.Screen name="body/measurements" options={{ animation: slide('slide_from_right') }} />

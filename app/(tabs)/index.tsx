@@ -44,7 +44,7 @@ export default function TodayScreen() {
   };
 
   return (
-    <Screen navClearance>
+    <Screen>
       <View
         style={{
           flexDirection: 'row',
@@ -62,7 +62,7 @@ export default function TodayScreen() {
       </View>
 
       {day?.state === 'unconfigured' ? (
-        <NoRoutine onPlan={() => router.push('/week')} />
+        <NoRoutine onPlan={() => router.push('/plan')} />
       ) : day?.state === 'rest' ? (
         <RestDay dow={dow} onAdd={() => router.push(`/day/${dow}`)} />
       ) : (
