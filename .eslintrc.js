@@ -27,7 +27,8 @@ const designSystem = [
 
 module.exports = {
   extends: 'expo',
-  ignorePatterns: ['/dist/*', '/.expo/*', '/android/*', '/ios/*', 'expo-env.d.ts', '/vendor/qrcode/*'],
+  // /Documents holds local design work (mockups, handover), never shipped.
+  ignorePatterns: ['/dist/*', '/.expo/*', '/android/*', '/ios/*', 'expo-env.d.ts', '/vendor/qrcode/*', '/Documents/*'],
   rules: {
     'no-restricted-syntax': ['error', ...designSystem],
     'no-restricted-imports': [
