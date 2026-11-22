@@ -21,3 +21,6 @@ companion/config.json
 companion/pairing.json
 companion/pairing.json.tmp
 companion/received/
+
+# Local design handover (screenshots and notes), never committed
+Documents/Master Design Document/
