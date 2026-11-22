@@ -66,8 +66,18 @@ is the same signing key as every earlier `npm run build:apk`, so each APK instal
 Expect 15–30 minutes, most of it in the EAS free-tier queue. Obtainium picks the release up on its
 next check.
 
-**Never reuse or move a tag.** Obtainium compares the release tag with the installed version.
-A release whose tag doesn't match the APK's version makes it offer the same update forever.
+**Never reuse or move a tag** once a release exists for it. Obtainium compares the release tag
+with the installed version. A release whose tag doesn't match the APK's version makes it offer the
+same update forever. (A tag whose build failed before publishing anything can be moved: Obtainium
+never saw it. v1.2.0 was moved once for this reason.)
+
+**The lockfile must suit CI's npm.** CI runs Node 22, which ships npm 10. `npm ci` there refuses a
+lockfile written by a newer npm if entries are missing (v1.2.0's first build failed on
+`@emnapi/core`). After adding or removing a dependency, rewrite the lockfile with npm 10:
+
+```bash
+npx npm@10 install --package-lock-only
+```
 
 No CI? You can do the same by hand. Run `npm run build:apk`, download the APK from the EAS build
 page, and create a GitHub release with tag `v1.2.0` and the file attached as `forte-v1.2.0.apk`.
