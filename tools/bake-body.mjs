@@ -157,7 +157,7 @@ async function images() {
       const d = await diagram(sex, view);
       bodies.push({ sex, view, outline: d.outline.map((o) => o.d).join(' ') });
     }
-  const job = { crop: CROP, scale: SCALE, grey: GREY, teal: { dark: palette.dark.focus, light: palette.light.focus }, bodies };
+  const job = { crop: CROP, scale: SCALE, grey: GREY, teal: { dark: palette.dark.now, light: palette.light.now }, bodies };
   const out = path.join(ROOT, 'assets/body');
   await mkdir(out, { recursive: true });
 

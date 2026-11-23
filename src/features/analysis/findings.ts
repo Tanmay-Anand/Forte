@@ -1,4 +1,4 @@
-import { formatVolume, formatWeight, trimNumber, type Unit } from '../../lib/format.ts';
+import { formatVolume, formatWeight, plural, trimNumber, type Unit } from '../../lib/format.ts';
 import { formatDuration, formatShortDate } from '../../lib/time.ts';
 import { DAY_MS, mean, median } from './history.ts';
 import { balanceFindings, muscleBalance } from './balance.ts';
@@ -56,7 +56,7 @@ export function exerciseFindings(eh: ExerciseHistory, unit: Unit): Finding[] {
   const last = p[p.length - 1]!;
   const out: Finding[] = [];
   const base = { exerciseId: eh.exerciseId, exerciseName: eh.name };
-  const load = (w: number, r: number) => (w > 0 ? `${formatWeight(w, unit)} × ${r}` : `${r} reps`);
+  const load = (w: number, r: number) => (w > 0 ? `${formatWeight(w, unit)} × ${r}` : plural(r, 'rep'));
 
   // Plateau: the same top weight and reps at it, session after session.
   let flat = 1;

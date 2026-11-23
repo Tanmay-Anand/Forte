@@ -215,6 +215,10 @@ async function render(n: NotifeeLib): Promise<void> {
     body,
     android: {
       channelId: CHANNEL_ID,
+      // White mountain-range silhouette, put into the build by
+      // plugins/with-notification-icon.js. Without it Android shows the
+      // launcher icon as a blank shape in the status bar.
+      smallIcon: 'ic_stat_forte',
       category: n.AndroidCategory.PROGRESS,
       visibility: n.AndroidVisibility.PUBLIC,
       ongoing: true,

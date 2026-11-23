@@ -1,3 +1,4 @@
+import { plural } from '../../lib/format.ts';
 import { formatShortDate } from '../../lib/time.ts';
 import { DAY_MS } from './history.ts';
 import type { Finding } from './findings.ts';
@@ -79,7 +80,7 @@ export function balanceFindings(b: MuscleBalance): Finding[] {
       id: 'balance:no_legs',
       kind: 'muscle_balance',
       title: 'No leg work',
-      text: `No leg sets in the last four weeks, against ${b.total} sets for the rest of the body.`,
+      text: `No leg sets in the last four weeks, against ${plural(b.total, 'set')} for the rest of the body.`,
       span: '4 weeks',
       strength: 20,
       from: b.from,

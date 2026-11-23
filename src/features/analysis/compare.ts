@@ -1,4 +1,4 @@
-import { formatVolume, formatWeight, type Unit } from '../../lib/format.ts';
+import { formatVolume, formatWeight, plural, type Unit } from '../../lib/format.ts';
 import { formatShortDate } from '../../lib/time.ts';
 import { findSession, median, previousSameName } from './history.ts';
 import type { ExerciseEntry, History, SessionEntry } from './types.ts';
@@ -62,7 +62,7 @@ export function sessionRecords(history: History, sessionId: string, unit: Unit):
         exerciseId: cur.exerciseId,
         name: cur.name,
         kind: 'reps_at_weight',
-        value: loaded ? `${formatWeight(cur.top, unit)} × ${cur.repsAtTop}` : `${cur.repsAtTop} reps`,
+        value: loaded ? `${formatWeight(cur.top, unit)} × ${cur.repsAtTop}` : plural(cur.repsAtTop, 'rep'),
         detail: `Most reps at this weight. Previous best ${repsBefore}, on ${formatShortDate(repsAt)}.`,
       });
       continue;

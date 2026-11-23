@@ -53,10 +53,13 @@ const PAIRS = [
   ['negative', 'bgBase', 4.5, 'regression deltas'],
   ['negative', 'bgRaised', 4.5, 'regressions inside cards'],
   ['negative', 'bgElevated', 4.5, 'destructive ActionSheet items'],
+  ['now', 'bgBase', 4.5, 'today label, "now" text'],
+  ['now', 'bgSunken', 4.5, 'today label in the sunken week cell'],
+  ['rest', 'restSoft', 4.5, 'rest strip under the workout header'],
+  ['textPrimary', 'restSoft', 4.5, 'rest clock on its strip'],
   // Non-text graphics: WCAG 1.4.11 asks 3:1.
-  ['focus', 'bgBase', 3, 'progress dots, chart point'],
-  ['focus', 'bgRaised', 3, 'chart point inside a card'],
-  ['focus', 'lineStrong', 3, 'workout progress bar fill on its track'],
+  ['now', 'bgRaised', 3, 'latest chart point'],
+  ['now', 'lineStrong', 3, 'workout progress bar fill on its track'],
   ['bgRaised', 'textSecondary', 3, 'settings switch on: thumb on track'],
   ['textTertiary', 'lineStrong', 3, 'settings switch off: thumb on track'],
 ];
@@ -74,7 +77,7 @@ for (const [theme, colours] of Object.entries(palettes)) {
 
 test('light: floating border visibly separates white surfaces (≥ 1.4:1)', () => {
   // bgElevated and bgRaised are both white in light; lineFloating is the only
-  // thing that lifts the pill nav and bars off the cards beneath them.
+  // thing that lifts the tab bar, bars and sheets off the surfaces beneath them.
   const { lineFloating, bgRaised, bgBase } = palettes.light;
   assert.ok(contrast(lineFloating, bgRaised) >= 1.4);
   assert.ok(contrast(lineFloating, bgBase) >= 1.4);

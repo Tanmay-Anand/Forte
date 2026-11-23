@@ -1,4 +1,4 @@
-import { formatWeight, type Unit } from '../../lib/format.ts';
+import { formatWeight, plural, type Unit } from '../../lib/format.ts';
 import type { History } from './types.ts';
 
 /**
@@ -32,7 +32,7 @@ export function nextTarget(
 
   if (top <= 0) {
     const best = Math.max(...done.map((s) => s.reps));
-    return { weightKg: 0, reps: best + 1, progress: 'reps', reason: `Best set last time was ${best} reps.` };
+    return { weightKg: 0, reps: best + 1, progress: 'reps', reason: `Best set last time was ${plural(best, 'rep')}.` };
   }
 
   const atTop = done.filter((s) => s.weightKg === top).map((s) => s.reps);
@@ -61,7 +61,7 @@ export function nextTarget(
 
 /** "65 kg × 8", or "12 reps" for unloaded bodyweight. */
 export function formatTarget(t: NextTarget, unit: Unit): string {
-  return t.weightKg > 0 ? `${formatWeight(t.weightKg, unit)} × ${t.reps}` : `${t.reps} reps`;
+  return t.weightKg > 0 ? `${formatWeight(t.weightKg, unit)} × ${t.reps}` : plural(t.reps, 'rep');
 }
 
 /**

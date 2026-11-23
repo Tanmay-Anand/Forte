@@ -18,7 +18,7 @@ import { autoBackupSupported, chooseBackupFolder, folderLabel, runAutoBackup } f
 import { formatClock, formatShortDate } from '@/lib/time';
 import { sendToPc, unpair } from '@/features/sync/engine';
 import { ensureNotificationPermission } from '@/features/workout/workout-notification';
-import type { Unit } from '@/lib/format';
+import { plural, type Unit } from '@/lib/format';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function SettingsScreen() {
               const result = importJson(raw);
               Alert.alert(
                 'Import complete',
-                `${result.sessions} sessions, ${result.sets} sets` +
+                `${plural(result.sessions, 'session')}, ${plural(result.sets, 'set')}` +
                   (result.reports
                     ? `, ${result.reports} blood reports. Report files aren't in backups; attach them again if you need them.`
                     : '.'),

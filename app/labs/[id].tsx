@@ -21,6 +21,7 @@ import {
 import { AddResultSheet } from '@/features/labs/AddResultSheet';
 import { BackLink } from '@/features/labs/BackLink';
 import { FlagChip } from '@/features/labs/FlagChip';
+import { RangeBar } from '@/features/labs/RangeBar';
 import { reportDate, resultRange, resultValue } from '@/features/labs/format';
 
 /**
@@ -123,10 +124,15 @@ export default function ReportScreen() {
                     {x.source === 'ai_confirmed' ? ' · read by AI, checked by you' : ''}
                   </Text>
                 </View>
-                {flag ? <FlagChip label={flag} /> : null}
-                <Text variant="num" color={flag ? 'textPrimary' : 'textSecondary'}>
-                  {resultValue(x)}
-                </Text>
+                <View style={{ alignItems: 'flex-end', gap: space.xs }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s }}>
+                    {flag ? <FlagChip label={flag} /> : null}
+                    <Text variant="num" color={flag ? 'textPrimary' : 'textSecondary'}>
+                      {resultValue(x)}
+                    </Text>
+                  </View>
+                  <RangeBar value={x.value} low={x.ref_low} high={x.ref_high} />
+                </View>
               </Pressable>
               <IconButton
                 label={`Delete ${x.marker}`}

@@ -80,3 +80,12 @@ export function formatDelta(current: number, previous: number): Delta {
 export function deltaIcon(direction: Delta['direction']): 'arrow-up' | 'arrow-down' | 'minus' {
   return direction === 'up' ? 'arrow-up' : direction === 'down' ? 'arrow-down' : 'minus';
 }
+
+/**
+ * A count with its noun in the right number: `plural(1, 'set')` → "1 set",
+ * `plural(4, 'set')` → "4 sets". Pass the plural for irregular nouns
+ * (`plural(2, 'entry', 'entries')`).
+ */
+export function plural(n: number, singular: string, pluralForm = `${singular}s`): string {
+  return `${n} ${n === 1 ? singular : pluralForm}`;
+}

@@ -10,6 +10,7 @@ import { useQuery } from '@/lib/db-hooks';
 import { getMarker, getMarkerSeries, resultFlag } from '@/db/queries/labs';
 import { BackLink } from '@/features/labs/BackLink';
 import { FlagChip } from '@/features/labs/FlagChip';
+import { RangeBar } from '@/features/labs/RangeBar';
 import { reportDate, resultRange, resultValue } from '@/features/labs/format';
 import { trimNumber } from '@/lib/format';
 import { formatShortDate } from '@/lib/time';
@@ -36,12 +37,17 @@ export default function MarkerScreen() {
       {latest ? (
         <>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.m, marginTop: space.s, flexWrap: 'wrap' }}>
-            <Text variant="displayL">{resultValue(latest)}</Text>
+            <Text variant="displayL" mono>
+              {resultValue(latest)}
+            </Text>
             {latestFlag ? <FlagChip label={latestFlag} /> : null}
           </View>
           <Text variant="caption" color="textTertiary">
             Latest · {reportDate(latest.taken_at)} · {resultRange(latest)}
           </Text>
+          <View style={{ marginTop: space.s }}>
+            <RangeBar value={latest.value} low={latest.ref_low} high={latest.ref_high} width={200} />
+          </View>
         </>
       ) : (
         <Text variant="body" color="textSecondary" style={{ marginTop: space.m }}>

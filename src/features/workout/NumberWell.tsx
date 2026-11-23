@@ -22,8 +22,8 @@ const WELL_HEIGHT = HIT * 2 + space.s + 2;
  * The steppers stand in a single column on the right rather than flanking the
  * value. Flanking cost 112 dp of width and left 40 dp for the number on a
  * 360 dp phone, so "102.5" shrank to 42% of displayL. A column costs 48 dp:
- * the value area is ~103 dp there, and "102.5" (95.5 dp in Urbanist Bold at
- * 44 pt) renders at full size. adjustsFontSizeToFit stays as the backstop for
+ * the value area is ~103 dp there. Geist Mono digits are 0.6 em each, so
+ * "102.5" fits at display size; adjustsFontSizeToFit stays as the backstop for
  * wider values such as "247.5".
  *
  * There used to be a third mode, vertical drag-to-scrub. It was removed: the
@@ -117,7 +117,7 @@ export function NumberWell({
           accessibilityLabel={`${accessibilityLabel}, ${trimNumber(value, decimals)} ${unit}. Tap to type a value.`}
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: '100%' }}
         >
-          <Text variant="displayL" numberOfLines={1} adjustsFontSizeToFit>
+          <Text variant="displayL" mono numberOfLines={1} adjustsFontSizeToFit>
             {trimNumber(value, decimals)}
           </Text>
         </Pressable>

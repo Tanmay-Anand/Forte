@@ -41,3 +41,12 @@ test('non-finite input degrades to zero rather than NaN on screen', () => {
   assert.equal(trimNumber(Number.NaN), '0');
   assert.equal(trimNumber(Number.POSITIVE_INFINITY), '0');
 });
+
+test('counts take the right number: "1 set", never "1 sets"', async () => {
+  const { plural } = await import('../src/lib/format.ts');
+  assert.equal(plural(1, 'set'), '1 set');
+  assert.equal(plural(0, 'set'), '0 sets');
+  assert.equal(plural(4, 'set'), '4 sets');
+  assert.equal(plural(1, 'entry', 'entries'), '1 entry');
+  assert.equal(plural(3, 'entry', 'entries'), '3 entries');
+});

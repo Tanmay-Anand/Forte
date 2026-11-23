@@ -114,8 +114,8 @@ export function ActionSheet({
               marginTop: space.s,
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: radius.pill,
-              backgroundColor: pressed ? c.bgSunken : c.bgRaised,
+              borderRadius: radius.button,
+              backgroundColor: pressed ? c.bgSunken : 'transparent', borderWidth: 1, borderColor: c.lineStrong,
             })}
           >
             <Text variant="bodyStrong" color="textSecondary">

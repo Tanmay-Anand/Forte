@@ -99,7 +99,7 @@ export function NumericKeypad({
               marginTop: space.s,
             }}
           >
-            <Text variant="displayL">{display}</Text>
+            <Text variant="displayL" mono>{display}</Text>
             <Text variant="titleM" color="textTertiary" style={{ marginLeft: space.s }}>
               {unit}
             </Text>
@@ -126,7 +126,7 @@ export function NumericKeypad({
               {key === BACKSPACE ? (
                 <Icon name="delete" size={24} color="textPrimary" />
               ) : (
-                <Text variant="titleL">{key}</Text>
+                <Text variant="titleL" mono>{key}</Text>
               )}
             </Pressable>
           ))}

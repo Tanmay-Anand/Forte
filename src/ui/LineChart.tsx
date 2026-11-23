@@ -153,8 +153,8 @@ export function LineChart({
                   r={active ? 6 : 4}
                   // The most recent session is filled — it is the one the user
                   // is trying to beat next time.
-                  fill={active ? c.focus : c.bgBase}
-                  stroke={active ? c.focus : c.textPrimary}
+                  fill={active ? c.now : c.bgBase}
+                  stroke={active ? c.now : c.textPrimary}
                   strokeWidth={2}
                 />
               );

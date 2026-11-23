@@ -1,21 +1,28 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import Feather from '@expo/vector-icons/Feather';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/theme';
+import { useGutter } from '@/ui/primitives';
 import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import { getActiveSession, toRestState } from '@/db/queries/session';
 import { RestClock, WorkoutClock } from './RestPanel';
 
 /**
- * Persistent resume bar — DESIGN.md 4.
- * Docks above the tab bar whenever a workout is minimised, carrying the live
- * rest value so the timer is never lost by wandering into Progress mid-set.
+ * Resume bar — DESIGN.md 4. A strip docked on top of the tab bar whenever a
+ * workout is minimised, carrying the live clocks so the rest timer is never
+ * lost by wandering into Log mid-set.
+ *
+ * While resting the whole strip turns to the rest colour with its clock — the
+ * only form rest ever takes (a strip with a running clock, never a bare dot),
+ * because the rest blue sits close to the "now" lake blue in hue.
  */
 export function ResumeBar() {
   const router = useRouter();
   const { c } = useTheme();
+  const gutter = useGutter();
   const session = useQuery(() => getActiveSession(), []);
 
   if (!session) return null;
@@ -26,40 +33,42 @@ export function ResumeBar() {
     <Pressable
       onPress={() => router.push('/workout/active')}
       accessibilityRole="button"
-      accessibilityLabel={`Resume ${session.name} workout`}
+      accessibilityLabel={`Resume ${session.name} workout${resting ? ', resting' : ''}`}
       style={({ pressed }) => ({
-        height: 46,
+        minHeight: 48,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: space.l,
-        marginBottom: space.s,
-        borderRadius: radius.pill,
-        backgroundColor: pressed ? c.bgSunken : c.bgElevated,
-        borderWidth: 1,
-        borderColor: c.lineFloating,
+        paddingHorizontal: gutter,
+        borderTopWidth: 1,
+        borderColor: c.hairline,
+        backgroundColor: pressed ? c.bgSunken : resting ? c.restSoft : c.bgBase,
       })}
     >
-      <View
-        style={{
-          width: 7,
-          height: 7,
-          borderRadius: radius.pill,
-          backgroundColor: resting ? c.rest : c.focus,
-          marginRight: space.s,
-        }}
-      />
-      <Text variant="caption" color="textPrimary" numberOfLines={1} style={{ flex: 1, marginRight: space.s }}>
+      {resting ? null : (
+        <View
+          style={{
+            width: 7,
+            height: 7,
+            borderRadius: radius.pill,
+            backgroundColor: c.now,
+            marginRight: space.s,
+          }}
+        />
+      )}
+      <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1, marginRight: space.s }}>
         {session.name}
       </Text>
-      <WorkoutClock startedAt={session.started_at} />
       {resting ? (
         <>
-          <Text variant="caption" color="rest" style={{ marginLeft: space.m, marginRight: space.xs }}>
-            REST
+          <Text variant="bodyStrong" color="rest" style={{ marginRight: space.xs }}>
+            Rest
           </Text>
           <RestClock state={rest} variant="num" />
         </>
-      ) : null}
+      ) : (
+        <WorkoutClock startedAt={session.started_at} />
+      )}
+      <Feather name="chevron-up" size={18} color={c.textSecondary} style={{ marginLeft: space.s }} />
     </Pressable>
   );
 }

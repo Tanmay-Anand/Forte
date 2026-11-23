@@ -33,12 +33,13 @@ export function Button({
 }: Props) {
   const { c } = useTheme();
 
-  // A light fill with dark ink, rather than a saturated brand colour: the
-  // primary action is the brightest thing on screen, and that is the whole
-  // signal (DESIGN.md 3.2).
+  // Ink fill for the one thing to do, rather than a saturated brand colour:
+  // in light it is the darkest object on screen, in dark the brightest, and
+  // that contrast is the whole signal (DESIGN.md 3.2). Secondary is an outline,
+  // so it never competes with the primary for attention.
   const surface: Record<Variant, ViewStyle> = {
     primary: { backgroundColor: c.accent },
-    secondary: { backgroundColor: c.bgRaised },
+    secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: c.lineStrong },
     ghost: { backgroundColor: 'transparent' },
     rest: { backgroundColor: c.rest },
   };
@@ -65,7 +66,7 @@ export function Button({
           alignItems: 'center',
           justifyContent: 'center',
           paddingHorizontal: space.xl,
-          borderRadius: radius.pill,
+          borderRadius: radius.button,
           opacity: disabled ? 0.35 : pressed ? 0.82 : 1,
         },
         surface[variant],

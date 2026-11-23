@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { AppState, Platform, View } from 'react-native';
+import { AppState, Platform, View, useColorScheme } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import {
-  useFonts,
-  Urbanist_400Regular,
-  Urbanist_500Medium,
-  Urbanist_600SemiBold,
-  Urbanist_700Bold,
-} from '@expo-google-fonts/urbanist';
+  Geist_400Regular,
+  Geist_500Medium,
+  Geist_600SemiBold,
+  Geist_700Bold,
+} from '@expo-google-fonts/geist';
+import {
+  GeistMono_400Regular,
+  GeistMono_500Medium,
+  GeistMono_600SemiBold,
+  GeistMono_700Bold,
+} from '@expo-google-fonts/geist-mono';
 import { checkpoint, initDatabase } from '@/db/client';
 import { seedAll } from '@/db/seed';
 import { useSettings } from '@/store/settings';
@@ -23,22 +29,30 @@ import {
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { palette } from '@/ui/tokens';
 import { hideNavigationBar } from '@/ui/system-bars';
+import { ModalHost, useModals } from '@/ui/SystemModal';
 import { useSyncEngine } from '@/features/sync/engine';
 
-// Hold the native splash — the Forte wordmark on the dark ground — until the
-// database has migrated and Urbanist has loaded, so the first painted frame is
-// the finished UI rather than a flash of unstyled text.
+// Hold the native splash — the mountain-range mark on the theme's ground —
+// until the database has migrated and Geist has loaded, so the first painted
+// frame is the finished UI rather than a flash of unstyled text.
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const loadSettings = useSettings((s) => s.load);
 
+  // The splash follows the OS appearance, so the backstop below does too.
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+
   const [fontsReady] = useFonts({
-    Urbanist_400Regular,
-    Urbanist_500Medium,
-    Urbanist_600SemiBold,
-    Urbanist_700Bold,
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+    Geist_700Bold,
+    GeistMono_400Regular,
+    GeistMono_500Medium,
+    GeistMono_600SemiBold,
+    GeistMono_700Bold,
   });
 
   useEffect(() => {
@@ -66,10 +80,10 @@ export default function RootLayout() {
 
   // The native splash is still on screen at this point, so this view is only
   // ever a colour-matched backstop during the handover.
-  if (!booted) return <View style={{ flex: 1, backgroundColor: palette.dark.bgBase }} />;
+  if (!booted) return <View style={{ flex: 1, backgroundColor: palette[scheme].bgBase }} />;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: palette.dark.bgBase }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: palette[scheme].bgBase }}>
       <SafeAreaProvider>
         <ThemeProvider fontsReady={fontsReady}>
           <Chrome />
@@ -89,8 +103,8 @@ export default function RootLayout() {
  * this re-applies it on every return to the foreground, because some OEM
  * skins (MIUI/HyperOS among them) restore the bar after a trip to another app.
  *
- * While a modal sheet is open the bar is shown instead — a dialog opened over
- * a hidden bar renders blank (src/ui/system-bars.ts, SystemModal).
+ * Sheets are drawn inside the app's window (SystemModal), so they no longer
+ * need the bar shown.
  */
 function useImmersiveNavigationBar() {
   useEffect(() => {
@@ -129,41 +143,51 @@ function Chrome() {
   useImmersiveNavigationBar();
   useWorkoutNotification();
   useSyncEngine();
+  // While a sheet is open, the screen under it is hidden from screen readers,
+  // as a separate dialog window used to do.
+  const sheetOpen = useModals((s) => s.entries.some((e) => !e.closing));
   return (
     <>
       <StatusBar style={name === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: c.bgBase },
-          animation: 'fade',
-        }}
+      <View
+        style={{ flex: 1 }}
+        importantForAccessibility={sheetOpen ? 'no-hide-descendants' : 'auto'}
       >
-        <Stack.Screen name="(tabs)" />
-        {/*
-          Active Workout sits ABOVE the tab stack as a full-screen modal route.
-          This is the single most important navigational decision in the app:
-          there is no tab bar to wander into mid-set (DESIGN.md 4).
-        */}
-        <Stack.Screen
-          name="workout/active"
-          options={{ animation: slide('slide_from_bottom'), gestureEnabled: false }}
-        />
-        <Stack.Screen name="workout/summary" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="day/[day]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="session/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="settings" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="body/[kind]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="body/measurements" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="body/about" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/index" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/new" options={{ animation: slide('slide_from_bottom') }} />
-        <Stack.Screen name="labs/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/marker/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/read/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="claude/brief" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="pair" options={{ animation: slide('slide_from_right') }} />
-      </Stack>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: c.bgBase },
+            animation: 'fade',
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          {/*
+            Active Workout sits ABOVE the tab stack as a full-screen modal route.
+            This is the single most important navigational decision in the app:
+            there is no tab bar to wander into mid-set (DESIGN.md 4).
+          */}
+          <Stack.Screen
+            name="workout/active"
+            options={{ animation: slide('slide_from_bottom'), gestureEnabled: false }}
+          />
+          <Stack.Screen name="workout/summary" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="day/[day]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="session/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="lift/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="settings" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="body/[kind]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="body/measurements" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="body/about" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/index" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/new" options={{ animation: slide('slide_from_bottom') }} />
+          <Stack.Screen name="labs/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/marker/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/read/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="claude/brief" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="pair" options={{ animation: slide('slide_from_right') }} />
+        </Stack>
+      </View>
+      <ModalHost />
     </>
   );
 }

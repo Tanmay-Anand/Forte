@@ -122,15 +122,18 @@ Weights: 400 body, 500 labels and numerals, 600 titles and text actions, 700 dis
 
 ### 3.35 Identity
 
-The mark is a bordered dark square with an off-centre white disc and the **Forte.** wordmark set low-left — the same geometry the app itself uses: a quiet frame, one bright element, type doing the work.
+The mark is a shield of three mountain ridges, pale to deep, in the lake blues the app uses for "now" and for the body map. The source is `Resources/logo-mountain-range.png`; every image below is drawn from it by `node tools/bake-brand.mjs`, so the logo can change without redrawing anything by hand. Beside it, the wordmark **Forte** is set in Geist Bold, the app's own typeface.
 
 | Use | Asset | Notes |
 |---|---|---|
-| App icon | `assets/icon.png` | The mark, full bleed |
-| Android adaptive icon | `assets/adaptive-icon.png` | The mark inset to 62% on a transparent canvas, on `#1C1C1C`. Android crops ~⅓ of an adaptive foreground for its mask; at full bleed that slices straight through the wordmark, so the artwork is padded into the safe zone instead |
-| Launch screen | `assets/splash-dark.png` | The white **Forte.** wordmark on `bg/base`, 200 pt wide |
+| App icon | `assets/icon.png` | The mark on pale lake `#E9F5F8`, inside a 70% circle |
+| Android adaptive icon | `assets/adaptive-icon.png` on `#E9F5F8` | The mark fits a 62% circle, inside Android's 66% safe zone, so no mask (circle, squircle, rounded square) clips it |
+| Android 13+ themed icon | `assets/adaptive-icon-monochrome.png` | One colour, with the two ridge lines cut out so the three bands still read when the system tints it |
+| Launch screen | `assets/splash-light.png` on `#FCFCFB`, `assets/splash-dark.png` on `#111213` | Mark and wordmark, 200 pt wide; follows the OS appearance |
+| Notification | `ic_stat_forte` (`assets/notification/`, copied into the build by `plugins/with-notification-icon.js`) | White silhouette, 24 dp; without it Android shows a blank shape |
+| PC companion | `companion/web/favicon.png`, `companion/web/mark.png` | Browser tab and header |
 
-The launch screen is **dark in both OS appearance modes**, matching the app's dark-by-default rule rather than the system setting — a light flash before a dark app is worse than a consistent one. It is held on screen until the database has migrated and Urbanist has loaded, so the first painted frame is the finished UI rather than a flash of fallback type.
+The launch screen follows the OS appearance, like the app, so a light-mode user never gets a black flash on launch. It is held on screen until the database has migrated and the fonts have loaded, so the first painted frame is the finished UI rather than a flash of fallback type.
 
 ### 3.4 Spacing, shape, elevation
 
@@ -586,7 +589,7 @@ control now is.
   Refused once *performed* sets exist on that exercise: those sets belong to the old movement, and silently reattributing them would corrupt both exercises' histories. The user is told how many, and offered the honest alternative — remove them, or add the substitute as a second exercise so both are recorded. Skipped placeholders do not block the swap; they carry no data and are cleared with it.
 
   To change an exercise for *every* week instead, tap its name in Customize Day. The two scopes are deliberately in different places, because confusing them silently rewrites a routine.
-- **Add an exercise mid-workout** — header `⋯ → Add exercise`; opens the library sheet. It is appended to today's session only, and the app asks once, afterwards, in the completion summary: *"Add Cable Crossover to Monday's routine? Yes / Just today."*
+- **Add an exercise mid-workout** — `+ Add exercise` in the control row, or header `⋯ → Add exercise`; opens the library sheet. Several can be picked. On Done the app asks **where they go**: *"Where should Arnold Press go?"* with **Next** (right after the current exercise), **Second to last** (before the final one) and **Last** (after it), each named by its neighbours. Places that coincide merge, nothing is offered before the current exercise, and when there is only one place (on the last exercise, or in an empty workout) it is added there without asking. Several picks go together in the order chosen; Cancel adds nothing. The exercise on screen never changes. Added to today's session only, and the app asks once, afterwards, in the completion summary: *"Add Cable Crossover to Monday's routine? Yes / Just today."* Rules: `src/features/workout/placement.ts`; write: `insertExercisesIntoSession`.
 
 #### 5.4.4 Exercise completion
 

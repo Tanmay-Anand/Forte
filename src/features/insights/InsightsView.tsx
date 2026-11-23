@@ -21,7 +21,7 @@ import {
 } from '@/features/analysis';
 import { BodyFigures } from '@/features/body/BodyFigures';
 import { currentBriefOptions, shareTrainingBrief } from '@/features/claude/share';
-import { formatVolume, trimNumber } from '@/lib/format';
+import { formatVolume, plural, trimNumber } from '@/lib/format';
 import { relativeDays } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 
@@ -88,7 +88,7 @@ export function InsightsView({ onOpenExercise }: { onOpenExercise: (exerciseId: 
         PC with Forte Companion.
       </Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.s }}>
-        <ControlChip label="Ask AI about the last 8 weeks" icon="share" onPress={ask} />
+        <ControlChip label="Ask about the last 8 weeks" icon="share" onPress={ask} />
         <ControlChip
           label="What's shared"
           icon="eye"
@@ -179,7 +179,7 @@ function BalanceBars({ history, now }: { history: History; now: number }) {
           key={g.group}
           style={{ flexDirection: 'row', alignItems: 'center', minHeight: 32 }}
           accessible
-          accessibilityLabel={`${g.label}, ${g.sets} sets`}
+          accessibilityLabel={`${g.label}, ${plural(g.sets, 'set')}`}
         >
           <Text variant="caption" color="textSecondary" style={{ width: 84 }} numberOfLines={1}>
             {g.label}

@@ -30,6 +30,7 @@ import {
 } from '../src/features/analysis/index.ts';
 import { MALE } from '../src/data/body/male.ts';
 import { FEMALE } from '../src/data/body/female.ts';
+import { EXERCISE_SEED } from '../src/data/exercises.seed.ts';
 
 const DAY = 86_400_000;
 const T0 = Date.parse('2026-09-07T18:00:00Z'); // a Monday
@@ -438,6 +439,34 @@ test('exercise names map to the muscles they train, specific names first', () =>
   assert.deepEqual(musclesFor('Barbell Upright Row', 'shoulders').primary, ['side_delts', 'traps']);
   assert.deepEqual(musclesFor('Incline Dumbbell Curl', 'arms').primary, ['biceps']);
   assert.deepEqual(musclesFor('Lying Leg Curl', 'legs').primary, ['hamstrings']);
+});
+
+test('the corrected mappings (review of 22 Nov 2026)', () => {
+  const w = (name, group) => musclesFor(name, group);
+  // Push-up angles run opposite to bench angles.
+  assert.deepEqual(w('Incline Push-up', 'chest'), { primary: ['chest'], secondary: ['triceps', 'front_delts'] });
+  assert.deepEqual(w('Decline Push-up', 'chest'), { primary: ['chest', 'front_delts'], secondary: ['triceps'] });
+  // The clean half counts: hips, legs and traps, not only shoulders.
+  assert.deepEqual(w('Clean and Press', 'full').primary, ['glutes', 'hamstrings', 'front_delts', 'traps']);
+  assert.ok(w('Clean and Press', 'full').secondary.includes('quads'));
+  // Free-weight pullover is chest-led; the machine one stays a lat exercise.
+  assert.deepEqual(w('Dumbbell Pullover', 'chest'), { primary: ['chest'], secondary: ['lats'] });
+  assert.deepEqual(w('Machine Pullover', 'back').primary, ['lats']);
+  // Deadlift from the floor credits quads as a helper; a rack pull doesn't.
+  assert.ok(w('Deadlift', 'back').secondary.includes('quads'));
+  assert.ok(!w('Rack Pull', 'back').secondary.includes('quads'));
+  // Reverse curl helps the biceps; wrist curls stay forearms only.
+  assert.deepEqual(w('Reverse Curl', 'arms'), { primary: ['forearms'], secondary: ['biceps'] });
+  assert.deepEqual(w('Reverse Wrist Curl', 'arms'), { primary: ['forearms'] });
+  // Decline presses have a rule of their own instead of the group fallback.
+  assert.deepEqual(w('Decline Barbell Press', 'none'), { primary: ['chest'], secondary: ['triceps'] });
+  assert.deepEqual(w('Decline Dumbbell Press', 'none'), { primary: ['chest'], secondary: ['triceps'] });
+});
+
+test('every seeded exercise is matched by a named rule, not the group fallback', () => {
+  // An unknown group makes the fallback return nothing, so a gap shows up here.
+  const unmatched = EXERCISE_SEED.map(([name]) => name).filter((name) => musclesFor(name, 'none').primary.length === 0);
+  assert.deepEqual(unmatched, []);
 });
 
 test('an unknown custom exercise falls back to its library group', () => {

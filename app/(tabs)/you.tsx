@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import Feather from '@expo/vector-icons/Feather';
 import { Text } from '@/ui/Text';
 import { Icon } from '@/ui/Icon';
 import { Button } from '@/ui/Button';
 import { LineChart } from '@/ui/LineChart';
 import { NavRow } from '@/ui/NavRow';
-import { Divider, IconButton, Screen, SectionLabel, Spacer } from '@/ui/primitives';
-import { useTheme } from '@/ui/theme';
+import { Divider, Screen, SectionLabel, Spacer } from '@/ui/primitives';
 import { space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import {
@@ -35,17 +33,28 @@ import { formatShortDate } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 
 /**
- * Profile — body and health records, kept on this phone.
+ * You — body and health records kept on this phone, plus the PC companion and
+ * Settings as plain rows (they used to hide behind a gear icon).
  *
  * Every reading is a dated row; nothing is overwritten, so each one has a
- * history. Settings lives here now (the gear), where Today's header used to
- * carry it.
+ * history.
  */
-export default function ProfileScreen() {
+export default function YouScreen() {
   const router = useRouter();
-  const { c } = useTheme();
   const unit = useSettings((s) => s.unit);
   const [logging, setLogging] = useState(false);
+
+  const pcSync = useSettings((s) => s.pcSync);
+  const pcLastSentAt = useSettings((s) => s.pcLastSentAt);
+  const pcLastError = useSettings((s) => s.pcLastError);
+  const paired = pcSync !== null;
+  const pcLine = !pcSync
+    ? 'Pair your PC to review training on a bigger screen'
+    : pcLastError
+      ? `${pcSync.name} · not sent: ${pcLastError}`
+      : pcLastSentAt
+        ? `${pcSync.name} · sent ${formatShortDate(pcLastSentAt)}`
+        : `${pcSync.name} · nothing sent yet`;
 
   const profile = useQuery(() => getProfile(), []);
   const latest = useQuery(() => getLatestMeasurements(), []);
@@ -76,22 +85,11 @@ export default function ProfileScreen() {
     );
 
   return (
-    <Screen navClearance>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: space.l,
-        }}
-      >
-        <Text variant="titleM">Profile</Text>
-        <IconButton label="Settings" onPress={() => router.push('/settings')}>
-          <Feather name="settings" size={18} color={c.textTertiary} />
-        </IconButton>
-      </View>
+    <Screen>
+      <Spacer h={space.l} />
+      <Text variant="displayM">You</Text>
 
-      <Text variant="label" color="textSecondary" style={{ marginTop: space.s }}>
+      <Text variant="label" color="textTertiary" style={{ marginTop: space.l }}>
         Weight{weight ? ` · ${formatShortDate(weight.measured_at)}` : ''}
       </Text>
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap', columnGap: space.m }}>
@@ -181,6 +179,15 @@ export default function ProfileScreen() {
         value={profile.date_of_birth ? 'Edit' : 'Add'}
         onPress={() => router.push('/body/about')}
       />
+
+      <Spacer h={space.xl} />
+      <SectionLabel>App</SectionLabel>
+      <NavRow
+        label="PC companion"
+        sub={pcLine}
+        onPress={() => router.push(paired ? '/settings' : '/pair')}
+      />
+      <NavRow label="Settings" sub="Units, appearance, workout, AI analysis, backup" onPress={() => router.push('/settings')} />
 
       <Spacer h={space.xl} />
       <Divider />

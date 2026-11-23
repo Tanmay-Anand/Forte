@@ -69,7 +69,10 @@ const RULES: [RegExp, Work][] = [
   [/pull-?through/, { primary: ['glutes', 'hamstrings'] }],
   [/romanian|stiff-?leg|good morning/, { primary: ['hamstrings'], secondary: ['glutes', 'lower_back'] }],
   [/sumo deadlift/, { primary: ['glutes', 'quads', 'hamstrings'], secondary: ['adductors', 'lower_back', 'traps'] }],
-  [/deadlift|rack pull/, { primary: ['hamstrings', 'glutes', 'lower_back'], secondary: ['traps', 'upper_back', 'forearms'] }],
+  // A rack pull starts above the knee, so the quads barely work; a deadlift
+  // from the floor needs them to break the bar off the ground.
+  [/rack pull/, { primary: ['hamstrings', 'glutes', 'lower_back'], secondary: ['traps', 'upper_back', 'forearms'] }],
+  [/deadlift/, { primary: ['hamstrings', 'glutes', 'lower_back'], secondary: ['quads', 'traps', 'upper_back', 'forearms'] }],
   [/thruster/, { primary: ['quads', 'glutes', 'front_delts'], secondary: ['triceps', 'side_delts'] }],
   [/squat|leg press|lunge|step-?up/, { primary: ['quads', 'glutes'], secondary: ['hamstrings', 'adductors'] }],
   [/back extension|hyperextension/, { primary: ['lower_back'], secondary: ['glutes', 'hamstrings'] }],
@@ -80,10 +83,15 @@ const RULES: [RegExp, Work][] = [
   [/face pull|rear delt|reverse pec deck|reverse fly/, { primary: ['rear_delts'], secondary: ['upper_back', 'traps'] }],
   [/lateral raise/, { primary: ['side_delts'] }],
   [/front raise/, { primary: ['front_delts'] }],
-  [/clean and press|overhead press|push press|shoulder press|military|arnold|pike push|behind-the-neck|(seated|standing) dumbbell press/,
+  // Before the presses: the clean half is a hip-and-leg lift, not a shoulder one.
+  [/clean and (press|jerk)/,
+    { primary: ['glutes', 'hamstrings', 'front_delts', 'traps'], secondary: ['quads', 'side_delts', 'triceps', 'upper_back'] }],
+  [/overhead press|push press|shoulder press|military|arnold|pike push|behind-the-neck|(seated|standing) dumbbell press/,
     { primary: ['front_delts', 'side_delts'], secondary: ['triceps', 'traps'] }],
 
   // Back.
+  // The free-weight pullover is mainly a chest exercise; the machine one is a lat exercise.
+  [/dumbbell pullover/, { primary: ['chest'], secondary: ['lats'] }],
   [/pullover/, { primary: ['lats'], secondary: ['chest'] }],
   [/straight-?arm/, { primary: ['lats'] }],
   [/chin-?up/, { primary: ['lats', 'biceps'], secondary: ['upper_back'] }],
@@ -93,7 +101,8 @@ const RULES: [RegExp, Work][] = [
   // Arms.
   [/close-?grip bench|diamond push|tricep dip|bench dip/, { primary: ['triceps'], secondary: ['chest', 'front_delts'] }],
   [/skull ?crusher|tricep|pushdown|overhead (cable )?extension|french press/, { primary: ['triceps'] }],
-  [/wrist curl|reverse curl/, { primary: ['forearms'] }],
+  [/wrist curl/, { primary: ['forearms'] }],
+  [/reverse curl/, { primary: ['forearms'], secondary: ['biceps'] }],
   [/farmer/, { primary: ['forearms', 'traps'] }],
   [/hammer curl/, { primary: ['biceps', 'forearms'] }],
   [/curl/, { primary: ['biceps'], secondary: ['forearms'] }],
@@ -101,7 +110,13 @@ const RULES: [RegExp, Work][] = [
   // Chest.
   [/chest dip|^dip/, { primary: ['chest'], secondary: ['triceps', 'front_delts'] }],
   [/fly|crossover|pec deck/, { primary: ['chest'], secondary: ['front_delts'] }],
+  // Push-up angles run opposite to bench angles: hands raised (incline) is the
+  // easier, lower-chest version; feet raised (decline) loads the upper chest
+  // and front delts, like an incline press.
+  [/incline push-?up/, { primary: ['chest'], secondary: ['triceps', 'front_delts'] }],
+  [/decline push-?up/, { primary: ['chest', 'front_delts'], secondary: ['triceps'] }],
   [/incline.*(press|push)/, { primary: ['chest', 'front_delts'], secondary: ['triceps'] }],
+  [/decline.*(press|bench)/, { primary: ['chest'], secondary: ['triceps'] }],
   [/bench|chest press|floor press|push-?up/, { primary: ['chest'], secondary: ['triceps', 'front_delts'] }],
 
   // Core.

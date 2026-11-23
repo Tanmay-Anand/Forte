@@ -4,7 +4,7 @@ import * as Updates from 'expo-updates';
 import Feather from '@expo/vector-icons/Feather';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/theme';
-import { ControlChip } from '@/ui/primitives';
+import { ControlChip, useGutter } from '@/ui/primitives';
 import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import { getActiveSession } from '@/db/queries/session';
@@ -26,6 +26,7 @@ let lastCheckAt = Date.now(); // the native ON_LOAD check has just run
  */
 export function UpdateBar() {
   const { c } = useTheme();
+  const gutter = useGutter();
   const { isUpdatePending } = Updates.useUpdates();
   const [dismissed, setDismissed] = useState(false);
   // Never offer a restart mid-workout. The session would survive it (it lives
@@ -47,15 +48,13 @@ export function UpdateBar() {
   return (
     <View
       style={{
-        height: 46,
+        minHeight: 48,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingLeft: space.l,
-        marginBottom: space.s,
-        borderRadius: radius.pill,
-        backgroundColor: c.bgElevated,
-        borderWidth: 1,
-        borderColor: c.lineFloating,
+        paddingLeft: gutter,
+        borderTopWidth: 1,
+        borderColor: c.hairline,
+        backgroundColor: c.bgSunken,
       }}
     >
       <View
