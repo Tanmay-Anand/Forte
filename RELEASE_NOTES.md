@@ -5,6 +5,48 @@ A personal, offline-first health and training app for Android.
 
 ---
 
+## v1.3.0
+
+**This is a new APK, not an over-the-air update.** The new icon, splash screen and notification
+icon are native resources, so they can't arrive over the air. Install it from GitHub Releases
+through Obtainium; your data and pairing are kept.
+
+The **Logbook** redesign: Forte now looks like a training notebook. Rules and tables instead of
+cards and pills, light first, and every number set in a monospaced face so columns line up.
+
+**New**
+
+- **Four labelled tabs: Today, Plan, Log, You.** Log brings Progress and History together as
+  Sessions, Lifts and Muscles. Old links to the previous tabs still open the right place.
+- **Lift detail.** Tap a lift in Log for its chart, best weight and reps, and a table
+  of every session it was in.
+- **Today shows the week** as a strip of days, with each exercise's target beside what you did
+  last time.
+- **Choose where an exercise added mid-workout goes:** Next, Second to last or Last, each named by
+  its neighbours. A single possible place adds it without asking.
+- **A new logo:** a mountain range, on the icon (including Android's monochrome themed icon), the
+  splash screen, the workout notification and the PC companion's tab.
+
+**Changed**
+
+- Type is Geist, with Geist Mono for numbers; labels are sentence case.
+- The light theme is the default under *System*; a lake blue marks what's happening now.
+- Sheets (menus, the keypad, the exercise picker, blood results) are drawn inside the app instead
+  of as separate windows. They open instantly and the navigation bar stays hidden.
+- A drop in "Last time" now reads `40 × 5 then 25 × 8`; the arrow was smaller than the numbers.
+
+**Fixed**
+
+- Sheets sometimes drew nothing, or a collapsed sliver, while still blocking every tap until Back
+  was pressed. Most often seen with **Add exercise** during a workout and the workout's ⋯ menu.
+- Counts read "1 sets", "1 sessions" and similar. One of anything is now singular everywhere.
+- Pairing with a new PC said "Update PC address" while the first backup was being sent.
+- Seven library exercises credited the wrong muscles: incline and decline push-ups were swapped,
+  Clean and Press now counts the clean, Dumbbell Pullover is chest-led, and Deadlift and Reverse
+  Curl gain a helper muscle each.
+
+---
+
 ## v1.2.0
 
 **This is a new APK, not an over-the-air update.** Wi-Fi sync adds one native module
