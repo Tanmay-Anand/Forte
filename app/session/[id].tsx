@@ -22,7 +22,7 @@ import { sessionBrief, sessionRecords } from '@/features/analysis';
 import { EffortPicker } from '@/features/summary/EffortPicker';
 import { RecordsList } from '@/features/summary/SessionReview';
 import { currentBriefOptions, shareTrainingBrief } from '@/features/claude/share';
-import { formatVolume, formatWeight } from '@/lib/format';
+import { formatVolume, formatWeight, plural } from '@/lib/format';
 import { formatClock, formatDuration, formatLongDate, formatMinutes } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 
@@ -105,8 +105,8 @@ export default function SessionDetailScreen() {
 
       <Spacer h={space.l} />
       <Text variant="num" color="textSecondary">
-        {formatMinutes(summary.duration_ms)} · {summary.exercise_count} exercises ·{' '}
-        {summary.set_count} sets
+        {formatMinutes(summary.duration_ms)} · {plural(summary.exercise_count, 'exercise')} ·{' '}
+        {plural(summary.set_count, 'set')}
       </Text>
       <Text variant="num" color="textSecondary">
         {formatVolume(summary.volume, unit)} total volume

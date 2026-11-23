@@ -8,7 +8,7 @@ import { useTheme } from '@/ui/theme';
 import { space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import { getHistory, getWorkoutNames, type SessionSummary } from '@/db/queries/history';
-import { formatVolume } from '@/lib/format';
+import { formatVolume, plural } from '@/lib/format';
 import { formatMinutes, monthName } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 
@@ -92,7 +92,7 @@ export function SessionsView() {
                     {s.name}
                   </Text>
                   <Text variant="num" color="textSecondary" style={{ marginTop: 2 }}>
-                    {formatMinutes(s.duration_ms)} · {s.set_count} sets · {formatVolume(s.volume, unit)}
+                    {formatMinutes(s.duration_ms)} · {plural(s.set_count, 'set')} · {formatVolume(s.volume, unit)}
                   </Text>
                   {s.note ? (
                     <Text variant="caption" color="textSecondary" numberOfLines={2} style={{ marginTop: space.xs }}>

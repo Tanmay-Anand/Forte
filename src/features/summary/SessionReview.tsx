@@ -13,7 +13,7 @@ import {
   type SessionComparison,
   type SessionRecord,
 } from '@/features/analysis';
-import { formatVolume, formatWeight, toDisplayWeight, type Unit } from '@/lib/format';
+import { formatVolume, formatWeight, plural, toDisplayWeight, type Unit } from '@/lib/format';
 import { formatDuration, formatShortDate } from '@/lib/time';
 
 /**
@@ -82,7 +82,7 @@ export function ComparisonRows({
           : x.change === 'same'
             ? cur.top > 0
               ? `${formatWeight(cur.top, unit)} × ${cur.repsAtTop}`
-              : `${cur.repsAtTop} reps`
+              : plural(cur.repsAtTop, 'rep')
             : `${prev.totalReps} → ${cur.totalReps} reps`;
         const diff = byWeight ? cur.top - prev.top : cur.totalReps - prev.totalReps;
         const up = diff > 0;

@@ -13,7 +13,7 @@ import { getActiveSession, getPreviousPerformance, startSession } from '@/db/que
 import { getHistory, getTodayCompletedSession } from '@/db/queries/history';
 import { dayName, formatShortDate, todayDayOfWeek } from '@/lib/time';
 import { formatMinutes } from '@/lib/time';
-import { formatVolume, formatWeight, toDisplayWeight, trimNumber } from '@/lib/format';
+import { formatVolume, formatWeight, plural, toDisplayWeight, trimNumber } from '@/lib/format';
 import { loadHistory } from '@/db/queries/analysis';
 import { formatTarget, insights, workoutTargets } from '@/features/analysis';
 import { useSettings } from '@/store/settings';
@@ -98,7 +98,7 @@ export default function TodayScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: space.l }}>
               <Icon name="check" size={16} color="positive" />
               <Text variant="bodyStrong" color="positive" style={{ marginLeft: space.s }}>
-                Done today · {formatMinutes(completedToday.duration_ms)} · {completedToday.set_count} sets
+                Done today · {formatMinutes(completedToday.duration_ms)} · {plural(completedToday.set_count, 'set')}
               </Text>
             </View>
           ) : null}

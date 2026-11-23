@@ -16,7 +16,7 @@ import { space, WORKOUT_ACTION_HEIGHT } from '@/ui/tokens';
 
 import { useQuery } from '@/lib/db-hooks';
 import { useSettings } from '@/store/settings';
-import { fromDisplayWeight, toDisplayWeight, formatWeight, type Unit } from '@/lib/format';
+import { fromDisplayWeight, toDisplayWeight, formatWeight, plural, type Unit } from '@/lib/format';
 import { formatDuration, formatShortDate } from '@/lib/time';
 
 import {
@@ -429,7 +429,7 @@ export default function ActiveWorkoutScreen() {
         */}
         <View style={{ marginTop: space.xs }}>
           <Text variant="caption" color="textTertiary">
-            {doneCount} of {exercises.length} exercises
+            {doneCount} of {plural(exercises.length, 'exercise')}
           </Text>
           <View
             accessibilityRole="progressbar"

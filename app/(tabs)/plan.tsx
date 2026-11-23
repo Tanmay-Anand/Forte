@@ -8,6 +8,7 @@ import { useTheme } from '@/ui/theme';
 import { space } from '@/ui/tokens';
 import { useBreakpoint } from '@/ui/primitives';
 import { useQuery } from '@/lib/db-hooks';
+import { plural } from '@/lib/format';
 import { getWeek, type RoutineDaySummary } from '@/db/queries/routine';
 import { dayName, dayShort, todayDayOfWeek } from '@/lib/time';
 
@@ -86,7 +87,7 @@ function DayRow({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${dayName(day.day_of_week)}${isToday ? ', today' : ''}: ${title}${
-        day.state === 'workout' ? `, ${day.exercise_count} exercises` : ''
+        day.state === 'workout' ? `, ${plural(day.exercise_count, 'exercise')}` : ''
       }`}
       style={({ pressed }) => ({
         flexDirection: 'row',

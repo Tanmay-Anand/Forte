@@ -8,7 +8,7 @@ import { useTheme } from '@/ui/theme';
 import { space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
 import { getProgressSeries, getTrackedExercises } from '@/db/queries/progress';
-import { formatWeight, toDisplayWeight, trimNumber } from '@/lib/format';
+import { formatWeight, plural, toDisplayWeight, trimNumber } from '@/lib/format';
 import { relativeDays } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 import { Sparkline } from './Sparkline';
@@ -83,7 +83,7 @@ export function LiftsView() {
                   {l.name}
                 </Text>
                 <Text variant="caption" color="textTertiary">
-                  {change === 0 && l.sessions > 2 ? `Same for ${l.sessions}` : `${l.sessions} sessions`} ·{' '}
+                  {change === 0 && l.sessions > 2 ? `Same for ${l.sessions}` : plural(l.sessions, 'session')} ·{' '}
                   {relativeDays(l.last_at)}
                 </Text>
               </View>

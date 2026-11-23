@@ -10,6 +10,7 @@ import { UndoStrip, useUndo } from '@/ui/UndoStrip';
 import { useTheme } from '@/ui/theme';
 import { radius, space } from '@/ui/tokens';
 import { useQuery } from '@/lib/db-hooks';
+import { plural } from '@/lib/format';
 import {
   addExerciseToDay,
   getDay,
@@ -76,7 +77,7 @@ export default function CustomizeDayScreen() {
     }
     Alert.alert(
       'Make this a rest day?',
-      `This clears the ${exercises.length} exercises planned for ${dayName(dow)}. Past workouts are not affected.`,
+      `This clears the ${plural(exercises.length, 'exercise')} planned for ${dayName(dow)}. Past workouts are not affected.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {

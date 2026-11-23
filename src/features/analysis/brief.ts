@@ -1,4 +1,4 @@
-import { formatVolume, formatWeight, trimNumber, type Unit } from '../../lib/format.ts';
+import { formatVolume, formatWeight, plural, trimNumber, type Unit } from '../../lib/format.ts';
 import { formatDuration, formatMinutes, formatShortDate } from '../../lib/time.ts';
 import { sessionBaseline } from './compare.ts';
 import { exerciseFindings, rollingWeeks, weeklyVolume } from './findings.ts';
@@ -65,7 +65,7 @@ function setLine(sets: PerformedSet[], unit: Unit): string {
 function sessionHeader(s: SessionEntry, unit: Unit, includeNotes: boolean): string[] {
   const effort = effortLabel(s.effort);
   const lines = [
-    `${s.name}, ${formatShortDate(s.startedAt)}: ${formatMinutes(s.durationMs)}, ${s.setCount} sets, volume ${formatVolume(s.volume, unit)}${effort ? `, effort ${s.effort}/5 (${effort})` : ''}.`,
+    `${s.name}, ${formatShortDate(s.startedAt)}: ${formatMinutes(s.durationMs)}, ${plural(s.setCount, 'set')}, volume ${formatVolume(s.volume, unit)}${effort ? `, effort ${s.effort}/5 (${effort})` : ''}.`,
   ];
   if (includeNotes && s.note) lines.push(`Note: "${s.note}"`);
   return lines;
@@ -156,7 +156,7 @@ export function periodBrief(history: History, end: number, options: BriefOptions
     '',
     'ROLLING WEEKLY VOLUME, oldest first',
     ...rollingWeeks(history, end, Math.round(days / 7)).map(
-      (w) => `- 7 days to ${formatShortDate(w.end)}: ${w.sessions} sessions, ${formatVolume(w.volume, unit)}`,
+      (w) => `- 7 days to ${formatShortDate(w.end)}: ${plural(w.sessions, 'session')}, ${formatVolume(w.volume, unit)}`,
     ),
   ];
   const weekly = weeklyVolume(history, end);
