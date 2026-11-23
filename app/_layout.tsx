@@ -29,6 +29,7 @@ import {
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { palette } from '@/ui/tokens';
 import { hideNavigationBar } from '@/ui/system-bars';
+import { ModalHost, useModals } from '@/ui/SystemModal';
 import { useSyncEngine } from '@/features/sync/engine';
 
 // Hold the native splash — the mountain-range mark on the theme's ground —
@@ -102,8 +103,8 @@ export default function RootLayout() {
  * this re-applies it on every return to the foreground, because some OEM
  * skins (MIUI/HyperOS among them) restore the bar after a trip to another app.
  *
- * While a modal sheet is open the bar is shown instead — a dialog opened over
- * a hidden bar renders blank (src/ui/system-bars.ts, SystemModal).
+ * Sheets are drawn inside the app's window (SystemModal), so they no longer
+ * need the bar shown.
  */
 function useImmersiveNavigationBar() {
   useEffect(() => {
@@ -142,42 +143,51 @@ function Chrome() {
   useImmersiveNavigationBar();
   useWorkoutNotification();
   useSyncEngine();
+  // While a sheet is open, the screen under it is hidden from screen readers,
+  // as a separate dialog window used to do.
+  const sheetOpen = useModals((s) => s.entries.some((e) => !e.closing));
   return (
     <>
       <StatusBar style={name === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: c.bgBase },
-          animation: 'fade',
-        }}
+      <View
+        style={{ flex: 1 }}
+        importantForAccessibility={sheetOpen ? 'no-hide-descendants' : 'auto'}
       >
-        <Stack.Screen name="(tabs)" />
-        {/*
-          Active Workout sits ABOVE the tab stack as a full-screen modal route.
-          This is the single most important navigational decision in the app:
-          there is no tab bar to wander into mid-set (DESIGN.md 4).
-        */}
-        <Stack.Screen
-          name="workout/active"
-          options={{ animation: slide('slide_from_bottom'), gestureEnabled: false }}
-        />
-        <Stack.Screen name="workout/summary" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="day/[day]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="session/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="lift/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="settings" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="body/[kind]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="body/measurements" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="body/about" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/index" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/new" options={{ animation: slide('slide_from_bottom') }} />
-        <Stack.Screen name="labs/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/marker/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="labs/read/[id]" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="claude/brief" options={{ animation: slide('slide_from_right') }} />
-        <Stack.Screen name="pair" options={{ animation: slide('slide_from_right') }} />
-      </Stack>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: c.bgBase },
+            animation: 'fade',
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          {/*
+            Active Workout sits ABOVE the tab stack as a full-screen modal route.
+            This is the single most important navigational decision in the app:
+            there is no tab bar to wander into mid-set (DESIGN.md 4).
+          */}
+          <Stack.Screen
+            name="workout/active"
+            options={{ animation: slide('slide_from_bottom'), gestureEnabled: false }}
+          />
+          <Stack.Screen name="workout/summary" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="day/[day]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="session/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="lift/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="settings" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="body/[kind]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="body/measurements" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="body/about" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/index" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/new" options={{ animation: slide('slide_from_bottom') }} />
+          <Stack.Screen name="labs/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/marker/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="labs/read/[id]" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="claude/brief" options={{ animation: slide('slide_from_right') }} />
+          <Stack.Screen name="pair" options={{ animation: slide('slide_from_right') }} />
+        </Stack>
+      </View>
+      <ModalHost />
     </>
   );
 }
