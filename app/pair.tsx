@@ -39,7 +39,9 @@ export default function PairScreen() {
   const candidate = fromPaste ?? fromLink;
   const pairing = candidate && !('error' in candidate) ? candidate : null;
   const error = candidate && 'error' in candidate ? candidate.error : null;
-  const samePc = result !== undefined ? updating : Boolean(pairing && current?.id === pairing.id);
+  // While sending, and after, keep the title the user started with: the new pairing
+  // is already `current` by then, which would otherwise read as "Update".
+  const samePc = busy || result !== undefined ? updating : Boolean(pairing && current?.id === pairing.id);
 
   const leave = () => (router.canGoBack() ? router.back() : router.replace('/'));
 

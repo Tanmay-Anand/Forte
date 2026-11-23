@@ -271,9 +271,10 @@ export function PreviousLine({
 }) {
   if (sets.length === 0) return null;
   const one = (s: SetRow) => `${formatWeight(s.weight_kg, unit, false)} × ${s.reps}`;
-  // A drop follows its set with an arrow: "40 × 5 ↘ 25 × 8".
+  // A drop follows its set in words, "40 × 5 then 25 × 8": an arrow glyph sits
+  // visibly smaller than the digits around it in Geist.
   const text = sets
-    .map((s) => [s, ...drops.filter((d) => d.set_number === s.set_number)].map(one).join(' ↘ '))
+    .map((s) => [s, ...drops.filter((d) => d.set_number === s.set_number)].map(one).join(' then '))
     .join('    ');
   return (
     <View style={{ marginBottom: space.l }}>
